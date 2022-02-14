@@ -9,6 +9,5 @@ public class YotoApplication {
     public static void main(String[] args) {
         SpringApplication.run(YotoApplication.class, args);
 
-
     }
 }
