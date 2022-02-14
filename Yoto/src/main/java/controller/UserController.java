@@ -1,48 +1,89 @@
 package controller;
 
 
-import model.User;
-import model.UserRepository;
+import model.user.User;
+import model.user.UserRegisterDTO;
+import model.user.UserResponseDTO;
+import model.user.UserService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/users")
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
+    @Autowired
+    private ModelMapper modelMapper;
 
-    @PostMapping
+    @PostMapping("/users/register")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public User register(@RequestBody User user) {
-        userRepository.save(user);
-        return user;
+    public ResponseEntity<UserResponseDTO> register(@RequestBody UserRegisterDTO userDTO) {
+        String firstName = userDTO.getFirstName();
+        String lastName = userDTO.getLastName();
+        String password = userDTO.getPassword();
+        String confirmPassword = userDTO.getConfirmPassword();
+        String email = userDTO.getEmail();
+        String phoneNumber = userDTO.getPhoneNumber();
+        LocalDate dateOfBirth = userDTO.getDateOfBirth();
+        String aboutMe = userDTO.getAboutMe();
+        char gender = userDTO.getGender();
+        String profilePictureURL = userDTO.getProfileImageUrl();
+        String backgroundPictureURL = userDTO.getBackgroundImageUrl();
+        User user = userService.register(firstName, lastName, password, confirmPassword, email, phoneNumber, dateOfBirth, aboutMe, gender, profilePictureURL, backgroundPictureURL);
+        UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
+        return ResponseEntity.status(201).body(dto);
     }
 
-    @GetMapping("/{id:[\\d]+}")
-    public User getById(@PathVariable int id) {
-        return userRepository.findById(id).orElseThrow();
+    @PostMapping("/users/log_in")
+    public UserResponseDTO logIn(@RequestBody User user, HttpSession session, HttpServletRequest request) {
+        String email = user.getEmail();
+        String password = user.getPassword();
+        User u = userService.login(email, password);
+        session.setAttribute(UserService.LOGGED, true);
+        session.setAttribute(UserService.LOGGED_FROM, request.getRemoteAddr());
+        UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
+        return dto;
     }
 
-    @DeleteMapping
-    public User delete(int id) {
-        Optional<User> opt = userRepository.findById(id);
-        if (!opt.isPresent()) {
-            throw new NoSuchElementException("No user found with id " + id);
-        }
-        User user = opt.get();
-        userRepository.deleteById(id);
-        return user;
+    @GetMapping("/users/{id:[\\d]+}")
+    public UserResponseDTO getById(@PathVariable int id) {
+        User user = userService.getById(id);
+        UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
+        return dto;
     }
 
-    @GetMapping
-    public List<User> getAll() {
-        return userRepository.findAll();
+    @PutMapping
+    public UserResponseDTO editUser(@RequestBody User user, HttpSession session,HttpServletRequest request){
+        userService.validateLogin(session, request);
+        User u = userService.edit(user);
+        UserResponseDTO userDTO = modelMapper.map(u,UserResponseDTO.class);
+        return userDTO;
+    }
+
+    //todo ask Krasi about session
+    @DeleteMapping("/users")
+
+    public UserResponseDTO delete(int id, HttpSession session, HttpServletRequest request) {
+        userService.validateLogin(session, request);
+        User user = userService.DeleteById(id);
+        UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
+        return dto;
+    }
+
+    @GetMapping("/users")
+    public List<UserResponseDTO> getAll() {
+        List<User> users = userService.getAll();
+        List<UserResponseDTO> usersDTO = users.stream().map(u -> modelMapper.map(u, UserResponseDTO.class)).collect(Collectors.toList());
+        return usersDTO;
     }
 
 
