@@ -1,7 +1,19 @@
-POST http://localhost:3333//users/log_in
+POST localhost:3333/users/register
 Content-Type: application/json
 
 {
-  "email" : "krasi",
-  "password" : "123"
+  "firstName": "Tsetso",
+  "lastName":"Yrdanov",
+  "password": "1225@:5544RRRrr!.",
+  "confirmPassword" : "1225@:5544RRRrr!.",
+  "email":"cvetalin@abv.bg",
+  "phoneNumber": "0899999999",
+  "dateOfBirth":"13.06.2018"
+
+
+
 }
+
+
+###
+GET localhost:3333/users/5

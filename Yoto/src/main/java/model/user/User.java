@@ -1,4 +1,5 @@
 package model.user;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -6,9 +7,12 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import model.video.Video;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
@@ -43,5 +47,14 @@ public class User {
     @Column
     private String backgroundImageUrl;
 
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "users_search_videos", joinColumns = {@JoinColumn(name = "user_id")}, inverseJoinColumns = {@JoinColumn(name = "video_id")})
+    private Set<Video> videos = new HashSet<>();
 
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "users_follow_users",joinColumns = {@JoinColumn(name = "observer_id")},inverseJoinColumns = {@JoinColumn(name = "publisher_id")})
+    private Set<User> observerUsers = new HashSet<>();
+
+    @ManyToMany(mappedBy = "observerUsers")
+    private Set<User> publisherUsers = new HashSet<>();
 }

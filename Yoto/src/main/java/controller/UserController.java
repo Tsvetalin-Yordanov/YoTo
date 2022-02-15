@@ -1,6 +1,5 @@
 package controller;
 
-
 import model.user.User;
 import model.user.UserRegisterDTO;
 import model.user.UserResponseDTO;
@@ -71,7 +70,6 @@ public class UserController {
 
     //todo ask Krasi about session
     @DeleteMapping("/users")
-
     public UserResponseDTO delete(int id, HttpSession session, HttpServletRequest request) {
         userService.validateLogin(session, request);
         User user = userService.DeleteById(id);
