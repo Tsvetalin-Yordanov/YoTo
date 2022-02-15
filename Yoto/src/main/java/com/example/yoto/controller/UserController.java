@@ -48,8 +48,26 @@ public class UserController {
         String email = user.getEmail();
         String password = user.getPassword();
         User u = userService.login(email, password);
+        session.setAttribute(UserService.USER_ID,user.getId());
         session.setAttribute(UserService.LOGGED, true);
         session.setAttribute(UserService.LOGGED_FROM, request.getRemoteAddr());
+        UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
+        return dto;
+    }
+
+    @PutMapping("/users")
+    public UserResponseDTO editUser(@RequestBody User user, HttpSession session,HttpServletRequest request){
+        userService.validateLogin(session, request);
+        User u = userService.edit(user);
+        UserResponseDTO userDTO = modelMapper.map(u,UserResponseDTO.class);
+        return userDTO;
+    }
+
+    //todo ask Krasi about session
+    @DeleteMapping("/users")
+    public UserResponseDTO delete(@RequestParam int id, HttpSession session, HttpServletRequest request) {
+        userService.validateLogin(session, request);
+        User user = userService.DeleteById(id);
         UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
         return dto;
     }
@@ -61,24 +79,6 @@ public class UserController {
         return dto;
     }
 
-    @PutMapping
-    public UserResponseDTO editUser(@RequestBody User user, HttpSession session,HttpServletRequest request){
-        userService.validateLogin(session, request);
-        User u = userService.edit(user);
-        UserResponseDTO userDTO = modelMapper.map(u,UserResponseDTO.class);
-        return userDTO;
-    }
-
-    //todo ask Krasi about session
-    @DeleteMapping("/users")
-
-    public UserResponseDTO delete(int id, HttpSession session, HttpServletRequest request) {
-        userService.validateLogin(session, request);
-        User user = userService.DeleteById(id);
-        UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
-        return dto;
-    }
-
     @GetMapping("/users")
     public List<UserResponseDTO> getAll() {
         List<User> users = userService.getAll();
@@ -86,5 +86,8 @@ public class UserController {
         return usersDTO;
     }
 
-
+//    @PutMapping("/users/reset_password")
+//    public UserResponseDTO resetPassword(){
+//
+//    }
 }

@@ -15,7 +15,7 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/categories/{id:[\\d]+}")
+    @GetMapping("/categories/{id}")
     public Category getById(@PathVariable int id) {
         Category category = categoryService.getById(id);
         return category;

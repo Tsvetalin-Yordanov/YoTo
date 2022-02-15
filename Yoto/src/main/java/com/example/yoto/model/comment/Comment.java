@@ -21,15 +21,13 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    //@ManyToOne
-   // @JoinColumn(name = "creator_id",nullable = false )
-    @Column
+    @Column(name = "creator_id")
     private int creatorId;
-    @Column
+    @Column(name = "video_id")
     private int videoId;
-    @Column
+    @Column(name = "text")
     private String text;
-    @Column
+    @Column(name = "create_date")
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate creationDate;
