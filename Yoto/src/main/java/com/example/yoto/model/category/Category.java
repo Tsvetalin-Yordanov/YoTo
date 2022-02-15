@@ -1,4 +1,5 @@
-package model.user;
+package com.example.yoto.model.category;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -10,38 +11,24 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDate;
 
-
 @Entity
-@Table(name = "users")
+@Table(name = "categories")
 @Getter
 @Setter
 @NoArgsConstructor
-public class User {
+public class Category {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column
-    private String firstName;
+    private String title;
     @Column
-    private String lastName;
+    private String description;
     @Column
-    private String password;
-    @Column
-    private String email;
-    @Column
-    private String phoneNumber;
+    private String categoryImageURL;
     @Column
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
-    private LocalDate dateOfBirth;
-    @Column
-    private String aboutMe;
-    @Column
-    private char gender;
-    @Column
-    private String profileImageUrl;
-    @Column
-    private String backgroundImageUrl;
-
-
+    private LocalDate creationDate;
 }

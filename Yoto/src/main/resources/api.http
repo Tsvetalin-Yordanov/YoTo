@@ -1,7 +1,26 @@
-POST http://localhost:3333//users/log_in
+POST localhost:3333/users/register
 Content-Type: application/json
 
 {
-  "email" : "krasi",
-  "password" : "123"
+  "firstName" : "Kaloyan",
+  "lastName" : "Todorov",
+  "password" : "k1@.03Doka",
+  "confirmPassword" : "k1@.03Doka",
+  "phoneNumber" : "08888888888",
+  "email": "kaltodor11@gmail.com",
+  "dateOfBirth" : "2012-04-23T18:25:43.511Z"
 }
+
+###
+
+POST localhost:3333/users/log_in
+Content-Type: application/json
+
+{
+  "email": "kaltodor11@gmail.com",
+  "password" : "k1@.03Doka"
+}
+
+###
+
+GET localhost:3333/users/1

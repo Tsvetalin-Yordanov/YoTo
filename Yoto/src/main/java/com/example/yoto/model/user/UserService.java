@@ -1,8 +1,8 @@
-package model.user;
+package com.example.yoto.model.user;
 
-import model.exceptions.BadRequestException;
-import model.exceptions.NotFoundException;
-import model.exceptions.UnauthorizedException;
+import com.example.yoto.model.exceptions.BadRequestException;
+import com.example.yoto.model.exceptions.NotFoundException;
+import com.example.yoto.model.exceptions.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -96,9 +96,7 @@ public class UserService {
             }
             throw new NotFoundException("User not found");
         }
-
         throw new BadRequestException("Id is not positive");
-
     }
 
     public User DeleteById(int id) {

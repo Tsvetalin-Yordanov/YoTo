@@ -1,10 +1,10 @@
-package controller;
+package com.example.yoto.controller;
 
 
-import model.user.User;
-import model.user.UserRegisterDTO;
-import model.user.UserResponseDTO;
-import model.user.UserService;
+import com.example.yoto.model.user.User;
+import com.example.yoto.model.user.UserRegisterDTO;
+import com.example.yoto.model.user.UserResponseDTO;
+import com.example.yoto.model.user.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,7 +54,7 @@ public class UserController {
         return dto;
     }
 
-    @GetMapping("/users/{id:[\\d]+}")
+    @GetMapping("/users/{id}")
     public UserResponseDTO getById(@PathVariable int id) {
         User user = userService.getById(id);
         UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
