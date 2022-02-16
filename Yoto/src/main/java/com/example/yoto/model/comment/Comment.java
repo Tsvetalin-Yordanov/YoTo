@@ -36,19 +36,19 @@ public class Comment {
     private LocalDate creationDate;
 
     //ManyToMany
-    private Set<UserReactToComment> userReactToComment = new HashSet<UserReactToComment>();
+   // private Set<UserReactToComment> userReactToComment = new HashSet<UserReactToComment>();
 
-    @OneToMany(mappedBy = "primaryKey.comment",
-            cascade = CascadeType.ALL)
-    public Set<UserReactToComment> getUserReactToComment() {
-        return userReactToComment;
-    }
-
-    public void setUserReactToComment(Set<UserReactToComment> users) {
-        this.userReactToComment = users;
-    }
-
-    public void addUserReactToComment(UserReactToComment users) {
-        this.userReactToComment.add(users);
-    }
+//    @OneToMany(mappedBy = "primaryKey.comment",
+//            cascade = CascadeType.ALL)
+//    public Set<UserReactToComment> getUserReactToComment() {
+//        return userReactToComment;
+//    }
+//
+//    public void setUserReactToComment(Set<UserReactToComment> users) {
+//        this.userReactToComment = users;
+//    }
+//
+//    public void addUserReactToComment(UserReactToComment users) {
+//        this.userReactToComment.add(users);
+//    }
 }

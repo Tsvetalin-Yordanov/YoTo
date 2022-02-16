@@ -20,6 +20,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorDTO dto = new ErrorDTO();
         dto.setMsg(e.getMessage());
         dto.setStatus(HttpStatus.UNAUTHORIZED.value());
+        e.getStackTrace();
         return dto;
     }
     @ExceptionHandler(value = {BadRequestException.class})
@@ -29,6 +30,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorDTO dto = new ErrorDTO();
         dto.setMsg(e.getMessage());
         dto.setStatus(HttpStatus.BAD_REQUEST.value());
+        e.getStackTrace();
         return dto;
     }
     @ExceptionHandler(value = {NotFoundException.class})
@@ -38,6 +40,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorDTO dto = new ErrorDTO();
         dto.setMsg(e.getMessage());
         dto.setStatus(HttpStatus.NOT_FOUND.value());
+        e.getStackTrace();
         return dto;
     }
     @ExceptionHandler(value = {Exception.class})
@@ -47,6 +50,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorDTO dto = new ErrorDTO();
         dto.setMsg(e.getMessage());
         dto.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        e.getStackTrace();
         return dto;
     }
 }

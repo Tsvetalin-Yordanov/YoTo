@@ -50,7 +50,7 @@ public class User {
     private String backgroundImageUrl;
 
     //ManyToMany
-    private Set<UserReactToComment> userReactToComment = new HashSet<UserReactToComment>();
+   // private Set<UserReactToComment> userReactToComment = new HashSet<UserReactToComment>();
 
 
     @ManyToMany(cascade = {CascadeType.ALL})
@@ -64,16 +64,16 @@ public class User {
     @ManyToMany(mappedBy = "observerUsers")
     private Set<User> publisherUsers = new HashSet<>();
 
-    @OneToMany(mappedBy = "primaryKey.user",cascade = CascadeType.ALL)
-    public Set<UserReactToComment> getUserReactToComment(){
-        return userReactToComment;
-    }
-
-    public void setUserReactToComment(Set<UserReactToComment> comment) {
-        this.userReactToComment = comment;
-    }
-
-    public void addUserReactToComment(UserReactToComment comment) {
-        this.userReactToComment.add(comment);
-    }
+//    @OneToMany(mappedBy = "primaryKey.user",cascade = CascadeType.ALL)
+//    public Set<UserReactToComment> getUserReactToComment(){
+//        return userReactToComment;
+//    }
+//
+//    public void setUserReactToComment(Set<UserReactToComment> comment) {
+//        this.userReactToComment = comment;
+//    }
+//
+//    public void addUserReactToComment(UserReactToComment comment) {
+//        this.userReactToComment.add(comment);
+//    }
 }
