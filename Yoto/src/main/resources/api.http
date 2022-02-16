@@ -17,7 +17,7 @@ POST localhost:3333/users/log_in
 Content-Type: application/json
 
 {
-  "email": "kaltodor@gmail.com",
+  "email": "kaltodor11@gmail.com",
   "password" : "k1@.03Doka"
 }
 
@@ -32,7 +32,7 @@ GET localhost:3333/videos/1
 ###
 DELETE localhost:3333/users?id=4
 ###
-GET localhost:3333/comments/20
+GET localhost:3333/comments/1
 ###
 GET localhost:3333/play_lists/1
 ###
@@ -41,6 +41,17 @@ Content-Type: application/json
 
 {
   "videoId" : 1,
-  "text": "test sure check",
-  "creationDate": "2012-04-23T18:25:43.511Z"
+  "text": "tova ne e spam"
 }
+###
+POST localhost:3333/user/logout
+###
+PUT localhost:3333/comments
+Content-Type: application/json
+
+{
+  "id": 5,
+  "text": "tova ne e spam ve manqk"
+}
+###
+DELETE localhost:3333/comments?id=2

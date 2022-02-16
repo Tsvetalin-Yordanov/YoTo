@@ -1,12 +1,15 @@
 package com.example.yoto.model.video;
+import com.example.yoto.model.comment.Comment;
 import com.example.yoto.model.playList.PlayList;
 import com.example.yoto.model.user.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import model.playList.PlayList;
-import model.relationship.UserReactVideo;
-import model.user.User;
+
+import com.example.yoto.model.relationship.UserReactVideo;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -24,8 +27,12 @@ public class Video {
     private int id;
     @Column
     private String title;
-    @Column
-    private int userId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
+
     @Column
     private LocalDateTime uploadDate;
     @Column
@@ -33,20 +40,21 @@ public class Video {
     @Column
     private boolean isPrivate;
 
-
-    private Set<UserReactVideo> userReactVideo = new HashSet<>();
-    @OneToMany(mappedBy = "primaryKey", cascade = CascadeType.ALL)
-    public Set<UserReactVideo> getUserReactVideo() {
-        return userReactVideo;
-    }
+//    @OneToMany(mappedBy = "video")
+//    @JsonManagedReference
+//    private Set<Comment> comments;
 
 
-    @ManyToMany(mappedBy = "videos")
-    private Set<User> users = new HashSet<>();
-
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "video_in_playlists",
-            joinColumns = {@JoinColumn(name = "video_id")},inverseJoinColumns = {@JoinColumn(name = "playlist_id")})
-    private Set<PlayList> playLists = new HashSet<>();
+//    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL,orphanRemoval = true)
+//    private Set<UserReactVideo> reactedUsers = new HashSet<>();
+//
+//
+//    @ManyToMany(mappedBy = "videos")
+//    private Set<User> users = new HashSet<>();
+//
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(name = "video_in_playlists",
+//            joinColumns = {@JoinColumn(name = "video_id")},inverseJoinColumns = {@JoinColumn(name = "playlist_id")})
+//    private Set<PlayList> playLists = new HashSet<>();
 
 }

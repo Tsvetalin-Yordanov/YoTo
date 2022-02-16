@@ -32,6 +32,6 @@ public class PlayList {
     @Column
     private boolean isPrivate;
 
-    @ManyToMany(mappedBy = "playLists")
-    private Set<Video> videos = new HashSet<>();
+//    @ManyToMany(mappedBy = "playLists")
+//    private Set<Video> videos = new HashSet<>();
 }
