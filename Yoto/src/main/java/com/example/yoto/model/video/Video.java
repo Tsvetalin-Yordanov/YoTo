@@ -4,8 +4,9 @@ import com.example.yoto.model.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-
+import model.playList.PlayList;
+import model.relationship.UserReactVideo;
+import model.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -31,6 +32,15 @@ public class Video {
     private String videoUrl;
     @Column
     private boolean isPrivate;
+
+
+    private Set<UserReactVideo> userReactVideo = new HashSet<>();
+    @OneToMany(mappedBy = "primaryKey", cascade = CascadeType.ALL)
+    public Set<UserReactVideo> getUserReactVideo() {
+        return userReactVideo;
+    }
+
+
     @ManyToMany(mappedBy = "videos")
     private Set<User> users = new HashSet<>();
 

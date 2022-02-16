@@ -9,8 +9,9 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import model.relationship.UserReactVideo;
+import model.video.Video;
 import com.example.yoto.model.video.Video;
-
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -48,6 +49,12 @@ public class User {
     private String profileImageUrl;
     @Column
     private String backgroundImageUrl;
+
+    private Set<UserReactVideo> userReactVideo = new HashSet<>();
+    @OneToMany(mappedBy = "primaryKey", cascade = CascadeType.ALL)
+    public Set<UserReactVideo> getUserReactVideo() {
+        return userReactVideo;
+    }
 
     //ManyToMany
    // private Set<UserReactToComment> userReactToComment = new HashSet<UserReactToComment>();
