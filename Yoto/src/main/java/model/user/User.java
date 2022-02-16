@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import model.relationship.UserReactVideo;
 import model.video.Video;
 
 import javax.persistence.*;
@@ -46,6 +47,13 @@ public class User {
     private String profileImageUrl;
     @Column
     private String backgroundImageUrl;
+
+    private Set<UserReactVideo> userReactVideo = new HashSet<>();
+    @OneToMany(mappedBy = "primaryKey", cascade = CascadeType.ALL)
+    public Set<UserReactVideo> getUserReactVideo() {
+        return userReactVideo;
+    }
+
 
     @ManyToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "users_search_videos", joinColumns = {@JoinColumn(name = "user_id")}, inverseJoinColumns = {@JoinColumn(name = "video_id")})
