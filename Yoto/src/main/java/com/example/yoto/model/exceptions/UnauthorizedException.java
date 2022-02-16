@@ -1,4 +1,4 @@
-package model.exceptions;
+package com.example.yoto.model.exceptions;
 
 public class UnauthorizedException extends RuntimeException{
 

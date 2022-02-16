@@ -1,19 +1,16 @@
-package controller;
+package com.example.yoto.controller;
 
-import model.playList.PlayList;
-import model.playList.PlayListResponseDTO;
-import model.playList.PlayListService;
-import model.user.UserService;
+import com.example.yoto.model.playList.PlayList;
+import com.example.yoto.model.playList.PlayListResponseDTO;
+import com.example.yoto.model.playList.PlayListService;
+import com.example.yoto.model.user.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.awt.geom.GeneralPath;
+
 
 @RestController
 public class PlayListController {
@@ -41,8 +38,5 @@ public class PlayListController {
         PlayListResponseDTO playListDTO = modelMapper.map(playList, PlayListResponseDTO.class);
         return playListDTO;
     }
-
-
-
 
 }

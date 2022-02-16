@@ -2,18 +2,45 @@ POST localhost:3333/users/register
 Content-Type: application/json
 
 {
-  "firstName": "Tsetso",
-  "lastName":"Yrdanov",
-  "password": "1225@:5544RRRrr!.",
-  "confirmPassword" : "1225@:5544RRRrr!.",
-  "email":"cvetalin@abv.bg",
-  "phoneNumber": "0899999999",
-  "dateOfBirth":"13.06.2018"
-
-
-
+  "firstName" : "Kaloyan",
+  "lastName" : "Todorov",
+  "password" : "k1@.03Doka",
+  "confirmPassword" : "k1@.03Doka",
+  "phoneNumber" : "08888888887",
+  "email": "kaltodo@gmail.com",
+  "dateOfBirth" : "2012-04-23T18:25:43.511Z"
 }
 
+###
+
+POST localhost:3333/users/log_in
+Content-Type: application/json
+
+{
+  "email": "kaltodor@gmail.com",
+  "password" : "k1@.03Doka"
+}
 
 ###
-GET localhost:3333/users/5
+GET localhost:3333/users
+###
+GET localhost:3333/users/3
+###
+GET localhost:3333/categories/20
+###
+GET localhost:3333/videos/1
+###
+DELETE localhost:3333/users?id=4
+###
+GET localhost:3333/comments/20
+###
+GET localhost:3333/play_lists/1
+###
+POST localhost:3333/comments?vid=1
+Content-Type: application/json
+
+{
+  "videoId" : 1,
+  "text": "test sure check",
+  "creationDate": "2012-04-23T18:25:43.511Z"
+}

@@ -1,4 +1,4 @@
-package model.user;
+package com.example.yoto.model.user;
 
 
 import lombok.Getter;

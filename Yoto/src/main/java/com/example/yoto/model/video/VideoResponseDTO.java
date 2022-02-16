@@ -1,4 +1,4 @@
-package model.video;
+package com.example.yoto.model.video;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

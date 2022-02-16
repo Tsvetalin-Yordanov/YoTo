@@ -1,10 +1,10 @@
-package model.video;
+package com.example.yoto.model.playList;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface VideoRepository extends JpaRepository<Video, Integer> {
+public interface PlayListRepository extends JpaRepository<PlayList,Integer> {
 
 
 }

@@ -1,8 +1,9 @@
-package controller;
-import model.user.UserService;
-import model.video.Video;
-import model.video.VideoResponseDTO;
-import model.video.VideoService;
+package com.example.yoto.controller;
+
+import com.example.yoto.model.user.UserService;
+import com.example.yoto.model.video.Video;
+import com.example.yoto.model.video.VideoResponseDTO;
+import com.example.yoto.model.video.VideoService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

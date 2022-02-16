@@ -1,11 +1,12 @@
-package model.user;
+package com.example.yoto.model.user;
 
-import model.exceptions.BadRequestException;
-import model.exceptions.NotFoundException;
-import model.exceptions.UnauthorizedException;
+import com.example.yoto.model.exceptions.BadRequestException;
+import com.example.yoto.model.exceptions.NotFoundException;
+import com.example.yoto.model.exceptions.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
@@ -18,6 +19,7 @@ public class UserService {
 
     public static final String LOGGED = "logged";
     public static final String LOGGED_FROM = "logged_from";
+    public static final String USER_ID = "user_id";
 
     @Autowired
     private UserRepository userRepository;
@@ -39,26 +41,26 @@ public class UserService {
             throw new BadRequestException("Password is too weak");
         }
         if (!password.equals(confirmPassword)) {
-             throw new BadRequestException("Passwords mismatch");
+            throw new BadRequestException("Passwords mismatch");
         }
         if (email == null || email.isBlank()) {
             throw new BadRequestException("Email is mandatory");
         }
         //todo check
-        if (!email.matches("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^-]+(?:\\\\.[a-zA-Z0-9_!#$%&'*+/=?`{|}~^-]+)*@[a-zA-Z0-9-]+(?:\\\\.[a-zA-Z0-9-]+)*$")) {
+        if (!email.matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
             throw new BadRequestException("Email is invalid");
         }
         //todo
-//      if (dateOfBirth == null || dateOfBirth.isBlank()) {
-//          throw new BadRequest
-//      }
+        if (dateOfBirth == null) {
+            throw new BadRequestException("Invalid password");
+        }
         if (userRepository.findByEmail(email) != null) {
             throw new BadRequestException("User already exists");
         }
 
-//        if (userRepository.findByPhoneNumber(phoneNumber) != null) {
-//            throw new BadRequestException("User already exists");
-//        }
+        if (userRepository.findByPhoneNumber(phoneNumber) != null) {
+            throw new BadRequestException("User already exists");
+        }
         User user = new User();
         user.setFirstName(firstName);
         user.setLastName(lastName);
@@ -81,9 +83,12 @@ public class UserService {
         if (password == null || password.isBlank()) {
             throw new BadRequestException("Password is mandatory");
         }
-        User user = userRepository.findByEmailAndPassword(email, password);
+        User user = userRepository.findByEmail(email);
         if (user == null) {
-             throw new UnauthorizedException("Wrong credentials");
+            throw new UnauthorizedException("Wrong email");
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new UnauthorizedException("Wrong password");
         }
         return user;
     }
@@ -96,9 +101,7 @@ public class UserService {
             }
             throw new NotFoundException("User not found");
         }
-
         throw new BadRequestException("Id is not positive");
-
     }
 
     public User DeleteById(int id) {
@@ -118,10 +121,9 @@ public class UserService {
     @Transactional
     public User edit(User user) {
         Optional<User> opt = userRepository.findById(user.getId());
-        if (opt.isPresent()){
+        if (opt.isPresent()) {
             return userRepository.save(user);
-        }
-        else{
+        } else {
             throw new NotFoundException("User not found");
         }
     }
@@ -133,4 +135,5 @@ public class UserService {
             throw new UnauthorizedException("You have to log in!");
         }
     }
+
 }

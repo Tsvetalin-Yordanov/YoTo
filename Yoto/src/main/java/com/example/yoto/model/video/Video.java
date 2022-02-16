@@ -1,11 +1,12 @@
-package model.video;
+package com.example.yoto.model.video;
+import com.example.yoto.model.playList.PlayList;
+import com.example.yoto.model.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import model.playList.PlayList;
 import model.relationship.UserReactVideo;
 import model.user.User;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;

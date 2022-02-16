@@ -1,9 +1,9 @@
-package model.playList;
+package com.example.yoto.model.playList;
 
 
-import model.exceptions.BadRequestException;
-import model.exceptions.NotFoundException;
-import model.video.Video;
+
+import com.example.yoto.model.exceptions.BadRequestException;
+import com.example.yoto.model.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,5 +1,7 @@
-package model.user;
 
+package com.example.yoto.model.user;
+
+import com.example.yoto.model.manyToManyTables.UserReactToComment;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -9,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import model.relationship.UserReactVideo;
 import model.video.Video;
-
+import com.example.yoto.model.video.Video;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -54,6 +56,9 @@ public class User {
         return userReactVideo;
     }
 
+    //ManyToMany
+    private Set<UserReactToComment> userReactToComment = new HashSet<UserReactToComment>();
+
 
     @ManyToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "users_search_videos", joinColumns = {@JoinColumn(name = "user_id")}, inverseJoinColumns = {@JoinColumn(name = "video_id")})
@@ -65,4 +70,17 @@ public class User {
 
     @ManyToMany(mappedBy = "observerUsers")
     private Set<User> publisherUsers = new HashSet<>();
+
+    @OneToMany(mappedBy = "primaryKey.user",cascade = CascadeType.ALL)
+    public Set<UserReactToComment> getUserReactToComment(){
+        return userReactToComment;
+    }
+
+    public void setUserReactToComment(Set<UserReactToComment> comment) {
+        this.userReactToComment = comment;
+    }
+
+    public void addUserReactToComment(UserReactToComment comment) {
+        this.userReactToComment.add(comment);
+    }
 }

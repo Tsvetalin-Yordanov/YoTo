@@ -1,4 +1,4 @@
-package model.playList;
+package com.example.yoto.model.playList;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

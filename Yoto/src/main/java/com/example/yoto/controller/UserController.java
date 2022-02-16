@@ -1,9 +1,10 @@
-package controller;
+package com.example.yoto.controller;
 
-import model.user.User;
-import model.user.UserRegisterDTO;
-import model.user.UserResponseDTO;
-import model.user.UserService;
+
+import com.example.yoto.model.user.User;
+import com.example.yoto.model.user.UserRegisterDTO;
+import com.example.yoto.model.user.UserResponseDTO;
+import com.example.yoto.model.user.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,20 +48,14 @@ public class UserController {
         String email = user.getEmail();
         String password = user.getPassword();
         User u = userService.login(email, password);
+        session.setAttribute(UserService.USER_ID,user.getId());
         session.setAttribute(UserService.LOGGED, true);
         session.setAttribute(UserService.LOGGED_FROM, request.getRemoteAddr());
         UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
         return dto;
     }
 
-    @GetMapping("/users/{id:[\\d]+}")
-    public UserResponseDTO getById(@PathVariable int id) {
-        User user = userService.getById(id);
-        UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
-        return dto;
-    }
-
-    @PutMapping
+    @PutMapping("/users")
     public UserResponseDTO editUser(@RequestBody User user, HttpSession session,HttpServletRequest request){
         userService.validateLogin(session, request);
         User u = userService.edit(user);
@@ -70,9 +65,16 @@ public class UserController {
 
     //todo ask Krasi about session
     @DeleteMapping("/users")
-    public UserResponseDTO delete(int id, HttpSession session, HttpServletRequest request) {
+    public UserResponseDTO delete(@RequestParam int id, HttpSession session, HttpServletRequest request) {
         userService.validateLogin(session, request);
         User user = userService.DeleteById(id);
+        UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
+        return dto;
+    }
+
+    @GetMapping("/users/{id}")
+    public UserResponseDTO getById(@PathVariable int id) {
+        User user = userService.getById(id);
         UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
         return dto;
     }
@@ -84,5 +86,8 @@ public class UserController {
         return usersDTO;
     }
 
-
+//    @PutMapping("/users/reset_password")
+//    public UserResponseDTO resetPassword(){
+//
+//    }
 }
