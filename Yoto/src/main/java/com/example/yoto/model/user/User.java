@@ -1,9 +1,8 @@
 
 package com.example.yoto.model.user;
 
-import com.example.yoto.model.comment.Comment;
 import com.example.yoto.model.relationship.URTC.UserReactToComment;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.example.yoto.model.comment.Comment;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

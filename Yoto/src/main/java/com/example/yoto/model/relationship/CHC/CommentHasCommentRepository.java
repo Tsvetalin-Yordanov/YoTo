@@ -1,7 +1,5 @@
 package com.example.yoto.model.relationship.CHC;
 
-import com.example.yoto.model.relationship.URTC.UserReactToComment;
-import com.example.yoto.model.relationship.URTC.UserReactToCommentID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

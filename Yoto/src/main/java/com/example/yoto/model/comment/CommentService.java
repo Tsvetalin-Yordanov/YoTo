@@ -8,7 +8,6 @@ import com.example.yoto.model.relationship.CHC.CommentHasCommentRepository;
 import com.example.yoto.model.relationship.URTC.UserReactToComment;
 import com.example.yoto.model.relationship.URTC.UserReactToCommentID;
 import com.example.yoto.model.relationship.URTC.UserReactToCommentRepository;
-import com.example.yoto.model.relationship.UserReactVideo;
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserRepository;
 import com.example.yoto.model.video.Video;
@@ -108,7 +107,6 @@ public class CommentService {
                 userReactToComment.setUser(optionalUser.get());
                 userReactToComment.setReaction(reaction);
                 userReactToCommentRepository.save(userReactToComment);
-                System.out.println(optionalComment.get().getReactionsOfUsers());
                 return optionalComment.get();
             }
             throw new NotFoundException("Comment not found");

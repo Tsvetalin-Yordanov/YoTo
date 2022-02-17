@@ -1,19 +1,12 @@
 package com.example.yoto.model.video;
-import com.example.yoto.model.comment.Comment;
-import com.example.yoto.model.playList.PlayList;
 import com.example.yoto.model.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.example.yoto.model.relationship.UserReactVideo;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "videos")
