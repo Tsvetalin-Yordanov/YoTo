@@ -4,9 +4,10 @@ import com.example.yoto.model.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import model.playList.PlayList;
-import model.relationship.UserReactVideo;
-import model.user.User;
+import com.example.yoto.model.relationship.UserReactToVideo;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NaturalIdCache;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,6 +15,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "videos")
+@NaturalIdCache
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,20 +36,18 @@ public class Video {
     @Column
     private boolean isPrivate;
 
-
-    private Set<UserReactVideo> userReactVideo = new HashSet<>();
-    @OneToMany(mappedBy = "primaryKey", cascade = CascadeType.ALL)
-    public Set<UserReactVideo> getUserReactVideo() {
-        return userReactVideo;
-    }
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL,orphanRemoval = true)
+    private Set<UserReactToVideo> reactedUsers = new HashSet<>();
 
 
-    @ManyToMany(mappedBy = "videos")
+    @ManyToMany(mappedBy = "videos",cascade = CascadeType.ALL)
     private Set<User> users = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "video_in_playlists",
             joinColumns = {@JoinColumn(name = "video_id")},inverseJoinColumns = {@JoinColumn(name = "playlist_id")})
     private Set<PlayList> playLists = new HashSet<>();
+
+
 
 }

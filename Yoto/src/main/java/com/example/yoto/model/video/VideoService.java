@@ -3,9 +3,13 @@ package com.example.yoto.model.video;
 
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
+import com.example.yoto.model.relationship.UserReactToVideo;
+import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
 
@@ -36,11 +40,9 @@ public class VideoService {
         if (videoReq.getTitle() == null || videoReq.getTitle().isBlank()) {
             throw new BadRequestException("Title is mandatory");
         }
-//
 //        if (videoReq.getUploadDate() == null || videoReq.getUploadDate().isBlank()) {
 //            throw new BadRequest
 //        }
-
 //        if(videoReq.getUserId()){
 //            ..........
 //        }
@@ -49,5 +51,6 @@ public class VideoService {
         }
         return videoRepository.save(videoReq);
     }
+
 
 }

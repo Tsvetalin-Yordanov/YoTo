@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class VideoResponseDTO {
 
-    private int id;
     private String title;
     private int userId;
     private LocalDateTime uploadDate;
