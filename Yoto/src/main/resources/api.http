@@ -18,7 +18,7 @@ Content-Type: application/json
 
 {
   "email": "kalt11odo@gmail.com",
-  "password": "k12@.03Doka"
+  "password" : "k12@.03Doka"
 }
 
 ###
@@ -28,7 +28,11 @@ GET localhost:3333/users
 GET localhost:3333/users/3
 
 ###
+
 GET localhost:3333/categories/20
+
+
+GET localhost:3333/categories/2
 
 ###
 GET localhost:3333/videos/1
@@ -37,7 +41,11 @@ GET localhost:3333/videos/1
 DELETE localhost:3333/users?id=4
 
 ###
+
 GET localhost:3333/comments/20
+
+
+GET localhost:3333/comments/1
 
 ###
 GET localhost:3333/play_lists/1
@@ -72,5 +80,26 @@ Content-Type: application/json
   "userId": 1,
   "uploadDate": "2012-04-23T18:25:43.511Z",
   "videoUrl": "wgrgrgregrere"
-
 }
+###
+PUT localhost:3333/videos/like?videoId=2
+Content-Type: application/json
+
+{
+  "title": "First My Video",
+  "userId": 1,
+  "uploadDate": "2012-04-23T18:25:43.511Z",
+  "videoUrl": "wgrgrgregrere"
+}
+###
+POST localhost:3333/user/logout
+###
+PUT localhost:3333/comments
+Content-Type: application/json
+
+{
+  "id": 5,
+  "text": "tova ne e spam ve manqk"
+}
+###
+

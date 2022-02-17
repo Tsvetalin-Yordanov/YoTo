@@ -20,13 +20,13 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(name = "title")
+    @Column
     private String title;
-    @Column(name = "description")
+    @Column
     private String description;
-    @Column(name = "category_image_url")
+    @Column
     private String categoryImageUrl;
-    @Column(name = "create_date")
+    @Column
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate createDate;

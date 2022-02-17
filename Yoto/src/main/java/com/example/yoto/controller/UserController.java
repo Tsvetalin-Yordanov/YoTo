@@ -48,10 +48,10 @@ public class UserController {
         String email = user.getEmail();
         String password = user.getPassword();
         User u = userService.login(email, password);
-        session.setAttribute(UserService.USER_ID,user.getId());
+        session.setAttribute(UserService.USER_ID,u.getId());
         session.setAttribute(UserService.LOGGED, true);
         session.setAttribute(UserService.LOGGED_FROM, request.getRemoteAddr());
-        UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
+        UserResponseDTO dto = modelMapper.map(u, UserResponseDTO.class);
         return dto;
     }
 
@@ -84,6 +84,11 @@ public class UserController {
         List<User> users = userService.getAll();
         List<UserResponseDTO> usersDTO = users.stream().map(u -> modelMapper.map(u, UserResponseDTO.class)).collect(Collectors.toList());
         return usersDTO;
+    }
+
+    @PostMapping("/user/logout")
+    public void logOut(HttpSession session){
+        session.invalidate();
     }
 
 //    @PutMapping("/users/reset_password")

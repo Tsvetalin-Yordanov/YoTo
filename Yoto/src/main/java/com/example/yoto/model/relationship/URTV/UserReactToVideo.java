@@ -1,10 +1,8 @@
-package com.example.yoto.model.relationship;
+package com.example.yoto.model.relationship.URTV;
 
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.video.Video;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -40,6 +38,10 @@ public class UserReactToVideo {
         this.user = user;
         this.video = video;
         this.reaction = reaction;
+    }
+
+    public UserReactToVideo() {
+
     }
 
     @Override

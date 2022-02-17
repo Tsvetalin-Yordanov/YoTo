@@ -1,0 +1,32 @@
+GET localhost:3333/comments/5
+###
+POST localhost:3333/comments?vid=1
+Content-Type: application/json
+
+{
+  "videoId" : 1,
+  "text": "tezi koteta sa sladki"
+}
+###
+PUT localhost:3333/comments
+Content-Type: application/json
+
+{
+  "id": 5,
+  "text": "tova ne e spam ve manqk"
+}
+###
+DELETE localhost:3333/comments?id=2
+###
+POST localhost:3333/comments/like?cid=7
+###
+POST localhost:3333/comments/dislike?cid=5
+###
+DELETE  localhost:3333/comments/remove_reaction?cid=7
+###
+POST localhost:3333/comments/respond?cid=7
+Content-Type: application/json
+
+{
+  "text": "naistina sa mnogo sladki"
+}

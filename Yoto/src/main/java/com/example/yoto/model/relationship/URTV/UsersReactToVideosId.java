@@ -1,4 +1,4 @@
-package com.example.yoto.model.relationship;
+package com.example.yoto.model.relationship.URTV;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,10 +31,13 @@ public class UsersReactToVideosId implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         UsersReactToVideosId that = (UsersReactToVideosId) o;
         return userId == that.userId && videoId == that.videoId;
+
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(userId, videoId);
     }
+
 }
+
