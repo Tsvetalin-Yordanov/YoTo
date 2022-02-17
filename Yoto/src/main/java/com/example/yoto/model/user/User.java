@@ -3,6 +3,7 @@ package com.example.yoto.model.user;
 
 import com.example.yoto.model.relationship.URTC.UserReactToComment;
 import com.example.yoto.model.comment.Comment;
+import com.example.yoto.model.relationship.UserReactVideo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -55,43 +56,28 @@ public class User {
     @JsonManagedReference
     private Set<Comment> comments;
 
-    @OneToMany(mappedBy = "user")
-    @JsonManagedReference
-    private Set<Video> videos;
+//    @OneToMany(mappedBy = "user")
+//    @JsonManagedReference
+//    private Set<Video> videos;
 
 
     @OneToMany(mappedBy = "user")
     private Set<UserReactToComment> reactionsToComments = new HashSet<>();
 
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,orphanRemoval = true)
-//    private Set<UserReactVideo> reactedVideos = new HashSet<>();
-
-    //ManyToMany
-   // private Set<UserReactToComment> userReactToComment = new HashSet<UserReactToComment>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,orphanRemoval = true)
+    private Set<UserReactVideo> reactedVideos = new HashSet<>();
 
 
-//    @ManyToMany(cascade = {CascadeType.ALL})
-//    @JoinTable(name = "users_search_videos", joinColumns = {@JoinColumn(name = "user_id")}, inverseJoinColumns = {@JoinColumn(name = "video_id")})
-//    private Set<Video> videos = new HashSet<>();
-//
-//    @ManyToMany(cascade = {CascadeType.ALL})
-//    @JoinTable(name = "users_follow_users",joinColumns = {@JoinColumn(name = "observer_id")},inverseJoinColumns = {@JoinColumn(name = "publisher_id")})
-//    private Set<User> observerUsers = new HashSet<>();
-//
-//    @ManyToMany(mappedBy = "observerUsers")
-//    private Set<User> publisherUsers = new HashSet<>();
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "users_search_videos", joinColumns = {@JoinColumn(name = "user_id")}, inverseJoinColumns = {@JoinColumn(name = "video_id")})
+    private Set<Video> watchedVideos = new HashSet<>();
 
-//    @OneToMany(mappedBy = "primaryKey.user",cascade = CascadeType.ALL)
-//    public Set<UserReactToComment> getUserReactToComment(){
-//        return userReactToComment;
-//    }
-//
-//    public void setUserReactToComment(Set<UserReactToComment> comment) {
-//        this.userReactToComment = comment;
-//    }
-//
-//    public void addUserReactToComment(UserReactToComment comment) {
-//        this.userReactToComment.add(comment);
-//    }
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "users_follow_users",joinColumns = {@JoinColumn(name = "observer_id")},inverseJoinColumns = {@JoinColumn(name = "publisher_id")})
+    private Set<User> observerUsers = new HashSet<>();
+
+    @ManyToMany(mappedBy = "observerUsers")
+    private Set<User> publisherUsers = new HashSet<>();
+
 }
