@@ -1,4 +1,4 @@
-GET localhost:3333/categories/2
+GET localhost:3333/categories/5
 ###
 GET localhost:3333/categories
 ###
