@@ -1,4 +1,6 @@
 package com.example.yoto.model.video;
+
+import com.example.yoto.model.comment.Comment;
 import com.example.yoto.model.playList.PlayList;
 import com.example.yoto.model.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -20,7 +22,7 @@ import java.util.Set;
 @Entity
 @Table(name = "videos")
 @NaturalIdCache
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+//@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -48,9 +50,12 @@ public class Video {
     @JsonManagedReference
     private Set<Comment> comments;
 
+    @OneToMany(mappedBy = "video")
+    @JsonManagedReference
+    private Set<Comment> comments;
+
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<UserReactToVideo> reactedUsers = new HashSet<>();
-
 
     @ManyToMany(mappedBy = "watchedVideos",cascade = CascadeType.ALL)
     private Set<User> users = new HashSet<>();
@@ -59,11 +64,5 @@ public class Video {
     @JoinTable(name = "video_in_playlists",
             joinColumns = {@JoinColumn(name = "video_id")},inverseJoinColumns = {@JoinColumn(name = "playlist_id")})
     private Set<PlayList> playLists = new HashSet<>();
-
-
-
-
-
-
 
 }

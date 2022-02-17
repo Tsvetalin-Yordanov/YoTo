@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import static com.example.yoto.model.user.UserService.USER_ID;
 
 @RestController
 public class VideoController {

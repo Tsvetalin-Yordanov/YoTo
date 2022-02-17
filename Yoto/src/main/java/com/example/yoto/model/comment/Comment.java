@@ -40,8 +40,8 @@ public class Comment {
     @JsonBackReference
     private Video video;
 
-    @Column(name = "video_id")
-    private int videoId;
+//    @Column(name = "video_id")
+//    private int videoId;
 
     @Column(name = "text")
     private String text;
@@ -59,8 +59,5 @@ public class Comment {
 
     @OneToMany(mappedBy = "child")
     private Set<CommentHasComment> superComment = new HashSet<>();
-
-
-
-
+    
 }

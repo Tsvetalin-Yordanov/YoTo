@@ -39,8 +39,8 @@ public class CommentService {
         Optional<Video> opt = videoRepository.findById(vid);
         if (opt.isPresent()) {
             comment.setCreator(userRepository.findById(uid).orElseThrow(() -> new NotFoundException("Creator not found")));
-            comment.setVideoId(vid);
-            //comment.setVideo(videoRepository.findById(vid).orElseThrow(() -> new NotFoundException("Video not found")));
+            //comment.setVideoId(vid);
+            comment.setVideo(videoRepository.findById(vid).orElseThrow(() -> new NotFoundException("Video not found")));
             comment.setCreationDate(LocalDateTime.now());
             commentRepository.save(comment);
             return comment;
@@ -141,8 +141,8 @@ public class CommentService {
             Optional<Comment> opt = commentRepository.findById(cid);
             if (opt.isPresent()) {
                    comment.setCreator(userRepository.findById(uid).orElseThrow(() -> new NotFoundException("Creator not found")));
-                   comment.setVideoId(opt.get().getVideoId());
-                   //comment.setVideo(videoRepository.findById(vid).orElseThrow(() -> new NotFoundException("Video not found")));
+                   //comment.setVideoId(opt.get().getVideoId());
+                   comment.setVideo(videoRepository.findById(opt.get().getVideo().getId()).orElseThrow(() -> new NotFoundException("Video not found")));
                    comment.setCreationDate(LocalDateTime.now());
                    commentRepository.save(comment);
 
