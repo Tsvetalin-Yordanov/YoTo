@@ -5,15 +5,15 @@ Content-Type: application/json
 
 {
   "videoId" : 1,
-  "text": "tezi koteta sa sladki"
+  "text": "ah tezi koteta"
 }
 ###
 PUT localhost:3333/comments
 Content-Type: application/json
 
 {
-  "id": 5,
-  "text": "tova ne e spam ve manqk"
+  "id": 10,
+  "text": "tezi koteta sa mnogo sladki"
 }
 ###
 DELETE localhost:3333/comments?id=2
@@ -24,9 +24,9 @@ POST localhost:3333/comments/dislike?cid=5
 ###
 DELETE  localhost:3333/comments/remove_reaction?cid=7
 ###
-POST localhost:3333/comments/respond?cid=7
+POST localhost:3333/comments/respond?cid=11
 Content-Type: application/json
 
 {
-  "text": "naistina sa mnogo sladki"
+  "text": "strahotni sa nali"
 }

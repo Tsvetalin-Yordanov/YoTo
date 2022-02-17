@@ -4,7 +4,6 @@ import com.example.yoto.model.relationship.CHC.CommentHasComment;
 import com.example.yoto.model.relationship.URTC.UserReactToComment;
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.video.Video;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -29,35 +28,31 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-
     @ManyToOne
     @JoinColumn(name = "creator_id")
-    @JsonBackReference
     private User creator;
 
     @ManyToOne
-    @Column(name = "video_id")
-    @JsonBackReference
+    @JoinColumn(name = "video_id")
     private Video video;
-
-//    @Column(name = "video_id")
-//    private int videoId;
 
     @Column(name = "text")
     private String text;
+
     @Column(name = "create_date")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime creationDate;
 
-
+    //set of user who reacted to comment
     @OneToMany(mappedBy = "comment")
     private Set<UserReactToComment> reactionsOfUsers = new HashSet<>();
 
+    //child comments
     @OneToMany(mappedBy = "parent")
     private Set<CommentHasComment> subComments = new HashSet<>();
 
+    //parent comments
     @OneToMany(mappedBy = "child")
     private Set<CommentHasComment> superComment = new HashSet<>();
-
 }

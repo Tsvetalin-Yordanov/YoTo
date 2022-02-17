@@ -1,10 +1,9 @@
 package com.example.yoto.model.video;
 
+import com.example.yoto.model.category.Category;
 import com.example.yoto.model.comment.Comment;
 import com.example.yoto.model.playList.PlayList;
 import com.example.yoto.model.user.User;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,7 +20,7 @@ import java.util.Set;
 @Entity
 @Table(name = "videos")
 @NaturalIdCache
-//@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,7 +34,6 @@ public class Video {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference
     private User user;
 
     @Column
@@ -45,20 +43,27 @@ public class Video {
     @Column
     private boolean isPrivate;
 
-
+    //set of comments of the video
     @OneToMany(mappedBy = "video")
-    @JsonManagedReference
     private Set<Comment> comments;
 
+    //set of categories of the video
+    @ManyToMany(mappedBy = "videosInCategory")
+    private Set<Category> categoriesOfVideo;
+
+    //set of people who reacted
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<UserReactToVideo> reactedUsers = new HashSet<>();
 
+    //set of users who have watched this video
     @ManyToMany(mappedBy = "watchedVideos",cascade = CascadeType.ALL)
     private Set<User> users = new HashSet<>();
 
+    //set of playlist with this video
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "video_in_playlists",
-            joinColumns = {@JoinColumn(name = "video_id")},inverseJoinColumns = {@JoinColumn(name = "playlist_id")})
+            joinColumns = {@JoinColumn(name = "video_id")},
+            inverseJoinColumns = {@JoinColumn(name = "playlist_id")})
     private Set<PlayList> playLists = new HashSet<>();
 
 }

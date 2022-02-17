@@ -1,3 +1,12 @@
 GET localhost:3333/categories/2
 ###
 GET localhost:3333/categories
+###
+POST localhost:3333/categories/follow?cid=5
+###
+DELETE localhost:3333/categories/unfollow?cid=5
+###
+POST localhost:3333//categories/add_to_video?vid=1&cid=6
+###
+DELETE localhost:3333/categories/remove_video?vid=1&cid=6
+###
