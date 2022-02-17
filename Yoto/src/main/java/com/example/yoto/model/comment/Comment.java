@@ -3,6 +3,7 @@ package com.example.yoto.model.comment;
 import com.example.yoto.model.relationship.CHC.CommentHasComment;
 import com.example.yoto.model.relationship.URTC.UserReactToComment;
 import com.example.yoto.model.user.User;
+import com.example.yoto.model.video.Video;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -33,11 +34,11 @@ public class Comment {
     @JoinColumn(name = "creator_id")
     @JsonBackReference
     private User creator;
-//
-//    @ManyToOne
-//    @Column(name = "video_id")
-//    @JsonBackReference
-//    private Video video;
+
+    @ManyToOne
+    @Column(name = "video_id")
+    @JsonBackReference
+    private Video video;
 
     @Column(name = "video_id")
     private int videoId;
@@ -62,26 +63,4 @@ public class Comment {
 
 
 
-//    //ManyToMany
-//    private Set<UserReactToComment> userReactToComment = new HashSet<UserReactToComment>();
-
-//    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
-
-    //ManyToMany
-//    private Set<UserReactToComment> userReactToComment = new HashSet<UserReactToComment>();
-//
-//    @OneToMany(mappedBy = "primaryKey.comment",
-//            cascade = CascadeType.ALL)
-
-//    public Set<UserReactToComment> getUserReactToComment() {
-//        return userReactToComment;
-//    }
-//
-//    public void setUserReactToComment(Set<UserReactToComment> users) {
-//        this.userReactToComment = users;
-//    }
-//
-//    public void addUserReactToComment(UserReactToComment users) {
-//        this.userReactToComment.add(users);
-//    }
 }

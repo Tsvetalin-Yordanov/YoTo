@@ -71,7 +71,7 @@ public class User {
     @JoinTable(name = "users_search_videos",
             joinColumns = {@JoinColumn(name = "user_id")},
             inverseJoinColumns = {@JoinColumn(name = "video_id")})
-    private Set<Video> videos = new HashSet<>();
+    private Set<Video>  watchedVideos = new HashSet<>();
 
 
     @ManyToMany(cascade = {CascadeType.ALL})

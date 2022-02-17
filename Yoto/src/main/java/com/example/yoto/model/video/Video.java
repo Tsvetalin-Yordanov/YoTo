@@ -2,11 +2,13 @@ package com.example.yoto.model.video;
 import com.example.yoto.model.playList.PlayList;
 import com.example.yoto.model.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.example.yoto.model.relationship.URTV.UserReactToVideo;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.NaturalIdCache;
 
 
@@ -42,12 +44,15 @@ public class Video {
     @Column
     private boolean isPrivate;
 
+    @OneToMany(mappedBy = "video")
+    @JsonManagedReference
+    private Set<Comment> comments;
 
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<UserReactToVideo> reactedUsers = new HashSet<>();
 
 
-    @ManyToMany(mappedBy = "videos",cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "watchedVideos",cascade = CascadeType.ALL)
     private Set<User> users = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -55,22 +60,10 @@ public class Video {
             joinColumns = {@JoinColumn(name = "video_id")},inverseJoinColumns = {@JoinColumn(name = "playlist_id")})
     private Set<PlayList> playLists = new HashSet<>();
 
-//    @OneToMany(mappedBy = "video")
-//    @JsonManagedReference
-//    private Set<Comment> comments;
 
 
-//    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL,orphanRemoval = true)
-//    private Set<UserReactVideo> reactedUsers = new HashSet<>();
-//
-//
-//    @ManyToMany(mappedBy = "videos")
-//    private Set<User> users = new HashSet<>();
-//
-//    @ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(name = "video_in_playlists",
-//            joinColumns = {@JoinColumn(name = "video_id")},inverseJoinColumns = {@JoinColumn(name = "playlist_id")})
-//    private Set<PlayList> playLists = new HashSet<>();
+
+
 
 
 }
