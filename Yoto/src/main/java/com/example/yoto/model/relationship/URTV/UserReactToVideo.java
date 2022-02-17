@@ -1,5 +1,4 @@
-package com.example.yoto.model.relationship;
-
+package com.example.yoto.model.relationship.URTV;
 
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.video.Video;
@@ -13,38 +12,43 @@ import java.util.Objects;
 @Table(name = "users_react_to_videos")
 @Getter
 @Setter
-public class UserReactVideo {
+public class UserReactToVideo {
 
 
     @EmbeddedId
     private UsersReactToVideosId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("user_id")
+    @MapsId("userId")
+    @JoinColumn(name = "user_id")
     private User user;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("video_id")
+    @MapsId("videoId")
+    @JoinColumn(name = "video_id")
     private Video video;
 
 
     @Column(name = "reaction")
     private char reaction;
 
-    public UserReactVideo() {}
-
-    public UserReactVideo(User user, Video video) {
+    public UserReactToVideo(UsersReactToVideosId id, User user, Video video, char reaction) {
+        this.id = id;
         this.user = user;
         this.video = video;
-        this.id = new UsersReactToVideosId(user.getId(), video.getId());
+        this.reaction = reaction;
+    }
+
+    public UserReactToVideo() {
+
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UserReactVideo that = (UserReactVideo) o;
+        UserReactToVideo that = (UserReactToVideo) o;
         return Objects.equals(user, that.user) && Objects.equals(video, that.video);
     }
 

@@ -3,6 +3,7 @@ package com.example.yoto.model.comment;
 import com.example.yoto.model.relationship.CHC.CommentHasComment;
 import com.example.yoto.model.relationship.URTC.UserReactToComment;
 import com.example.yoto.model.user.User;
+import com.example.yoto.model.video.Video;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -11,11 +12,11 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
 
 @Entity
 @Table(name = "comments")
@@ -33,14 +34,14 @@ public class Comment {
     @JoinColumn(name = "creator_id")
     @JsonBackReference
     private User creator;
-//
-//    @ManyToOne
-//    @Column(name = "video_id")
-//    @JsonBackReference
-//    private Video video;
 
+    @ManyToOne
     @Column(name = "video_id")
-    private int videoId;
+    @JsonBackReference
+    private Video video;
+
+//    @Column(name = "video_id")
+//    private int videoId;
 
     @Column(name = "text")
     private String text;
@@ -59,22 +60,4 @@ public class Comment {
     @OneToMany(mappedBy = "child")
     private Set<CommentHasComment> superComment = new HashSet<>();
 
-
-
-    //ManyToMany
-//    private Set<UserReactToComment> userReactToComment = new HashSet<UserReactToComment>();
-//
-//    @OneToMany(mappedBy = "primaryKey.comment",
-//            cascade = CascadeType.ALL)
-//    public Set<UserReactToComment> getUserReactToComment() {
-//        return userReactToComment;
-//    }
-//
-//    public void setUserReactToComment(Set<UserReactToComment> users) {
-//        this.userReactToComment = users;
-//    }
-//
-//    public void addUserReactToComment(UserReactToComment users) {
-//        this.userReactToComment.add(users);
-//    }
 }

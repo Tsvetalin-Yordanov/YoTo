@@ -1,4 +1,4 @@
-package com.example.yoto.model.relationship;
+package com.example.yoto.model.relationship.URTV;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,17 +13,16 @@ import java.util.Objects;
 public class UsersReactToVideosId implements Serializable {
 
     @Column(name = "user_id")
-    private Integer user_id;
+    private int userId;
     @Column(name = "video_id")
-    private Integer video_id;
+    private int videoId;
 
 
-    public UsersReactToVideosId() {
-    }
+    public UsersReactToVideosId() {}
 
-    public UsersReactToVideosId(Integer user_id, Integer video_id) {
-        this.user_id = user_id;
-        this.video_id = video_id;
+    public UsersReactToVideosId(int user_id,int video_id){
+        this.userId = user_id;
+        this.videoId = video_id;
     }
 
     @Override
@@ -31,11 +30,14 @@ public class UsersReactToVideosId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UsersReactToVideosId that = (UsersReactToVideosId) o;
-        return user_id.equals(that.user_id) && video_id.equals(that.video_id);
+        return userId == that.userId && videoId == that.videoId;
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user_id, video_id);
+        return Objects.hash(userId, videoId);
     }
+
 }
+

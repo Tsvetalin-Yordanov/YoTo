@@ -1,13 +1,17 @@
 package com.example.yoto.model.video;
+
 import com.example.yoto.model.comment.Comment;
 import com.example.yoto.model.playList.PlayList;
-import com.example.yoto.model.relationship.UserReactVideo;
 import com.example.yoto.model.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.example.yoto.model.relationship.URTV.UserReactToVideo;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NaturalIdCache;
+
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -16,6 +20,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "videos")
+@NaturalIdCache
+//@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,16 +45,15 @@ public class Video {
     @Column
     private boolean isPrivate;
 
+
     @OneToMany(mappedBy = "video")
     @JsonManagedReference
     private Set<Comment> comments;
 
-
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL,orphanRemoval = true)
-    private Set<UserReactVideo> reactedUsers = new HashSet<>();
+    private Set<UserReactToVideo> reactedUsers = new HashSet<>();
 
-
-    @ManyToMany(mappedBy = "videos")
+    @ManyToMany(mappedBy = "watchedVideos",cascade = CascadeType.ALL)
     private Set<User> users = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
