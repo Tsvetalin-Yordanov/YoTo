@@ -32,16 +32,14 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "creator_id")
-    @JsonBackReference
     private User creator;
 
     @ManyToOne
-    @Column(name = "video_id")
-    @JsonBackReference
+    @JoinColumn(name = "video_id")
     private Video video;
 
-//    @Column(name = "video_id")
-//    private int videoId;
+    @Column(name = "video_id")
+    private int videoId;
 
     @Column(name = "text")
     private String text;

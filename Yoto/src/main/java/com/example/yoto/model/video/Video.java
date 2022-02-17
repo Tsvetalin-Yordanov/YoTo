@@ -3,14 +3,10 @@ package com.example.yoto.model.video;
 import com.example.yoto.model.comment.Comment;
 import com.example.yoto.model.playList.PlayList;
 import com.example.yoto.model.user.User;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.example.yoto.model.relationship.URTV.UserReactToVideo;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.NaturalIdCache;
 
 
@@ -36,7 +32,6 @@ public class Video {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference
     private User user;
 
     @Column
@@ -47,11 +42,6 @@ public class Video {
     private boolean isPrivate;
 
     @OneToMany(mappedBy = "video")
-    @JsonManagedReference
-    private Set<Comment> comments;
-
-    @OneToMany(mappedBy = "video")
-    @JsonManagedReference
     private Set<Comment> comments;
 
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL,orphanRemoval = true)
