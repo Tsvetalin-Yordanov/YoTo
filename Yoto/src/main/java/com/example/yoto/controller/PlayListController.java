@@ -1,7 +1,7 @@
 package com.example.yoto.controller;
 
 import com.example.yoto.model.playList.Playlist;
-import com.example.yoto.model.playList.PlayListResponseDTO;
+import com.example.yoto.model.playList.PlayListSimpleResponseDTO;
 import com.example.yoto.model.playList.PlayListService;
 import com.example.yoto.model.user.UserService;
 import org.modelmapper.ModelMapper;
@@ -25,18 +25,18 @@ public class PlayListController {
 
 
     @GetMapping("/playlists/{id:[\\d]+}")
-    public PlayListResponseDTO getById(@PathVariable int id) {
+    public PlayListSimpleResponseDTO getById(@PathVariable int id) {
         Playlist playList = playListService.getById(id);
-        PlayListResponseDTO playListDto = modelMapper.map(playList, PlayListResponseDTO.class);
+        PlayListSimpleResponseDTO playListDto = modelMapper.map(playList, PlayListSimpleResponseDTO.class);
         return playListDto;
     }
 
     @PostMapping("/playlists/create")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public PlayListResponseDTO createPlayList(@RequestBody Playlist playlist, HttpSession session, HttpServletRequest request) {
+    public PlayListSimpleResponseDTO createPlayList(@RequestBody Playlist playlist, HttpSession session, HttpServletRequest request) {
         userService.validateLogin(session, request);
         playListService.createPlaylist(playlist,(int)session.getAttribute("user_id"));
-        PlayListResponseDTO playListDTO = modelMapper.map(playlist, PlayListResponseDTO.class);
+        PlayListSimpleResponseDTO playListDTO = modelMapper.map(playlist, PlayListSimpleResponseDTO.class);
         return playListDTO;
     }
 

@@ -56,4 +56,6 @@ public class Comment {
     //parent comments
     @OneToMany(mappedBy = "child")
     private Set<CommentHasComment> superComment = new HashSet<>();
+
+    //todo show all comments of video
 }
