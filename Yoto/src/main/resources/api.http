@@ -4,10 +4,10 @@ Content-Type: application/json
 {
   "firstName": "Kaloyan",
   "lastName": "Todorov",
-  "password": "k12@.03Doka",
-  "confirmPassword": "k12@.03Doka",
-  "phoneNumber": "0988880088887",
-  "email": "kalt11odo@gmail.com",
+  "password": "k111111112@.03Doka",
+  "confirmPassword": "k111111112@.03Doka",
+  "phoneNumber": "090088887",
+  "email": "kalt1ssss1odo@gmail.com",
   "dateOfBirth": "2012-04-23T18:25:43.511Z"
 }
 
@@ -17,8 +17,8 @@ POST localhost:3333/users/log_in
 Content-Type: application/json
 
 {
-  "email": "kalt11odo@gmail.com",
-  "password" : "k12@.03Doka"
+  "email": "kalt1ssss1odo@gmail.com",
+  "password" : "k111111112@.03Doka"
 }
 
 ###
@@ -43,12 +43,12 @@ DELETE localhost:3333/users?id=4
 ###
 
 GET localhost:3333/comments/20
-
+###
 
 GET localhost:3333/comments/1
 
 ###
-GET localhost:3333/play_lists/1
+GET localhost:3333/video/1
 
 ###
 POST localhost:3333/comments?vid=1
@@ -65,11 +65,10 @@ POST  localhost:3333/videos/upload
 Content-Type: application/json
 
 {
-  "title": "First My Video",
-  "userId": 3,
+  "title" : "Qkata rabota",
+  "user" : 1,
   "uploadDate": "2012-04-23T18:25:43.511Z",
-  "videoUrl": "wgrgrgregrere"
-
+  "videoUrl": "wgrefefewfefgrgregrere"
 }
 ###
 PUT localhost:3333/videos/like?videoId=2

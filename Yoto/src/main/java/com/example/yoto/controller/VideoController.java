@@ -1,6 +1,5 @@
 package com.example.yoto.controller;
 
-import com.example.yoto.model.relationship.URTV.UserReactToVideoService;
 import com.example.yoto.model.user.UserService;
 import com.example.yoto.model.video.Video;
 import com.example.yoto.model.video.VideoResponseDTO;
@@ -12,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
+import static com.example.yoto.model.user.UserService.USER_ID;
 
 @RestController
 public class VideoController {
@@ -23,8 +22,6 @@ public class VideoController {
     private UserService userService;
     @Autowired
     private ModelMapper modelMapper;
-    @Autowired
-    private UserReactToVideoService userReactToVideoService;
 
 
     @GetMapping("/videos/{id:[\\d]+}")
@@ -37,37 +34,54 @@ public class VideoController {
     @PostMapping("/videos/upload")
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<VideoResponseDTO> upload(@RequestBody Video videoReq,HttpSession session, HttpServletRequest request) {
-        //TODO Valid session??
         userService.validateLogin(session,request);
-        Video video = videoService.uploadVideo(videoReq);
+        Video video = videoService.uploadVideo(videoReq,(int)session.getAttribute(USER_ID));
         VideoResponseDTO vDto = modelMapper.map(video, VideoResponseDTO.class);
         return ResponseEntity.status(201).body(vDto);
     }
 
     @PutMapping("/videos/like")
-    public ResponseEntity<VideoResponseDTO> liked(@RequestParam int videoId,HttpSession session, HttpServletRequest request){
+    public ResponseEntity<VideoResponseDTO> liked(@RequestParam int vId,HttpSession session, HttpServletRequest request){
         userService.validateLogin(session,request);
-        Video video = userReactToVideoService.likeVideo(videoId,(int)session.getAttribute("user_id"));
+        Video video = videoService.likeVideo(vId,(int)session.getAttribute(USER_ID));
         VideoResponseDTO vDto = modelMapper.map(video, VideoResponseDTO.class);
         return ResponseEntity.status(201).body(vDto);
     }
 
 
     @PutMapping("/videos/dislike")
-    public ResponseEntity<VideoResponseDTO> dislike(@RequestParam int videoId,HttpSession session, HttpServletRequest request){
+    public ResponseEntity<VideoResponseDTO> dislike(@RequestParam int vId,HttpSession session, HttpServletRequest request){
         userService.validateLogin(session,request);
-        Video video = userReactToVideoService.dislikeVideo(videoId,(int)session.getAttribute("user_id"));
+        Video video = videoService.dislikeVideo(vId,(int)session.getAttribute(USER_ID));
         VideoResponseDTO vDto = modelMapper.map(video, VideoResponseDTO.class);
         return ResponseEntity.status(201).body(vDto);
     }
 
     @DeleteMapping("/videos/remove_reaction")
-    public ResponseEntity<VideoResponseDTO> removeReaction(@RequestParam int videoId,HttpSession session, HttpServletRequest request){
+    public ResponseEntity<VideoResponseDTO> removeReaction(@RequestParam int vId,HttpSession session, HttpServletRequest request){
         userService.validateLogin(session,request);
-        Video video = userReactToVideoService.removeReaction(videoId,(int)session.getAttribute("user_id"));
+        Video video = videoService.removeReaction(vId,(int)session.getAttribute(USER_ID));
         VideoResponseDTO vDto = modelMapper.map(video, VideoResponseDTO.class);
         return ResponseEntity.status(200).body(vDto);
     }
+    @PostMapping("/videos/{id}/watch")
+    public int  watch(@RequestParam int vId,HttpSession session, HttpServletRequest request) {
+        userService.validateLogin(session, request);
+        return videoService.watch(vId, (int) session.getAttribute(USER_ID));
+    }
 
+    @PostMapping("/videos/{v_id}/add_to_playlist/{plid}")
+    public int addToPlaylist (@RequestParam int vId, @RequestParam int plId ,HttpSession session, HttpServletRequest request){
+        userService.validateLogin(session, request);
+        int userId = (int) session.getAttribute(USER_ID);
+        return videoService.addToPlaylist(vId,plId,userId);
+    }
+
+    @DeleteMapping("/videos/{v_id}/delete_from_play_list/{plid}")
+    public int deleteFromPlaylist (@RequestParam int vId, @RequestParam int pLId ,HttpSession session, HttpServletRequest request) {
+        userService.validateLogin(session, request);
+        int userId = (int) session.getAttribute(USER_ID);
+        return videoService.deleteFromPlaylist(vId,pLId,userId);
+    }
 
 }

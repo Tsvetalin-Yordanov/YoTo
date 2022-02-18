@@ -4,10 +4,10 @@ Content-Type: application/json
 {
   "firstName" : "Kaloyan",
   "lastName" : "Todorov",
-  "password" : "k1@.03Doka",
-  "confirmPassword" : "k1@.03Doka",
-  "phoneNumber" : "08888888886",
-  "email": "kaltodo@abv.bg",
+  "password" : "k1@.063Doka",
+  "confirmPassword" : "k1@.063Doka",
+  "phoneNumber" : "088888898886",
+  "email": "kaltodo1@abv.bg",
   "dateOfBirth" : "2010-04-23T18:25:43.511Z"
 }
 
@@ -17,14 +17,17 @@ POST localhost:3333/users/log_in
 Content-Type: application/json
 
 {
-  "email": "kaltodo@abv.bg",
-  "password" : "k1@.03Doka"
+  "email": "kaltodo1@abv.bg",
+  "password" : "k1@.063Doka"
 }
 
 ###
 GET localhost:3333/users
 ###
-GET localhost:3333/users/3
+GET localhost:3333/users/2
+###
+POST localhost:3333/user/follow?id=1
+
 ###
 DELETE localhost:3333/users?id=4
 ###

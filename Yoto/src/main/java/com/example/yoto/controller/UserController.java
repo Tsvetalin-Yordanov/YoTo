@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +49,7 @@ public class UserController {
         String email = user.getEmail();
         String password = user.getPassword();
         User u = userService.login(email, password);
-        session.setAttribute(UserService.USER_ID,u.getId());
+        session.setAttribute(UserService.USER_ID, u.getId());
         session.setAttribute(UserService.LOGGED, true);
         session.setAttribute(UserService.LOGGED_FROM, request.getRemoteAddr());
         UserResponseDTO dto = modelMapper.map(u, UserResponseDTO.class);
@@ -56,10 +57,10 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public UserResponseDTO editUser(@RequestBody User user, HttpSession session,HttpServletRequest request){
+    public UserResponseDTO editUser(@RequestBody User user, HttpSession session, HttpServletRequest request) {
         userService.validateLogin(session, request);
         User u = userService.edit(user);
-        UserResponseDTO userDTO = modelMapper.map(u,UserResponseDTO.class);
+        UserResponseDTO userDTO = modelMapper.map(u, UserResponseDTO.class);
         return userDTO;
     }
 
@@ -87,8 +88,18 @@ public class UserController {
     }
 
     @PostMapping("/user/logout")
-    public void logOut(HttpSession session){
+    public void logOut(HttpSession session) {
         session.invalidate();
+    }
+
+    @PostMapping("users/follow")
+    public List<UserResponseDTO> followUser(@RequestParam int observer, HttpSession session, HttpServletRequest request) {
+        System.out.println(1);
+        return userService.followUser(observer, session, request);
+    }
+    @PostMapping("users/unfollow")
+    public List<UserResponseDTO> unFollowUser(@RequestParam int observer, HttpSession session, HttpServletRequest request) {
+        return userService.unFollowUser(observer, session, request);
     }
 
 //    @PutMapping("/users/reset_password")

@@ -1,0 +1,30 @@
+POST localhost:3333/playlist/create
+###
+POST localhost:3333/playlist
+Content-Type: application/json
+
+{
+
+}
+###
+PUT localhost:3333/playlist
+Content-Type: application/json
+
+{
+
+}
+###
+DELETE localhost:3333/playlist
+###
+POST localhost:3333/playlist
+###
+POST localhost:3333/playlist
+###
+DELETE  localhost:3333/playlist
+###
+POST localhost:3333/playlist
+Content-Type: application/json
+
+{
+
+}
