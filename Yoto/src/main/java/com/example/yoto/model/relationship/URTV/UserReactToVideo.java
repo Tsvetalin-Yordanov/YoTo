@@ -4,7 +4,6 @@ import com.example.yoto.model.user.User;
 import com.example.yoto.model.video.Video;
 import lombok.Getter;
 import lombok.Setter;
-
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -33,15 +32,12 @@ public class UserReactToVideo {
     @Column(name = "reaction")
     private char reaction;
 
+    public UserReactToVideo() {}
     public UserReactToVideo(UsersReactToVideosId id, User user, Video video, char reaction) {
         this.id = id;
         this.user = user;
         this.video = video;
         this.reaction = reaction;
-    }
-
-    public UserReactToVideo() {
-
     }
 
     @Override

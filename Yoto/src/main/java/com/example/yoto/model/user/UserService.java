@@ -7,7 +7,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
@@ -119,13 +118,14 @@ public class UserService {
         User user1 = getUserById(user.getId());
         return userRepository.save(user);
     }
-
-    public List<UserResponseDTO> followUser(int observerId, HttpSession session, HttpServletRequest request) {
+    public List<UserResponseDTO> followUser(int publisherId, HttpSession session, HttpServletRequest request) {
         validateLogin(session, request);
         //Todo msg exeption
-        User observer = getUserById(observerId);
-        User publisher = getUserById((int) session.getAttribute("user_id"));
+
+        User observer = getUserById((int) session.getAttribute("user_id"));
+        User publisher = getUserById(publisherId);
         if (publisher.getObserverUsers().contains(observer)) {
+
             throw new BadRequestException("Already exists in the list of followers");
         }
         publisher.getObserverUsers().add(observer);
@@ -133,11 +133,11 @@ public class UserService {
         return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user, UserResponseDTO.class)).collect(Collectors.toList());
     }
 
-    public List<UserResponseDTO> unFollowUser(int observerId, HttpSession session, HttpServletRequest request) {
+    public List<UserResponseDTO> unFollowUser(int publisherId, HttpSession session, HttpServletRequest request) {
         validateLogin(session, request);
         //Todo msg exeption
-        User observer = getUserById(observerId);
-        User publisher = getUserById((int) session.getAttribute("user_id"));
+        User observer = getUserById((int) session.getAttribute("user_id"));
+        User publisher = getUserById(publisherId);
         if (!publisher.getObserverUsers().contains(observer)) {
             throw new BadRequestException("Observer not follow this user");
         }
@@ -148,7 +148,6 @@ public class UserService {
 
 
     public void validateLogin(HttpSession session, HttpServletRequest request) {
-
         boolean newSession = session.isNew();
         boolean logged = session.getAttribute(LOGGED) != null && ((Boolean) session.getAttribute(LOGGED));
         boolean sameIp = request.getRemoteAddr().equals(session.getAttribute(LOGGED_FROM));
@@ -160,5 +159,4 @@ public class UserService {
     private User getUserById(int id) {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
     }
-
 }

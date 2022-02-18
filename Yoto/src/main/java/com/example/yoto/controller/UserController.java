@@ -93,13 +93,13 @@ public class UserController {
     }
 
     @PostMapping("/users/follow")
-    public List<UserResponseDTO> followUser(@RequestParam int observer, HttpSession session, HttpServletRequest request) {
-
-        return userService.followUser(observer, session, request);
+    public List<UserResponseDTO> followUser(@RequestParam int publisherId, HttpSession session, HttpServletRequest request) {
+        return userService.followUser(publisherId, session, request);
     }
+
     @PostMapping("/users/unfollow")
-    public List<UserResponseDTO> unFollowUser(@RequestParam int observer, HttpSession session, HttpServletRequest request) {
-        return userService.unFollowUser(observer, session, request);
+    public List<UserResponseDTO> unFollowUser(@RequestParam int publisherId, HttpSession session, HttpServletRequest request) {
+        return userService.unFollowUser(publisherId, session, request);
     }
 
 //    @PutMapping("/users/reset_password")

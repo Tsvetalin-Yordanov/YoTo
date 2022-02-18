@@ -1,30 +1,19 @@
-POST localhost:3333/playlist/create
-###
-POST localhost:3333/playlist
+POST localhost:3333/playlists/create
 Content-Type: application/json
 
 {
-
+"title" : "Tretiq playlist  bace",
+"isPrivate" : 1
 }
 ###
-PUT localhost:3333/playlist
-Content-Type: application/json
-
-{
-
-}
+GET localhost:3333/playlists/3
 ###
-DELETE localhost:3333/playlist
+DELETE localhost:3333/playlists/delete?plId=4
 ###
-POST localhost:3333/playlist
+POST localhost:3333/playlists
 ###
-POST localhost:3333/playlist
+POST localhost:3333/playlists
 ###
-DELETE  localhost:3333/playlist
+DELETE localhost:3333/playlists/delete_video?vId=8&plid=3
 ###
-POST localhost:3333/playlist
-Content-Type: application/json
-
-{
-
-}
+POST localhost:3333/playlists/add_video?vId=8&plId=3
