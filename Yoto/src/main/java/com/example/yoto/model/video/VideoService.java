@@ -31,29 +31,23 @@ public class VideoService {
 
 
     public Video getById(int id) {
-        if (id > 0) {
-            Optional<Video> optionalVideo = videoRepository.findById(id);
-            if (optionalVideo.isPresent()) {
-                return optionalVideo.get();
-            }
-            throw new NotFoundException("Video not found");
-        }
-        throw new BadRequestException("Id is not positive");
+        return videoGetById(id);
     }
 
-
-    public Video uploadVideo(Video videoReq,int userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+    public Video uploadVideo(Video videoReq, int userId) {
+        User user = userGetById(userId);
+        videoReq.setUser(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Creator not found")));
+        //TODO
+        videoReq.setUploadDate(LocalDateTime.now());
         if (videoReq.getTitle() == null || videoReq.getTitle().isBlank()) {
             throw new BadRequestException("Title is mandatory");
         }
-        if(videoReq.getUploadDate().isAfter(LocalDateTime.now())) {
+        if (videoReq.getUploadDate().isAfter(LocalDateTime.now())) {
             throw new BadRequestException("Invalid date and time");
         }
         if (videoReq.getVideoUrl() == null || videoReq.getVideoUrl().isBlank()) {
             throw new BadRequestException("No content to upload");
         }
-
         return videoRepository.save(videoReq);
     }
 
@@ -66,77 +60,38 @@ public class VideoService {
     }
 
     private Video reactedVideo(int vId, int userId, char c) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isPresent()) {
-            Optional<Video> videoOpt = videoRepository.findById(vId);
-            if (videoOpt.isPresent()) {
-                UsersReactToVideosId usersReactToVideosId = new UsersReactToVideosId(userId, vId);
-                UserReactToVideo userReactToVideo = new UserReactToVideo(usersReactToVideosId, userOpt.get(), videoOpt.get(), c);
-                userReactToVideoRepository.save(userReactToVideo);
-                return videoOpt.get();
-            } else {
-                throw new NotFoundException("Video not found");
-            }
-        } else {
-            throw new NotFoundException("User not found");
-        }
+        User user = userGetById(userId);
+        Video video = videoGetById(vId);
+        UsersReactToVideosId usersReactToVideosId = new UsersReactToVideosId(userId, vId);
+        UserReactToVideo userReactToVideo = new UserReactToVideo(usersReactToVideosId, user, video, c);
+        userReactToVideoRepository.save(userReactToVideo);
+        return video;
     }
 
     public Video removeReaction(int vId, int userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isPresent()) {
-            Optional<Video> videoOpt = videoRepository.findById(vId);
-            if (videoOpt.isPresent()) {
-                UsersReactToVideosId usersReactToVideosId = new UsersReactToVideosId(userId, vId);
-                Optional<UserReactToVideo> userReactToVideo = userReactToVideoRepository.findById(usersReactToVideosId);
-                if (userReactToVideo.isPresent()) {
-                    userReactToVideoRepository.deleteById(usersReactToVideosId);
-                    return videoOpt.get();
-                } else {
-                    throw new BadRequestException("You haven't reacted to this comment yet");
-                }
-            } else {
-                throw new NotFoundException("Video not found");
-            }
-        } else {
-            throw new NotFoundException("User not found");
-        }
-    }
+        User user = userGetById(userId);
+        Video video = videoGetById(vId);
+        UsersReactToVideosId usersReactToVideosId = new UsersReactToVideosId(userId, vId);
+        UserReactToVideo userReactToVideo = userReactToVideoRepository.findById(usersReactToVideosId)
+                .orElseThrow(() -> new BadRequestException("You haven't reacted to this video yet"));
+        userReactToVideoRepository.deleteById(usersReactToVideosId);
+        return video;
 
+    }
+//TODO няма да бачка с user
     public int watch(int vId, int userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        Video video = videoRepository.findById(vId).orElseThrow(()-> new NotFoundException("Video not found"));
-        if(!user.getWatchedVideos().contains(video)){
-            video.getUsers().add(user);
-            videoRepository.save(video);
-        }
-        //TODO ??
+        User user = userGetById(userId);
+        Video video = videoGetById(vId);
+        video.getUsers().add(user);
+        videoRepository.save(video);
         return video.getUsers().size();
     }
 
-    public int addToPlaylist(int vId, int pLId,int userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        Video video = videoRepository.findById(vId).orElseThrow(()-> new NotFoundException("Video not found"));
-        Playlist playlist = playListRepository.findById(pLId).orElseThrow(()-> new NotFoundException("Playlist not found"));
-        if(playlist.getVideos().contains(video)){
-            //TODO
-            throw new BadRequestException("Video is in playlist");
-        }
-        playlist.getVideos().add(video);
-        videoRepository.save(video);
-        return video.getPlaylists().size();
+    public Video videoGetById(int id) {
+        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
     }
 
-    public int deleteFromPlaylist(int vId, int pLId, int userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        Video video = videoRepository.findById(vId).orElseThrow(()-> new NotFoundException("Video not found"));
-        Playlist playlist = playListRepository.findById(pLId).orElseThrow(()-> new NotFoundException("Playlist not found"));
-        if(!playlist.getVideos().contains(video)){
-            //TODO
-            throw new BadRequestException("Video is not in playlist");
-        }
-        video.getPlaylists().remove(playlist);
-        videoRepository.save(video);
-        return video.getPlaylists().size();
+    public User userGetById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
     }
 }

@@ -2,9 +2,11 @@ POST localhost:3333/videos/upload
 Content-Type: application/json
 
 {
-    "title": "kotki",
-  "video_url": "asddfsdg"
+  "title": "kotki",
+  "videoUrl": "asddfsdg"
 }
+###
+GET localhost:3333/videos/3
 ###
 PUT localhost:3333/videos/like?vId=1
 ###
@@ -12,7 +14,7 @@ PUT localhost:3333/videos/dislike?vId=1
 ###
 DELETE localhost:3333/videos/remove_reaction?vId=1
 ###
-POST localhost:3333/videos/1/watch
+POST localhost:3333/videos/watch?vId=2
 ###
-POST localhost:3333/videos/add_to_playlist?vId=1&plId=1
->>>>>>> 56d31ac27eb6a1684f8038966b0cee7465e83370
+
+

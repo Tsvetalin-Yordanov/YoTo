@@ -13,7 +13,6 @@ import javax.servlet.http.HttpSession;
 
 import static com.example.yoto.model.user.UserService.USER_ID;
 
-
 @RestController
 public class PlayListController {
 
@@ -25,8 +24,8 @@ public class PlayListController {
     private ModelMapper modelMapper;
 
 
-    @GetMapping("/play_lists/{id:[\\d]+}")
-    public PlayListResponseDTO getById(@RequestBody int id) {
+    @GetMapping("/playlist/{id:[\\d]+}")
+    public PlayListResponseDTO getById(@PathVariable int id) {
         Playlist playList = playListService.getById(id);
         PlayListResponseDTO playListDto = modelMapper.map(playList, PlayListResponseDTO.class);
         return playListDto;
@@ -46,6 +45,19 @@ public class PlayListController {
         userService.validateLogin(session,request);
         return playListService.deletePlaylist( plId,(int)session.getAttribute("user_id"));
 
+    }
+    @PostMapping("/playlist/add_video")
+    public int addToPlaylist (@RequestParam int vId, @RequestParam int plId ,HttpSession session, HttpServletRequest request){
+        userService.validateLogin(session, request);
+        int userId = (int) session.getAttribute(USER_ID);
+        return playListService.addVideo(vId,plId,userId);
+    }
+
+    @DeleteMapping("/playlist/delete_video")
+    public int deleteFromPlaylist (@RequestParam int vId, @RequestParam int plid ,HttpSession session, HttpServletRequest request) {
+        userService.validateLogin(session, request);
+        int userId = (int) session.getAttribute(USER_ID);
+        return playListService.deleteVideo(vId,plid,userId);
     }
 
 }

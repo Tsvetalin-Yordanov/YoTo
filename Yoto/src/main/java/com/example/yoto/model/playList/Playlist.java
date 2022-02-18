@@ -23,22 +23,25 @@ public class Playlist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column
+    @Column(name = "title")
     private String title;
 
     @ManyToOne
     @JoinColumn(name = "creator_id")
     private User creator;
 
-    @Column
+    @Column(name = "create_date")
     private LocalDateTime createDate;
 
-    @Column
+    @Column(name = "last_actualization")
     private LocalDateTime lastActualization;
 
-    @Column
+    @Column(name = "is_private")
     private boolean isPrivate;
 
-    @ManyToMany(mappedBy = "playlists")
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "videos_in_playlists",
+            joinColumns = {@JoinColumn(name = "playlist_id")},
+            inverseJoinColumns = {@JoinColumn(name = "video_id")})
     private Set<Video> videos = new HashSet<>();
 }

@@ -87,10 +87,7 @@ public class User {
     private Set<User> observerUsers = new HashSet<>();
 
     //watched videos history
-    @ManyToMany(cascade = {CascadeType.ALL})
-    @JoinTable(name = "users_watched_videos",
-            joinColumns = {@JoinColumn(name = "user_id")},
-            inverseJoinColumns = {@JoinColumn(name = "video_id")})
+    @ManyToMany(mappedBy = "users",cascade = CascadeType.ALL)
     private Set<Video> watchedVideos = new HashSet<>();
 
 }

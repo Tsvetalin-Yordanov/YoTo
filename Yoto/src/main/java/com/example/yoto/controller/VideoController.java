@@ -63,24 +63,10 @@ public class VideoController {
         VideoResponseDTO vDto = modelMapper.map(video, VideoResponseDTO.class);
         return ResponseEntity.status(200).body(vDto);
     }
-    @PostMapping("/videos/{vId}/watch")
-    public int  watch(@PathVariable int vId,HttpSession session, HttpServletRequest request) {
+    @PostMapping("/videos/watch")
+    public int  watch(@RequestParam int vId,HttpSession session, HttpServletRequest request) {
         userService.validateLogin(session, request);
         return videoService.watch(vId, (int) session.getAttribute(USER_ID));
-    }
-
-    @PostMapping("/videos/add_to_playlist")
-    public int addToPlaylist (@RequestParam int vId, @RequestParam int plId ,HttpSession session, HttpServletRequest request){
-        userService.validateLogin(session, request);
-        int userId = (int) session.getAttribute(USER_ID);
-        return videoService.addToPlaylist(vId,plId,userId);
-    }
-
-    @DeleteMapping("/videos/delete_from_play_list")
-    public int deleteFromPlaylist (@RequestParam int vId, @RequestParam int pLId ,HttpSession session, HttpServletRequest request) {
-        userService.validateLogin(session, request);
-        int userId = (int) session.getAttribute(USER_ID);
-        return videoService.deleteFromPlaylist(vId,pLId,userId);
     }
 
 }

@@ -26,22 +26,21 @@ public class Video {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column
+    @Column(name = "title")
     private String title;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-    @Column
+    @Column(name = "upload_date")
     private LocalDateTime uploadDate;
-    @Column
+    @Column(name = "video_url")
     private String videoUrl;
-    @Column
+    @Column(name = "is_private")
     private boolean isPrivate;
 
     //set of comments of the video
     @OneToMany(mappedBy = "video")
     private Set<Comment> comments;
-
 
     //set of categories of the video
     @ManyToMany(mappedBy = "videosInCategory")
@@ -52,14 +51,14 @@ public class Video {
     private Set<UserReactToVideo> reactedUsers = new HashSet<>();
 
     //set of users who have watched this video
-    @ManyToMany(mappedBy = "watchedVideos",cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "users_watched_videos",
+            joinColumns = {@JoinColumn(name = "video_id")},
+            inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> users = new HashSet<>();
 
     //set of playlist with this video
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "video_in_playlists",
-            joinColumns = {@JoinColumn(name = "video_id")},
-            inverseJoinColumns = {@JoinColumn(name = "playlist_id")})
+    @ManyToMany(mappedBy = "videos")
     private Set<Playlist> playlists = new HashSet<>();
 
 }
