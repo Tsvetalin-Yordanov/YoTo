@@ -133,16 +133,13 @@ public class UserService {
     }
 
     public List<UserResponseDTO> followUser(int observerId, HttpSession session, HttpServletRequest request) {
-        System.out.println(2);
         validateLogin(session, request);
-        System.out.println(3);
         //Todo msg exeption
         User observer = userRepository.findById(observerId).orElseThrow(()->new NotFoundException("User not found"));
         User publisher = userRepository.findById((int)session.getAttribute("user_id")).orElseThrow(()->new NotFoundException("User not found"));
         if(publisher.getObserverUsers().contains(observer)){
             throw new BadRequestException("Already exists in the list of followers");
         }
-        System.out.println(4);
         publisher.getObserverUsers().add(observer);
         userRepository.save(publisher);
         return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user,UserResponseDTO.class)).collect(Collectors.toList());

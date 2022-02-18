@@ -26,8 +26,7 @@ GET localhost:3333/users
 ###
 GET localhost:3333/users/2
 ###
-POST localhost:3333/user/follow?id=1
-
+POST localhost:3333/users/follow?observer=1
 ###
 DELETE localhost:3333/users?id=4
 ###
