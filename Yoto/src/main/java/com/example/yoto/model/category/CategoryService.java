@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CategoryService {
@@ -24,11 +23,7 @@ public class CategoryService {
 
     public Category getById(int id) {
         if (id > 0) {
-            Optional<Category> optionalCategory = categoryRepository.findById(id);
-            if (optionalCategory.isPresent()) {
-                return optionalCategory.get();
-            }
-            throw new NotFoundException("Category not found");
+            return getCategoryById(id);
         }
         throw new BadRequestException("Id is not positive");
     }
@@ -38,67 +33,57 @@ public class CategoryService {
     }
 
     public int followCategory(int cid, int uid) {
-        Optional<Category> optionalCategory = categoryRepository.findById(cid);
-        Optional<User> optionalUser = userRepository.findById(uid);
-        if (optionalCategory.isPresent()) {
-            if (optionalUser.isPresent()) {
-                optionalCategory.get().getFollowersOfCategory().add(optionalUser.get());
-                categoryRepository.save(optionalCategory.get());
-                return optionalCategory.get().getFollowersOfCategory().size();
-            }
-            throw new NotFoundException("User not found");
-        }
-        throw new NotFoundException("Category not found");
+        Category category = getCategoryById(cid);
+        User user = getUserById(uid);
+
+        category.getFollowersOfCategory().add(user);
+        categoryRepository.save(category);
+        return category.getFollowersOfCategory().size();
+
     }
 
 
     public int unfollowCategory(int cid, int uid) {
-        Optional<Category> optionalCategory = categoryRepository.findById(cid);
-        Optional<User> optionalUser = userRepository.findById(uid);
-        if (optionalCategory.isPresent()) {
-            if (optionalUser.isPresent()) {
-                optionalCategory.get().getFollowersOfCategory().remove(optionalUser.get());
-                categoryRepository.save(optionalCategory.get());
-                return optionalCategory.get().getFollowersOfCategory().size();
-            }
-            throw new NotFoundException("User not found");
-        }
-        throw new NotFoundException("Category not found");
+        Category category = getCategoryById(cid);
+        User user = getUserById(uid);
+
+        category.getFollowersOfCategory().remove(user);
+        categoryRepository.save(category);
+        return category.getFollowersOfCategory().size();
+
     }
 
     public int addVideoInCategory(int vid, int cid, int uid) {
-        Optional<Category> optionalCategory = categoryRepository.findById(cid);
-        Optional<User> optionalUser = userRepository.findById(uid);
-        Optional<Video> optionalVideo = videoRepository.findById(vid);
-        if (optionalCategory.isPresent()) {
-            if (optionalUser.isPresent()) {
-                if (optionalVideo.isPresent()) {
-                    optionalCategory.get().getVideosInCategory().add(optionalVideo.get());
-                    categoryRepository.save(optionalCategory.get());
-                    return optionalCategory.get().getVideosInCategory().size();
-                }
-                throw new NotFoundException("Video not found");
-            }
-            throw new NotFoundException("User not found");
-        }
-        throw new NotFoundException("Category not found");
+        Category category = getCategoryById(cid);
+        User user = getUserById(uid);
+        Video video = getVideoById(vid);
+
+        category.getVideosInCategory().add(video);
+        categoryRepository.save(category);
+        return category.getVideosInCategory().size();
+
     }
 
     public int removeVideoFromCategory(int vid, int cid, int uid) {
-        Optional<Category> optionalCategory = categoryRepository.findById(cid);
-        Optional<User> optionalUser = userRepository.findById(uid);
-        Optional<Video> optionalVideo = videoRepository.findById(vid);
-        if (optionalCategory.isPresent()) {
-            if (optionalUser.isPresent()) {
-                if (optionalVideo.isPresent()) {
-                    optionalCategory.get().getVideosInCategory().remove(optionalVideo.get());
-                    categoryRepository.save(optionalCategory.get());
-                    return optionalCategory.get().getVideosInCategory().size();
-                }
-                throw new NotFoundException("Video not found");
-            }
-            throw new NotFoundException("User not found");
-        }
-        throw new NotFoundException("Category not found");
+        Category category = getCategoryById(cid);
+        User user = getUserById(uid);
+        Video video = getVideoById(vid);
+
+        category.getVideosInCategory().remove(video);
+        categoryRepository.save(category);
+        return category.getVideosInCategory().size();
+
+    }
+
+    private Category getCategoryById(int id) {
+        return categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
+    }
+
+    private User getUserById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    private Video getVideoById(int id) {
+        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
     }
 }

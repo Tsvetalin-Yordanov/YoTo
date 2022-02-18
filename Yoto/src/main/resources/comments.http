@@ -5,7 +5,7 @@ Content-Type: application/json
 
 {
   "videoId" : 1,
-  "text": "ah tezi koteta"
+  "text": "tova sa istinski macki"
 }
 ###
 PUT localhost:3333/comments
@@ -20,13 +20,13 @@ DELETE localhost:3333/comments?id=2
 ###
 POST localhost:3333/comments/like?cid=7
 ###
-POST localhost:3333/comments/dislike?cid=5
+POST localhost:3333/comments/dislike?cid=7
 ###
 DELETE  localhost:3333/comments/remove_reaction?cid=7
 ###
-POST localhost:3333/comments/respond?cid=11
+POST localhost:3333/comments/respond?cid=13
 Content-Type: application/json
 
 {
-  "text": "strahotni sa nali"
+  "text": "sam si komentiram komentara"
 }

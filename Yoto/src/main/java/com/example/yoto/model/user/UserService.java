@@ -3,7 +3,6 @@ package com.example.yoto.model.user;
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.exceptions.UnauthorizedException;
-import org.apache.catalina.mapper.Mapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,10 +10,8 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,7 +25,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private ModelMapper modelMapper;;
+    private ModelMapper modelMapper;
 
 
     public User register(String firstName, String lastName, String password, String confirmPassword, String email, String phoneNumber, LocalDate dateOfBirth, String aboutMe, char gender, String profileImageUrl, String backgroundImageUrl) {
@@ -89,28 +86,24 @@ public class UserService {
         }
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new UnauthorizedException("Wrong email");
+            throw new UnauthorizedException("Wrong credentials");
         }
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new UnauthorizedException("Wrong password");
+            throw new UnauthorizedException("Wrong credentials");
         }
         return user;
     }
 
     public User getById(int id) {
         if (id > 0) {
-            Optional<User> optionalUser = userRepository.findById(id);
-            if (optionalUser.isPresent()) {
-                return optionalUser.get();
-            }
-            throw new NotFoundException("User not found");
+            return getUserById(id);
         }
         throw new BadRequestException("Id is not positive");
     }
 
     public User DeleteById(int id) {
         if (id > 0) {
-            User user = getById(id);
+            User user = getUserById(id);
             userRepository.deleteById(id);
             return user;
         }
@@ -122,40 +115,35 @@ public class UserService {
     }
 
     //todo
-    @Transactional
     public User edit(User user) {
-        Optional<User> opt = userRepository.findById(user.getId());
-        if (opt.isPresent()) {
-            return userRepository.save(user);
-        } else {
-            throw new NotFoundException("User not found");
-        }
+        User user1 = getUserById(user.getId());
+        return userRepository.save(user);
     }
 
     public List<UserResponseDTO> followUser(int observerId, HttpSession session, HttpServletRequest request) {
         validateLogin(session, request);
         //Todo msg exeption
-        User observer = userRepository.findById(observerId).orElseThrow(()->new NotFoundException("User not found"));
-        User publisher = userRepository.findById((int)session.getAttribute("user_id")).orElseThrow(()->new NotFoundException("User not found"));
-        if(publisher.getObserverUsers().contains(observer)){
+        User observer = getUserById(observerId);
+        User publisher = getUserById((int) session.getAttribute("user_id"));
+        if (publisher.getObserverUsers().contains(observer)) {
             throw new BadRequestException("Already exists in the list of followers");
         }
         publisher.getObserverUsers().add(observer);
         userRepository.save(publisher);
-        return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user,UserResponseDTO.class)).collect(Collectors.toList());
+        return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user, UserResponseDTO.class)).collect(Collectors.toList());
     }
 
     public List<UserResponseDTO> unFollowUser(int observerId, HttpSession session, HttpServletRequest request) {
         validateLogin(session, request);
         //Todo msg exeption
-        User observer = userRepository.findById(observerId).orElseThrow(()->new NotFoundException("User not found"));
-        User publisher = userRepository.findById((int)session.getAttribute("user_id")).orElseThrow(()->new NotFoundException("User not found"));
-        if(!publisher.getObserverUsers().contains(observer)){
+        User observer = getUserById(observerId);
+        User publisher = getUserById((int) session.getAttribute("user_id"));
+        if (!publisher.getObserverUsers().contains(observer)) {
             throw new BadRequestException("Observer not follow this user");
         }
         publisher.getObserverUsers().remove(observer);
         userRepository.save(publisher);
-        return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user,UserResponseDTO.class)).collect(Collectors.toList());
+        return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user, UserResponseDTO.class)).collect(Collectors.toList());
     }
 
 
@@ -169,6 +157,8 @@ public class UserService {
         }
     }
 
-
+    private User getUserById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+    }
 
 }

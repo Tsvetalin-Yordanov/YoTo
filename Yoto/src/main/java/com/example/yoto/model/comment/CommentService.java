@@ -1,5 +1,6 @@
 package com.example.yoto.model.comment;
 
+import com.example.yoto.model.category.Category;
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.relationship.CHC.CommentHasComment;
@@ -36,36 +37,30 @@ public class CommentService {
         if (comment.getText() == null || comment.getText().isBlank()) {
             throw new BadRequestException("text is mandatory");
         }
-        Optional<Video> opt = videoRepository.findById(vid);
-        if (opt.isPresent()) {
-            comment.setCreator(userRepository.findById(uid).orElseThrow(() -> new NotFoundException("Creator not found")));
-            //comment.setVideoId(vid);
-            comment.setVideo(videoRepository.findById(vid).orElseThrow(() -> new NotFoundException("Video not found")));
-            comment.setCreationDate(LocalDateTime.now());
-            commentRepository.save(comment);
-            return comment;
-        }
-        throw new NotFoundException("Video not found");
+        Video video = getVideoById(vid);
+        comment.setCreator(getUserById(uid));
+        comment.setVideo(video);
+        comment.setCreationDate(LocalDateTime.now());
+        commentRepository.save(comment);
+        return comment;
+
     }
 
     public Comment editComment(Comment comment) {
-        Optional<Comment> opt = commentRepository.findById(comment.getId());
-        if (opt.isPresent()) {
-            if (comment.getText() == null || comment.getText().isBlank()) {
-                throw new BadRequestException("text is mandatory");
-            }
-            opt.get().setText(comment.getText());
-            opt.get().setCreationDate(LocalDateTime.now());
-            commentRepository.save(opt.get());
-        } else {
-            throw new NotFoundException("Comment not found");
+        Comment comment1 = getCommentById(comment.getId());
+
+        if (comment.getText() == null || comment.getText().isBlank()) {
+            throw new BadRequestException("text is mandatory");
         }
-        return comment;
+        comment1.setText(comment.getText());
+        comment1.setCreationDate(LocalDateTime.now());
+        commentRepository.save(comment1);
+        return comment1;
     }
 
     public Comment deleteById(int id) {
         if (id > 0) {
-            Comment comment = getById(id);
+            Comment comment = getCommentById(id);
             commentRepository.deleteById(id);
             return comment;
         }
@@ -74,11 +69,8 @@ public class CommentService {
 
     public Comment getById(int id) {
         if (id > 0) {
-            Optional<Comment> optionalComment = commentRepository.findById(id);
-            if (optionalComment.isPresent()) {
-                return optionalComment.get();
-            }
-            throw new NotFoundException("Comment not found");
+            Comment comment = getCommentById(id);
+            return comment;
         }
         throw new BadRequestException("Id is not positive");
     }
@@ -95,40 +87,35 @@ public class CommentService {
 
     public Comment reactToComment(int cid, int uid, char reaction) {
         if (cid > 0) {
-            Optional<Comment> optionalComment = commentRepository.findById(cid);
-            Optional<User> optionalUser = userRepository.findById(uid);
-            if (optionalComment.isPresent()) {
-                UserReactToCommentID userReactToCommentID = new UserReactToCommentID();
-                userReactToCommentID.setCommentId(cid);
-                userReactToCommentID.setUserId(uid);
-                UserReactToComment userReactToComment = new UserReactToComment();
-                userReactToComment.setId(userReactToCommentID);
-                userReactToComment.setComment(optionalComment.get());
-                userReactToComment.setUser(optionalUser.get());
-                userReactToComment.setReaction(reaction);
-                userReactToCommentRepository.save(userReactToComment);
-                return optionalComment.get();
-            }
-            throw new NotFoundException("Comment not found");
+            Comment comment = getCommentById(cid);
+            User user = getUserById(uid);
+
+            UserReactToCommentID userReactToCommentID = new UserReactToCommentID();
+            userReactToCommentID.setCommentId(cid);
+            userReactToCommentID.setUserId(uid);
+            UserReactToComment userReactToComment = new UserReactToComment();
+            userReactToComment.setId(userReactToCommentID);
+            userReactToComment.setComment(comment);
+            userReactToComment.setUser(user);
+            userReactToComment.setReaction(reaction);
+            userReactToCommentRepository.save(userReactToComment);
+            return comment;
         }
         throw new BadRequestException("Id is not positive");
     }
 
     public Comment removeReaction(int cid, int uid) {
         if (cid > 0) {
-            Optional<Comment> optionalComment = commentRepository.findById(cid);
-            if (optionalComment.isPresent()) {
-                UserReactToCommentID userReactToCommentID = new UserReactToCommentID();
-                userReactToCommentID.setCommentId(cid);
-                userReactToCommentID.setUserId(uid);
-                Optional<UserReactToComment> optional = userReactToCommentRepository.findById(userReactToCommentID);
-                if (optional.isPresent()) {
-                    userReactToCommentRepository.deleteById(userReactToCommentID);
-                    return optionalComment.get();
-                }
-                throw new BadRequestException("You haven't reacted to this comment yet");
+            Comment comment = getCommentById(cid);
+            UserReactToCommentID userReactToCommentID = new UserReactToCommentID();
+            userReactToCommentID.setCommentId(cid);
+            userReactToCommentID.setUserId(uid);
+            Optional<UserReactToComment> optional = userReactToCommentRepository.findById(userReactToCommentID);
+            if (optional.isPresent()) {
+                userReactToCommentRepository.deleteById(userReactToCommentID);
+                return comment;
             }
-            throw new NotFoundException("Comment not found");
+            throw new BadRequestException("You haven't reacted to this comment yet");
         }
         throw new BadRequestException("Id is not positive");
     }
@@ -138,29 +125,38 @@ public class CommentService {
             throw new BadRequestException("text is mandatory");
         }
         if (cid > 0) {
-            Optional<Comment> opt = commentRepository.findById(cid);
-            if (opt.isPresent()) {
-                   comment.setCreator(userRepository.findById(uid).orElseThrow(() -> new NotFoundException("Creator not found")));
-                   //comment.setVideoId(opt.get().getVideoId());
-                   comment.setVideo(videoRepository.findById(opt.get().getVideo().getId()).orElseThrow(() -> new NotFoundException("Video not found")));
-                   comment.setCreationDate(LocalDateTime.now());
-                   commentRepository.save(comment);
+            Comment comment1 = getCommentById(cid);
+            comment.setCreator(getUserById(uid));
+            comment.setVideo(getVideoById(comment1.getVideo().getId()));
+            comment.setCreationDate(LocalDateTime.now());
+            commentRepository.save(comment);
 
 
-                   CommentHasCommentID commentHasCommentID = new CommentHasCommentID();
-                   commentHasCommentID.setParentId(cid);
-                   commentHasCommentID.setChildId(comment.getId());
+            CommentHasCommentID commentHasCommentID = new CommentHasCommentID();
+            commentHasCommentID.setParentId(cid);
+            commentHasCommentID.setChildId(comment.getId());
 
-                   CommentHasComment commentHasComment = new CommentHasComment();
-                   commentHasComment.setId(commentHasCommentID);
-                   commentHasComment.setParent(opt.get());
-                   commentHasComment.setChild(comment);
+            CommentHasComment commentHasComment = new CommentHasComment();
+            commentHasComment.setId(commentHasCommentID);
+            commentHasComment.setParent(comment1);
+            commentHasComment.setChild(comment);
 
-                   commentHasCommentRepository.save(commentHasComment);
-                   return comment;
-            }
-            throw new NotFoundException("Comment not found");
+            commentHasCommentRepository.save(commentHasComment);
+            return comment;
         }
         throw new BadRequestException("Id is not positive");
+    }
+
+
+    private Comment getCommentById(int id) {
+        return commentRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
+    }
+
+    private User getUserById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    private Video getVideoById(int id) {
+        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
     }
 }

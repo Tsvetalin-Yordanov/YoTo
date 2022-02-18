@@ -24,9 +24,11 @@ Content-Type: application/json
 ###
 GET localhost:3333/users
 ###
-GET localhost:3333/users/2
+GET localhost:3333/users/3
 ###
-POST localhost:3333/users/follow?observer=1
+POST localhost:3333/users/follow?observer=3
+###
+POST localhost:3333/users/unfollow?observer=3
 ###
 DELETE localhost:3333/users?id=4
 ###
