@@ -76,9 +76,10 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserReactToVideo> reactedVideos = new HashSet<>();
 
-    //followers
+    //following
     @ManyToMany(mappedBy = "observerUsers")
     private Set<User> publisherUsers = new HashSet<>();
+
     //followers
     @ManyToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "users_follow_users",

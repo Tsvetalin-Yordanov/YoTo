@@ -34,6 +34,8 @@ public class Category {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate createDate;
 
+    //todo add background image
+
     //users who follow category
     @ManyToMany()
     @JoinTable(

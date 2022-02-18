@@ -8,12 +8,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserResponseDTO {
+public class UserSimpleResponseDTO {
     private int id;
     private String firstName;
     private String lastName;
     private String aboutMe;
-    private char gender;
     private String profileImageUrl;
-    private String backgroundImageUrl;
+    private int followers;
+    private int videos;
 }

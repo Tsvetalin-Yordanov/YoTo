@@ -95,6 +95,7 @@ public class UserService {
 
     public User getById(int id) {
         if (id > 0) {
+            
             return getUserById(id);
         }
         throw new BadRequestException("Id is not positive");
@@ -118,7 +119,7 @@ public class UserService {
         User user1 = getUserById(user.getId());
         return userRepository.save(user);
     }
-    public List<UserResponseDTO> followUser(int publisherId, HttpSession session, HttpServletRequest request) {
+    public List<UserSimpleResponseDTO> followUser(int publisherId, HttpSession session, HttpServletRequest request) {
         validateLogin(session, request);
         //Todo msg exeption
 
@@ -130,10 +131,10 @@ public class UserService {
         }
         publisher.getObserverUsers().add(observer);
         userRepository.save(publisher);
-        return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user, UserResponseDTO.class)).collect(Collectors.toList());
+        return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user, UserSimpleResponseDTO.class)).collect(Collectors.toList());
     }
 
-    public List<UserResponseDTO> unFollowUser(int publisherId, HttpSession session, HttpServletRequest request) {
+    public List<UserSimpleResponseDTO> unFollowUser(int publisherId, HttpSession session, HttpServletRequest request) {
         validateLogin(session, request);
         //Todo msg exeption
         User observer = getUserById((int) session.getAttribute("user_id"));
@@ -143,7 +144,7 @@ public class UserService {
         }
         publisher.getObserverUsers().remove(observer);
         userRepository.save(publisher);
-        return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user, UserResponseDTO.class)).collect(Collectors.toList());
+        return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user, UserSimpleResponseDTO.class)).collect(Collectors.toList());
     }
 
 

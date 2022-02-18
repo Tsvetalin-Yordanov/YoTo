@@ -3,7 +3,6 @@ package com.example.yoto.model.video;
 
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
-import com.example.yoto.model.playList.Playlist;
 import com.example.yoto.model.playList.PlayListRepository;
 import com.example.yoto.model.relationship.URTV.UserReactToVideo;
 import com.example.yoto.model.relationship.URTV.UserReactToVideoRepository;
@@ -14,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+
 
 
 @Service
