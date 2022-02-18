@@ -48,7 +48,7 @@ public class UserController {
     public UserResponseDTO logIn(@RequestBody User user, HttpSession session, HttpServletRequest request) {
         String email = user.getEmail();
         String password = user.getPassword();
-        User u = userService.login(email, password);
+        User u = userService.login(email,password);
         session.setAttribute(UserService.USER_ID, u.getId());
         session.setAttribute(UserService.LOGGED, true);
         session.setAttribute(UserService.LOGGED_FROM, request.getRemoteAddr());
@@ -93,7 +93,8 @@ public class UserController {
     }
 
     @PostMapping("/users/follow")
-    public List<UserResponseDTO> followUser(@RequestParam int observer, HttpSession session, HttpServletRequest request){
+    public List<UserResponseDTO> followUser(@RequestParam int observer, HttpSession session, HttpServletRequest request) {
+
         return userService.followUser(observer, session, request);
     }
 

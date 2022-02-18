@@ -1,4 +1,4 @@
-package com.example.yoto.model.user;
+﻿package com.example.yoto.model.user;
 
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
@@ -131,18 +131,14 @@ public class UserService {
             throw new NotFoundException("User not found");
         }
     }
-
-    public List<UserResponseDTO> followUser(int publisherId, HttpSession session, HttpServletRequest request) {
-        System.out.println(2);
+    public List<UserResponseDTO> followUser(int observerId, HttpSession session, HttpServletRequest request) {
         validateLogin(session, request);
-        System.out.println(3);
         //Todo msg exeption
         User publisher = userRepository.findById(publisherId).orElseThrow(()->new NotFoundException("User not found"));
         User observer = userRepository.findById((int)session.getAttribute("user_id")).orElseThrow(()->new NotFoundException("User not found"));
         if(publisher.getObserverUsers().contains(observer)){
             throw new BadRequestException("Already exists in the list of followers");
         }
-        System.out.println(4);
         publisher.getObserverUsers().add(observer);
         userRepository.save(publisher);
         return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user,UserResponseDTO.class)).collect(Collectors.toList());

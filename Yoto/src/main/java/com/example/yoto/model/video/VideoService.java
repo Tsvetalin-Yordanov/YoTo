@@ -53,6 +53,7 @@ public class VideoService {
         if (videoReq.getVideoUrl() == null || videoReq.getVideoUrl().isBlank()) {
             throw new BadRequestException("No content to upload");
         }
+
         return videoRepository.save(videoReq);
     }
 
@@ -70,7 +71,7 @@ public class VideoService {
             Optional<Video> videoOpt = videoRepository.findById(vId);
             if (videoOpt.isPresent()) {
                 UsersReactToVideosId usersReactToVideosId = new UsersReactToVideosId(userId, vId);
-                UserReactToVideo userReactToVideo = new UserReactToVideo(usersReactToVideosId, userOpt.get(), videoOpt.get(), '+');
+                UserReactToVideo userReactToVideo = new UserReactToVideo(usersReactToVideosId, userOpt.get(), videoOpt.get(), c);
                 userReactToVideoRepository.save(userReactToVideo);
                 return videoOpt.get();
             } else {
@@ -105,7 +106,7 @@ public class VideoService {
     public int watch(int vId, int userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         Video video = videoRepository.findById(vId).orElseThrow(()-> new NotFoundException("Video not found"));
-        if(!user.getVideos().contains(video)){
+        if(!user.getWatchedVideos().contains(video)){
             video.getUsers().add(user);
             videoRepository.save(video);
         }
