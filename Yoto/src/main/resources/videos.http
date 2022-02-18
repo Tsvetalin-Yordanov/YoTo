@@ -1,0 +1,14 @@
+GET localhost:3333/videos/2
+###
+POST localhost:3333/videos/upload
+
+{
+  "title": "Qkata rabota",
+  "uploadDate" : "29.05.2021"
+  "videoUrl" : "videoUrl_now"
+  "isPrivate" : "false"
+}
+###
+PUT localhost:3333/videos/like?vid=2
+###
+PUT localhost:3333/videos/like?vid=2

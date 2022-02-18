@@ -60,6 +60,7 @@ public class User {
     @ManyToMany(mappedBy = "followersOfCategory")
     private Set<Category> followedCategories;
 
+    //set of published playlists
     @OneToMany(mappedBy = "creator")
     private Set<Playlist> playlists;
 
@@ -78,11 +79,11 @@ public class User {
     //followers
     @ManyToMany(mappedBy = "observerUsers")
     private Set<User> publisherUsers = new HashSet<>();
-
+    //followers
     @ManyToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "users_follow_users",
-            joinColumns = {@JoinColumn(name = "observer_id")},
-            inverseJoinColumns = {@JoinColumn(name = "publisher_id")})
+            joinColumns = {@JoinColumn(name = "publisher_id")},
+            inverseJoinColumns = {@JoinColumn(name = "observer_id")})
     private Set<User> observerUsers = new HashSet<>();
 
     //watched videos history

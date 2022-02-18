@@ -92,12 +92,12 @@ public class UserController {
         session.invalidate();
     }
 
-    @PostMapping("users/follow")
-    public List<UserResponseDTO> followUser(@RequestParam int observer, HttpSession session, HttpServletRequest request) {
-        System.out.println(1);
+    @PostMapping("/users/follow")
+    public List<UserResponseDTO> followUser(@RequestParam int observer, HttpSession session, HttpServletRequest request){
         return userService.followUser(observer, session, request);
     }
-    @PostMapping("users/unfollow")
+
+    @PostMapping("/users/unfollow")
     public List<UserResponseDTO> unFollowUser(@RequestParam int observer, HttpSession session, HttpServletRequest request) {
         return userService.unFollowUser(observer, session, request);
     }

@@ -1,5 +1,4 @@
 package com.example.yoto.controller;
-
 import com.example.yoto.model.user.UserService;
 import com.example.yoto.model.video.Video;
 import com.example.yoto.model.video.VideoResponseDTO;

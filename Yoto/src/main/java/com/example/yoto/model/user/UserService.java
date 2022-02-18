@@ -132,13 +132,13 @@ public class UserService {
         }
     }
 
-    public List<UserResponseDTO> followUser(int observerId, HttpSession session, HttpServletRequest request) {
+    public List<UserResponseDTO> followUser(int publisherId, HttpSession session, HttpServletRequest request) {
         System.out.println(2);
         validateLogin(session, request);
         System.out.println(3);
         //Todo msg exeption
-        User observer = userRepository.findById(observerId).orElseThrow(()->new NotFoundException("User not found"));
-        User publisher = userRepository.findById((int)session.getAttribute("user_id")).orElseThrow(()->new NotFoundException("User not found"));
+        User publisher = userRepository.findById(publisherId).orElseThrow(()->new NotFoundException("User not found"));
+        User observer = userRepository.findById((int)session.getAttribute("user_id")).orElseThrow(()->new NotFoundException("User not found"));
         if(publisher.getObserverUsers().contains(observer)){
             throw new BadRequestException("Already exists in the list of followers");
         }
@@ -148,11 +148,11 @@ public class UserService {
         return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user,UserResponseDTO.class)).collect(Collectors.toList());
     }
 
-    public List<UserResponseDTO> unFollowUser(int observerId, HttpSession session, HttpServletRequest request) {
+    public List<UserResponseDTO> unFollowUser(int publisherId, HttpSession session, HttpServletRequest request) {
         validateLogin(session, request);
-        //Todo msg exeption
-        User observer = userRepository.findById(observerId).orElseThrow(()->new NotFoundException("User not found"));
-        User publisher = userRepository.findById((int)session.getAttribute("user_id")).orElseThrow(()->new NotFoundException("User not found"));
+        //Todo msg exeptionpublisher
+        User publisher = userRepository.findById(publisherId).orElseThrow(()->new NotFoundException("User not found"));
+        User observer = userRepository.findById((int)session.getAttribute("user_id")).orElseThrow(()->new NotFoundException("User not found"));
         if(!publisher.getObserverUsers().contains(observer)){
             throw new BadRequestException("Observer not follow this user");
         }
@@ -163,7 +163,6 @@ public class UserService {
 
 
     public void validateLogin(HttpSession session, HttpServletRequest request) {
-
         boolean newSession = session.isNew();
         boolean logged = session.getAttribute(LOGGED) != null && ((Boolean) session.getAttribute(LOGGED));
         boolean sameIp = request.getRemoteAddr().equals(session.getAttribute(LOGGED_FROM));
