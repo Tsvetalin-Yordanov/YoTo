@@ -24,14 +24,14 @@ public class PlayListController {
     private ModelMapper modelMapper;
 
 
-    @GetMapping("/playlist/{id:[\\d]+}")
+    @GetMapping("/playlists/{id:[\\d]+}")
     public PlayListResponseDTO getById(@PathVariable int id) {
         Playlist playList = playListService.getById(id);
         PlayListResponseDTO playListDto = modelMapper.map(playList, PlayListResponseDTO.class);
         return playListDto;
     }
 
-    @PostMapping("/playlist/create")
+    @PostMapping("/playlists/create")
     @ResponseStatus(code = HttpStatus.CREATED)
     public PlayListResponseDTO createPlayList(@RequestBody Playlist playlist, HttpSession session, HttpServletRequest request) {
         userService.validateLogin(session, request);
@@ -40,20 +40,20 @@ public class PlayListController {
         return playListDTO;
     }
 
-    @DeleteMapping("/playlist/delete")
+    @DeleteMapping("/playlists/delete")
     public int deletePlaylist (@RequestParam int plId, HttpSession session, HttpServletRequest request){
         userService.validateLogin(session,request);
         return playListService.deletePlaylist( plId,(int)session.getAttribute("user_id"));
 
     }
-    @PostMapping("/playlist/add_video")
+    @PostMapping("/playlists/add_video")
     public int addToPlaylist (@RequestParam int vId, @RequestParam int plId ,HttpSession session, HttpServletRequest request){
         userService.validateLogin(session, request);
         int userId = (int) session.getAttribute(USER_ID);
         return playListService.addVideo(vId,plId,userId);
     }
 
-    @DeleteMapping("/playlist/delete_video")
+    @DeleteMapping("/playlists/delete_video")
     public int deleteFromPlaylist (@RequestParam int vId, @RequestParam int plid ,HttpSession session, HttpServletRequest request) {
         userService.validateLogin(session, request);
         int userId = (int) session.getAttribute(USER_ID);

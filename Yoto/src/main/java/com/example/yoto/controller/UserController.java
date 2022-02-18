@@ -94,7 +94,6 @@ public class UserController {
 
     @PostMapping("/users/follow")
     public List<UserResponseDTO> followUser(@RequestParam int observer, HttpSession session, HttpServletRequest request) {
-
         return userService.followUser(observer, session, request);
     }
 
