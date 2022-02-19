@@ -116,8 +116,8 @@ public class VideoService {
 
     private VideoComplexResponseDTO getVideoComplexDtoWithParameters(Video video) {
         VideoComplexResponseDTO vDto = modelMapper.map(video, VideoComplexResponseDTO.class);
-        UserSimpleResponseDTO userDto = modelMapper.map(video.getUser(), UserSimpleResponseDTO.class);
-        vDto.setUser(userDto);
+        //UserSimpleResponseDTO userDto = modelMapper.map(video.getUser(), UserSimpleResponseDTO.class);
+        vDto.setUser(UserService.userToSimpleDTO(video.getUser()));
         vDto.setViews(video.getUsers().size());
         vDto.setLikes(userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '+').size());
         vDto.setDislikes(userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '-').size());
@@ -126,8 +126,8 @@ public class VideoService {
 
     private VideoSimpleResponseDTO getVideoSimpleDtoWithParameters(Video video) {
         VideoSimpleResponseDTO vDto = modelMapper.map(video, VideoSimpleResponseDTO.class);
-        UserSimpleResponseDTO userDto = modelMapper.map(video.getUser(), UserSimpleResponseDTO.class);
-        vDto.setUser(userDto);
+        //UserSimpleResponseDTO userDto = modelMapper.map(video.getUser(), UserSimpleResponseDTO.class);
+        vDto.setUser(UserService.userToSimpleDTO(video.getUser()));
         vDto.setViews(video.getUsers().size());
         return vDto;
     }
