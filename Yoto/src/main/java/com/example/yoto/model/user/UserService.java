@@ -3,9 +3,12 @@ package com.example.yoto.model.user;
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.exceptions.UnauthorizedException;
+import com.example.yoto.model.playList.PlayListComplexResponseDTO;
+import com.example.yoto.model.playList.PlayListSimpleResponseDTO;
 import com.example.yoto.model.video.Video;
 import com.example.yoto.model.video.VideoService;
 import com.example.yoto.model.video.VideoSimpleResponseDTO;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -27,6 +31,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private ModelMapper modelMapper;
 
     public UserSimpleResponseDTO register(UserRegisterDTO userDTO) {
         if (userDTO.getFirstName() == null || userDTO.getFirstName() .isBlank()) {
@@ -193,6 +199,7 @@ public class UserService {
         dto.setProfileImageUrl(user.getProfileImageUrl());
         dto.setBackgroundImageUrl(user.getBackgroundImageUrl());
         dto.setFollowers(user.getObserverUsers().size());
+        dto.setPlaylists(user.getPlaylists().stream().map(playlist -> modelMapper.map(playlist, PlayListComplexResponseDTO.class)).collect(Collectors.toSet()));
         dto.setVideos(videos);
         return dto;
     }

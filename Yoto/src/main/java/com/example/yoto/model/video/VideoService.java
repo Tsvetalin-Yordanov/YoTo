@@ -36,7 +36,7 @@ public class VideoService {
 
     public VideoComplexResponseDTO getById(int id) {
         Video video = videoGetById(id);
-        return getVideoComplexDtoWithParameters(video);
+        return videoToComplexDTO(video);
     }
 
     public VideoSimpleResponseDTO uploadVideo(Video videoReq, int userId) {
@@ -54,17 +54,17 @@ public class VideoService {
             throw new BadRequestException("No content to upload");
         }
         Video video = videoRepository.save(videoReq);
-        return getVideoSimpleDtoWithParameters(video);
+        return videoToSimpleDTO(video);
     }
 
     public VideoComplexResponseDTO likeVideo(int vId, int userId) {
         Video video = reactedVideo(vId, userId, '+');
-        return getVideoComplexDtoWithParameters(video);
+        return videoToComplexDTO(video);
     }
 
     public VideoComplexResponseDTO dislikeVideo(int vId, int userId) {
         Video video = reactedVideo(vId, userId, '-');
-        return getVideoComplexDtoWithParameters(video);
+        return videoToComplexDTO(video);
     }
 
     private Video reactedVideo(int vId, int userId, char c) {
@@ -83,7 +83,7 @@ public class VideoService {
         UserReactToVideo userReactToVideo = userReactToVideoRepository.findById(usersReactToVideosId)
                 .orElseThrow(() -> new BadRequestException("You haven't reacted to this video yet"));
         userReactToVideoRepository.deleteById(usersReactToVideosId);
-        return getVideoComplexDtoWithParameters(video);
+        return videoToComplexDTO(video);
     }
 
     //TODO няма да бачка с user
@@ -104,31 +104,27 @@ public class VideoService {
     }
 
     public static VideoSimpleResponseDTO videoToSimpleDTO(Video video) {
-        VideoSimpleResponseDTO videoDTO = new VideoSimpleResponseDTO();
-        videoDTO.setId(video.getId());
-        videoDTO.setTitle(video.getTitle());
-        videoDTO.setUser(UserService.userToSimpleDTO(video.getUser()));
-        videoDTO.setUploadDate(video.getUploadDate());
-        videoDTO.setVideoUrl(video.getVideoUrl());
-        videoDTO.setViews(video.getUsers().size());
-        return videoDTO;
-    }
-
-    private VideoComplexResponseDTO getVideoComplexDtoWithParameters(Video video) {
-        VideoComplexResponseDTO vDto = modelMapper.map(video, VideoComplexResponseDTO.class);
-        //UserSimpleResponseDTO userDto = modelMapper.map(video.getUser(), UserSimpleResponseDTO.class);
+        VideoSimpleResponseDTO vDto = new VideoSimpleResponseDTO();
+        vDto.setId(video.getId());
+        vDto.setTitle(video.getTitle());
         vDto.setUser(UserService.userToSimpleDTO(video.getUser()));
+        vDto.setUploadDate(video.getUploadDate());
+        vDto.setVideoUrl(video.getVideoUrl());
         vDto.setViews(video.getUsers().size());
-        vDto.setLikes(userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '+').size());
-        vDto.setDislikes(userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '-').size());
         return vDto;
     }
 
-    private VideoSimpleResponseDTO getVideoSimpleDtoWithParameters(Video video) {
-        VideoSimpleResponseDTO vDto = modelMapper.map(video, VideoSimpleResponseDTO.class);
-        //UserSimpleResponseDTO userDto = modelMapper.map(video.getUser(), UserSimpleResponseDTO.class);
+    public VideoComplexResponseDTO videoToComplexDTO(Video video) {
+        VideoComplexResponseDTO vDto = new VideoComplexResponseDTO();
+        vDto.setId(video.getId());
+        vDto.setTitle(video.getTitle());
         vDto.setUser(UserService.userToSimpleDTO(video.getUser()));
+        vDto.setUploadDate(video.getUploadDate());
+        vDto.setVideoUrl(video.getVideoUrl());
+        vDto.setPrivate(video.isPrivate());
         vDto.setViews(video.getUsers().size());
+        vDto.setLikes(userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '+').size());
+        vDto.setDislikes(userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '-').size());
         return vDto;
     }
 }

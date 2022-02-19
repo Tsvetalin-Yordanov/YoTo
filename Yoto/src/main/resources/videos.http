@@ -6,9 +6,9 @@ Content-Type: application/json
   "videoUrl": "asddfsdg"
 }
 ###
-GET localhost:3333/videos/1
+GET localhost:3333/videos/4
 ###
-PUT localhost:3333/videos/like?vId=3
+PUT localhost:3333/videos/like?vId=4
 ###
 PUT localhost:3333/videos/dislike?vId=4
 ###
