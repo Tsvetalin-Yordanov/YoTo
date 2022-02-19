@@ -1,6 +1,7 @@
 package com.example.yoto.controller;
 
 import com.example.yoto.model.category.Category;
+import com.example.yoto.model.category.CategoryComplexResponseDTO;
 import com.example.yoto.model.category.CategoryService;
 import com.example.yoto.model.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +20,14 @@ public class CategoryController {
     private UserService userService;
 
     @GetMapping("/categories/{id}")
-    public Category getById(@PathVariable int id) {
-        Category category = categoryService.getById(id);
+    public CategoryComplexResponseDTO getById(@PathVariable int id) {
+        CategoryComplexResponseDTO category = categoryService.getById(id);
         return category;
     }
 
     @GetMapping("/categories")
-    public List<Category> getAll() {
-        List<Category> categories = categoryService.getAll();
+    public List<CategoryComplexResponseDTO> getAll() {
+        List<CategoryComplexResponseDTO> categories = categoryService.getAll();
         return categories;
     }
 

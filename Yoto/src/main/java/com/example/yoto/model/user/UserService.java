@@ -3,15 +3,19 @@ package com.example.yoto.model.user;
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.exceptions.UnauthorizedException;
-import org.modelmapper.ModelMapper;
+import com.example.yoto.model.video.Video;
+import com.example.yoto.model.video.VideoService;
+import com.example.yoto.model.video.VideoSimpleResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -23,107 +27,110 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private ModelMapper modelMapper;
 
-
-    public User register(String firstName, String lastName, String password, String confirmPassword, String email, String phoneNumber, LocalDate dateOfBirth, String aboutMe, char gender, String profileImageUrl, String backgroundImageUrl) {
-        if (firstName == null || firstName.isBlank()) {
+    public UserSimpleResponseDTO register(UserRegisterDTO userDTO) {
+        if (userDTO.getFirstName() == null || userDTO.getFirstName() .isBlank()) {
             throw new BadRequestException("First name is mandatory");
         }
-        if (lastName == null || lastName.isBlank()) {
+        if (userDTO.getLastName() == null || userDTO.getLastName() .isBlank()) {
             throw new BadRequestException("Last name is mandatory");
         }
-        if (password == null || password.isBlank()) {
+        if (userDTO.getPassword() == null || userDTO.getPassword().isBlank()) {
             throw new BadRequestException("Password is mandatory");
         }
-        if (!password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$")) {
+        if (!userDTO.getPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$")) {
             throw new BadRequestException("Password is too weak");
         }
-        if (!password.equals(confirmPassword)) {
+        if (!userDTO.getPassword().equals(userDTO.getConfirmPassword())) {
             throw new BadRequestException("Passwords mismatch");
         }
-        if (email == null || email.isBlank()) {
+        if (userDTO.getEmail() == null || userDTO.getEmail() .isBlank()) {
             throw new BadRequestException("Email is mandatory");
         }
         //todo check
-        if (!email.matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
+        if (!userDTO.getEmail() .matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
             throw new BadRequestException("Email is invalid");
         }
         //todo
-        if (dateOfBirth == null) {
-            throw new BadRequestException("Invalid password");
+        if (userDTO.getDateOfBirth() == null) {
+            throw new BadRequestException("Invalid date of birth");
         }
-        if (userRepository.findByEmail(email) != null) {
+        if (userRepository.findByEmail(userDTO.getEmail() ) != null) {
             throw new BadRequestException("User already exists");
         }
 
-        if (userRepository.findByPhoneNumber(phoneNumber) != null) {
+        if (userRepository.findByPhoneNumber(userDTO.getPhoneNumber()) != null) {
             throw new BadRequestException("User already exists");
         }
         User user = new User();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setEmail(email);
-        user.setPhoneNumber(phoneNumber);
-        user.setDateOfBirth(dateOfBirth);
-        user.setAboutMe(aboutMe);
-        user.setGender(gender);
-        user.setProfileImageUrl(profileImageUrl);
-        user.setBackgroundImageUrl(backgroundImageUrl);
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setEmail(userDTO.getEmail());
+        user.setPhoneNumber(userDTO.getPhoneNumber());
+        user.setDateOfBirth(userDTO.getDateOfBirth());
+        user.setAboutMe(userDTO.getAboutMe());
+        user.setGender(userDTO.getGender());
+        user.setProfileImageUrl(userDTO.getProfileImageUrl());
+        user.setBackgroundImageUrl(userDTO.getBackgroundImageUrl());
         userRepository.save(user);
-        return user;
+        return userToSimpleDTO(user);
     }
 
-    public User login(String email, String password) {
-        if (email == null || email.isBlank()) {
+    public UserSimpleResponseDTO login(User user) {
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
             throw new BadRequestException("Username is mandatory");
         }
-        if (password == null || password.isBlank()) {
+        if (user.getPassword() == null || user.getPassword() .isBlank()) {
             throw new BadRequestException("Password is mandatory");
         }
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
+        User user1 = userRepository.findByEmail(user.getEmail());
+        if (user1 == null) {
+            throw new UnauthorizedException("Wrong email");
+        }
+        if (!passwordEncoder.matches(user.getPassword(), user1.getPassword())) {
             throw new UnauthorizedException("Wrong credentials");
         }
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new UnauthorizedException("Wrong credentials");
-        }
-        return user;
+        return userToSimpleDTO(user1);
     }
 
-    public User getById(int id) {
+    public UserComplexResponseDTO getById(int id) {
         if (id > 0) {
-            
-            return getUserById(id);
+
+            return userToComplexDTO(getUserById(id));
         }
         throw new BadRequestException("Id is not positive");
     }
 
-    public User DeleteById(int id) {
+    public UserSimpleResponseDTO DeleteById(int id) {
         if (id > 0) {
             User user = getUserById(id);
             userRepository.deleteById(id);
-            return user;
+            return userToSimpleDTO(user);
         }
         throw new BadRequestException("Id is not positive");
     }
 
-    public List<User> getAll() {
-        return userRepository.findAll();
+    public List<UserSimpleResponseDTO> getAll() {
+        List<UserSimpleResponseDTO> dtos = new ArrayList<>();
+        List<User> users = userRepository.findAll();
+        for (User user: users) {
+            dtos.add(userToSimpleDTO(user));
+        }
+        return dtos;
     }
 
     //todo
-    public User edit(User user) {
-        User user1 = getUserById(user.getId());
-        return userRepository.save(user);
+    public UserSimpleResponseDTO edit(User user) {
+        getUserById(user.getId());
+        return userToSimpleDTO(userRepository.save(user));
     }
-    public List<UserSimpleResponseDTO> followUser(int publisherId, HttpSession session, HttpServletRequest request) {
-        validateLogin(session, request);
+
+    public int followUser(int publisherId,int observerId) {
+
         //Todo msg exeption
 
-        User observer = getUserById((int) session.getAttribute("user_id"));
+        User observer = getUserById(observerId);
         User publisher = getUserById(publisherId);
         if (publisher.getObserverUsers().contains(observer)) {
 
@@ -131,20 +138,19 @@ public class UserService {
         }
         publisher.getObserverUsers().add(observer);
         userRepository.save(publisher);
-        return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user, UserSimpleResponseDTO.class)).collect(Collectors.toList());
+        return publisher.getObserverUsers().size();
     }
 
-    public List<UserSimpleResponseDTO> unFollowUser(int publisherId, HttpSession session, HttpServletRequest request) {
-        validateLogin(session, request);
+    public int unFollowUser(int publisherId,int observerId) {
         //Todo msg exeption
-        User observer = getUserById((int) session.getAttribute("user_id"));
+        User observer = getUserById(observerId);
         User publisher = getUserById(publisherId);
         if (!publisher.getObserverUsers().contains(observer)) {
             throw new BadRequestException("Observer not follow this user");
         }
         publisher.getObserverUsers().remove(observer);
         userRepository.save(publisher);
-        return publisher.getObserverUsers().stream().map(user -> modelMapper.map(user, UserSimpleResponseDTO.class)).collect(Collectors.toList());
+        return publisher.getObserverUsers().size();
     }
 
 
@@ -159,5 +165,35 @@ public class UserService {
 
     private User getUserById(int id) {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    public static UserSimpleResponseDTO userToSimpleDTO(User user) {
+        UserSimpleResponseDTO userDto = new UserSimpleResponseDTO();
+        userDto.setId(user.getId());
+        userDto.setFirstName(user.getFirstName());
+        userDto.setLastName(user.getLastName());
+        userDto.setAboutMe(user.getAboutMe());
+        userDto.setProfileImageUrl(user.getProfileImageUrl());
+        userDto.setFollowers(user.getObserverUsers().size());
+        userDto.setVideos(user.getVideos()!=null?user.getVideos().size():0);
+        return userDto;
+    }
+
+    private UserComplexResponseDTO userToComplexDTO(User user){
+        Set<VideoSimpleResponseDTO> videos = new HashSet<>();
+        for (Video video : user.getVideos()) {
+            videos.add(VideoService.videoToSimpleDTO(video));
+        }
+
+        UserComplexResponseDTO dto = new UserComplexResponseDTO();
+        dto.setId(user.getId());
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setAboutMe(user.getAboutMe());
+        dto.setProfileImageUrl(user.getProfileImageUrl());
+        dto.setBackgroundImageUrl(user.getBackgroundImageUrl());
+        dto.setFollowers(user.getObserverUsers().size());
+        dto.setVideos(videos);
+        return dto;
     }
 }

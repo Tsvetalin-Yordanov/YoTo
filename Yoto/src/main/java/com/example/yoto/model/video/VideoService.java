@@ -9,6 +9,7 @@ import com.example.yoto.model.relationship.URTV.UserReactToVideoRepository;
 import com.example.yoto.model.relationship.URTV.UsersReactToVideosId;
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserRepository;
+import com.example.yoto.model.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,8 @@ public class VideoService {
     private UserReactToVideoRepository userReactToVideoRepository;
     @Autowired
     private PlayListRepository playListRepository;
+
+
 
 
     public Video getById(int id) {
@@ -92,5 +95,17 @@ public class VideoService {
 
     public User userGetById(int id) {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    public static VideoSimpleResponseDTO videoToSimpleDTO(Video video) {
+
+        VideoSimpleResponseDTO videoDTO = new VideoSimpleResponseDTO();
+        videoDTO.setId(video.getId());
+        videoDTO.setTitle(video.getTitle());
+        videoDTO.setUser(UserService.userToSimpleDTO(video.getUser()));
+        videoDTO.setUploadDate(video.getUploadDate());
+        videoDTO.setVideoUrl(video.getVideoUrl());
+        videoDTO.setViews(video.getUsers().size());
+        return videoDTO;
     }
 }

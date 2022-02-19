@@ -1,6 +1,5 @@
 package com.example.yoto.model.comment;
 
-import com.example.yoto.model.category.Category;
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.relationship.CHC.CommentHasComment;
@@ -11,13 +10,15 @@ import com.example.yoto.model.relationship.URTC.UserReactToCommentID;
 import com.example.yoto.model.relationship.URTC.UserReactToCommentRepository;
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserRepository;
+import com.example.yoto.model.user.UserService;
 import com.example.yoto.model.video.Video;
 import com.example.yoto.model.video.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CommentService {
@@ -33,7 +34,7 @@ public class CommentService {
     @Autowired
     private CommentHasCommentRepository commentHasCommentRepository;
 
-    public Comment createComment(Comment comment, int uid, int vid) {
+    public CommentSimpleResponseDTO createComment(Comment comment, int uid, int vid) {
         if (comment.getText() == null || comment.getText().isBlank()) {
             throw new BadRequestException("text is mandatory");
         }
@@ -42,11 +43,10 @@ public class CommentService {
         comment.setVideo(video);
         comment.setCreationDate(LocalDateTime.now());
         commentRepository.save(comment);
-        return comment;
-
+        return commentToCommentDTO(comment);
     }
 
-    public Comment editComment(Comment comment) {
+    public CommentSimpleResponseDTO editComment(Comment comment) {
         Comment comment1 = getCommentById(comment.getId());
 
         if (comment.getText() == null || comment.getText().isBlank()) {
@@ -55,37 +55,37 @@ public class CommentService {
         comment1.setText(comment.getText());
         comment1.setCreationDate(LocalDateTime.now());
         commentRepository.save(comment1);
-        return comment1;
+        return commentToCommentDTO(comment1);
     }
 
-    public Comment deleteById(int id) {
+    public CommentSimpleResponseDTO deleteById(int id) {
         if (id > 0) {
             Comment comment = getCommentById(id);
             commentRepository.deleteById(id);
-            return comment;
+            return commentToCommentDTO(comment);
         }
         throw new BadRequestException("Id is not positive");
     }
 
-    public Comment getById(int id) {
+    public CommentSimpleResponseDTO getById(int id) {
         if (id > 0) {
             Comment comment = getCommentById(id);
-            return comment;
+            return commentToCommentDTO(comment);
         }
         throw new BadRequestException("Id is not positive");
     }
 
-    public Comment likeComment(int cid, int uid) {
-        Comment comment = reactToComment(cid, uid, '+');
-        return comment;
+    public CommentSimpleResponseDTO likeComment(int cid, int uid) {
+        CommentSimpleResponseDTO commentDto = reactToComment(cid, uid, '+');
+        return commentDto;
     }
 
-    public Comment dislikeComment(int cid, int uid) {
-        Comment comment = reactToComment(cid, uid, '-');
-        return comment;
+    public CommentSimpleResponseDTO dislikeComment(int cid, int uid) {
+        CommentSimpleResponseDTO commentDto = reactToComment(cid, uid, '-');
+        return commentDto;
     }
 
-    public Comment reactToComment(int cid, int uid, char reaction) {
+    public CommentSimpleResponseDTO reactToComment(int cid, int uid, char reaction) {
         if (cid > 0) {
             Comment comment = getCommentById(cid);
             User user = getUserById(uid);
@@ -99,12 +99,14 @@ public class CommentService {
             userReactToComment.setUser(user);
             userReactToComment.setReaction(reaction);
             userReactToCommentRepository.save(userReactToComment);
-            return comment;
+
+
+            return commentToCommentDTO(comment);
         }
         throw new BadRequestException("Id is not positive");
     }
 
-    public Comment removeReaction(int cid, int uid) {
+    public CommentSimpleResponseDTO removeReaction(int cid, int uid) {
         if (cid > 0) {
             Comment comment = getCommentById(cid);
             UserReactToCommentID userReactToCommentID = new UserReactToCommentID();
@@ -113,14 +115,14 @@ public class CommentService {
             Optional<UserReactToComment> optional = userReactToCommentRepository.findById(userReactToCommentID);
             if (optional.isPresent()) {
                 userReactToCommentRepository.deleteById(userReactToCommentID);
-                return comment;
+                return commentToCommentDTO(comment);
             }
             throw new BadRequestException("You haven't reacted to this comment yet");
         }
         throw new BadRequestException("Id is not positive");
     }
 
-    public Comment respondToComment(Comment comment, int uid, int cid) {
+    public CommentSimpleResponseDTO respondToComment(Comment comment, int uid, int cid) {
         if (comment.getText() == null || comment.getText().isBlank()) {
             throw new BadRequestException("text is mandatory");
         }
@@ -142,7 +144,7 @@ public class CommentService {
             commentHasComment.setChild(comment);
 
             commentHasCommentRepository.save(commentHasComment);
-            return comment;
+            return commentToCommentDTO(comment1);
         }
         throw new BadRequestException("Id is not positive");
     }
@@ -158,5 +160,29 @@ public class CommentService {
 
     private Video getVideoById(int id) {
         return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
+    }
+
+    private CommentSimpleResponseDTO commentToCommentDTO(Comment comment){
+        int likes = userReactToCommentRepository.findAllByReactionAndCommentId('+',comment.getId()).size();
+        int dislikes = userReactToCommentRepository.findAllByReactionAndCommentId('-',comment.getId()).size();
+
+        CommentSimpleResponseDTO dto = new CommentSimpleResponseDTO();
+        dto.setId(comment.getId());
+        dto.setCreator(UserService.userToSimpleDTO(comment.getCreator()));
+        dto.setText(comment.getText());
+        dto.setCreationDate(comment.getCreationDate());
+        dto.setLikes(likes);
+        dto.setDislikes(dislikes);
+        dto.setSubComments(comment.getSubComments().size());
+        return dto;
+    }
+
+    public List<CommentSimpleResponseDTO> getAllSubComments(int cid) {
+        List<CommentSimpleResponseDTO> dtos = new ArrayList<>();
+        List<CommentHasComment> subComments = commentHasCommentRepository.findAllByParent(getCommentById(cid));
+        for (CommentHasComment chc:subComments) {
+            dtos.add(commentToCommentDTO(chc.getChild()));
+        }
+        return dtos;
     }
 }

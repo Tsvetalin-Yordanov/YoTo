@@ -1,9 +1,7 @@
 package com.example.yoto.model.comment;
 
-import com.example.yoto.model.user.User;
+
 import com.example.yoto.model.user.UserSimpleResponseDTO;
-import com.example.yoto.model.video.Video;
-import com.example.yoto.model.video.VideoSimpleResponseDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,5 +18,6 @@ public class CommentSimpleResponseDTO {
     private LocalDateTime creationDate;
     private int likes;
     private int dislikes;
+    private int subComments;
 
 }

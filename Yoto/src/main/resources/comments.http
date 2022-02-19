@@ -30,3 +30,5 @@ Content-Type: application/json
 {
   "text": "sam si komentiram komentara"
 }
+###
+GET localhost:3333/comments/sub_comments?cid=5
