@@ -58,4 +58,5 @@ public class CategoryController {
         int uid = (int) session.getAttribute("user_id");
         return categoryService.removeVideoFromCategory(vid,cid,uid);
     }
+
 }

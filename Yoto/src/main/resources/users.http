@@ -38,7 +38,7 @@ POST localhost:3333/users/log_in
 Content-Type: application/json
 
 {
-"email": "kaltodo15@abv.bg",
+"email": "kaltodo1111@abv.bg",
 "password" : "k1@.0653Doka"
 }
 

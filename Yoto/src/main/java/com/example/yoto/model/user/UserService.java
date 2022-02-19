@@ -4,17 +4,21 @@ import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.exceptions.UnauthorizedException;
 import com.example.yoto.model.playList.PlayListComplexResponseDTO;
-import com.example.yoto.model.playList.PlayListSimpleResponseDTO;
 import com.example.yoto.model.video.Video;
 import com.example.yoto.model.video.VideoService;
 import com.example.yoto.model.video.VideoSimpleResponseDTO;
+import lombok.SneakyThrows;
+import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,10 +39,10 @@ public class UserService {
     private ModelMapper modelMapper;
 
     public UserSimpleResponseDTO register(UserRegisterDTO userDTO) {
-        if (userDTO.getFirstName() == null || userDTO.getFirstName() .isBlank()) {
+        if (userDTO.getFirstName() == null || userDTO.getFirstName().isBlank()) {
             throw new BadRequestException("First name is mandatory");
         }
-        if (userDTO.getLastName() == null || userDTO.getLastName() .isBlank()) {
+        if (userDTO.getLastName() == null || userDTO.getLastName().isBlank()) {
             throw new BadRequestException("Last name is mandatory");
         }
         if (userDTO.getPassword() == null || userDTO.getPassword().isBlank()) {
@@ -50,18 +54,18 @@ public class UserService {
         if (!userDTO.getPassword().equals(userDTO.getConfirmPassword())) {
             throw new BadRequestException("Passwords mismatch");
         }
-        if (userDTO.getEmail() == null || userDTO.getEmail() .isBlank()) {
+        if (userDTO.getEmail() == null || userDTO.getEmail().isBlank()) {
             throw new BadRequestException("Email is mandatory");
         }
         //todo check
-        if (!userDTO.getEmail() .matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
+        if (!userDTO.getEmail().matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
             throw new BadRequestException("Email is invalid");
         }
         //todo
         if (userDTO.getDateOfBirth() == null) {
             throw new BadRequestException("Invalid date of birth");
         }
-        if (userRepository.findByEmail(userDTO.getEmail() ) != null) {
+        if (userRepository.findByEmail(userDTO.getEmail()) != null) {
             throw new BadRequestException("User already exists");
         }
 
@@ -87,7 +91,7 @@ public class UserService {
         if (user.getEmail() == null || user.getEmail().isBlank()) {
             throw new BadRequestException("Username is mandatory");
         }
-        if (user.getPassword() == null || user.getPassword() .isBlank()) {
+        if (user.getPassword() == null || user.getPassword().isBlank()) {
             throw new BadRequestException("Password is mandatory");
         }
         User user1 = userRepository.findByEmail(user.getEmail());
@@ -120,7 +124,7 @@ public class UserService {
     public List<UserSimpleResponseDTO> getAll() {
         List<UserSimpleResponseDTO> dtos = new ArrayList<>();
         List<User> users = userRepository.findAll();
-        for (User user: users) {
+        for (User user : users) {
             dtos.add(userToSimpleDTO(user));
         }
         return dtos;
@@ -132,7 +136,7 @@ public class UserService {
         return userToSimpleDTO(userRepository.save(user));
     }
 
-    public int followUser(int publisherId,int observerId) {
+    public int followUser(int publisherId, int observerId) {
 
         //Todo msg exeption
 
@@ -147,7 +151,7 @@ public class UserService {
         return publisher.getObserverUsers().size();
     }
 
-    public int unFollowUser(int publisherId,int observerId) {
+    public int unFollowUser(int publisherId, int observerId) {
         //Todo msg exeption
         User observer = getUserById(observerId);
         User publisher = getUserById(publisherId);
@@ -181,11 +185,11 @@ public class UserService {
         userDto.setAboutMe(user.getAboutMe());
         userDto.setProfileImageUrl(user.getProfileImageUrl());
         userDto.setFollowers(user.getObserverUsers().size());
-        userDto.setVideos(user.getVideos()!=null?user.getVideos().size():0);
+        userDto.setVideos(user.getVideos() != null ? user.getVideos().size() : 0);
         return userDto;
     }
 
-    private UserComplexResponseDTO userToComplexDTO(User user){
+    private UserComplexResponseDTO userToComplexDTO(User user) {
         Set<VideoSimpleResponseDTO> videos = new HashSet<>();
         for (Video video : user.getVideos()) {
             videos.add(VideoService.videoToSimpleDTO(video));
@@ -202,5 +206,29 @@ public class UserService {
         dto.setPlaylists(user.getPlaylists().stream().map(playlist -> modelMapper.map(playlist, PlayListComplexResponseDTO.class)).collect(Collectors.toSet()));
         dto.setVideos(videos);
         return dto;
+    }
+
+    @SneakyThrows
+    public String uploadProfileImage(MultipartFile file, int user_id) {
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+        User user = getUserById(user_id);
+        String userName = user.getFirstName();
+        String fileName = userName + "&" + System.nanoTime() + "." + fileExtension;
+        Files.copy(file.getInputStream(), new File("uploads"+File.separator+fileName).toPath());
+        user.setProfileImageUrl(fileName);
+        userRepository.save(user);
+        return fileName;
+    }
+
+    @SneakyThrows
+    public String uploadBackgroundImage(MultipartFile file, int user_id) {
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+        User user = getUserById(user_id);
+        String userName = user.getLastName();
+        String fileName = userName + "&" + System.nanoTime() + "." + fileExtension;
+        Files.copy(file.getInputStream(), new File("uploads"+File.separator+fileName).toPath());
+        user.setBackgroundImageUrl(fileName);
+        userRepository.save(user);
+        return fileName;
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -75,6 +76,19 @@ public class UserController {
     public int unFollowUser(@RequestParam int publisherId, HttpSession session, HttpServletRequest request) {
         userService.validateLogin(session, request);
         return userService.unFollowUser(publisherId, (int) session.getAttribute("user_id"));
+    }
+
+
+    @PostMapping("users/upload_profile_image")
+    public String uploadProfileImage(@RequestParam MultipartFile file , HttpSession session, HttpServletRequest request){
+        userService.validateLogin(session, request);
+        return userService.uploadProfileImage(file,(int) session.getAttribute("user_id"));
+    }
+
+    @PostMapping("users/upload_background_image")
+    public String uploadBackgroundImage(@RequestParam MultipartFile file , HttpSession session, HttpServletRequest request){
+        userService.validateLogin(session, request);
+        return userService.uploadBackgroundImage(file,(int) session.getAttribute("user_id"));
     }
 
 //    @PutMapping("/users/reset_password")
