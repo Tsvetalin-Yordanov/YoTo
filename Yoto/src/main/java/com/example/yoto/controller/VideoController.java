@@ -1,9 +1,7 @@
 package com.example.yoto.controller;
+
 import com.example.yoto.model.user.UserService;
-import com.example.yoto.model.video.Video;
-import com.example.yoto.model.video.VideoResponseDTO;
-import com.example.yoto.model.video.VideoService;
-import org.modelmapper.ModelMapper;
+import com.example.yoto.model.video.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,48 +17,40 @@ public class VideoController {
     private VideoService videoService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private ModelMapper modelMapper;
-
 
     @GetMapping("/videos/{id:[\\d]+}")
-    public VideoResponseDTO getById(@PathVariable int id) {
-        Video video = videoService.getById(id);
-        VideoResponseDTO vDto = modelMapper.map(video, VideoResponseDTO.class);
-        return vDto;
+    public VideoComplexResponseDTO getById(@PathVariable int id) {
+        VideoComplexResponseDTO video = videoService.getById(id);
+        return video;
     }
 
     @PostMapping("/videos/upload")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public ResponseEntity<VideoResponseDTO> upload(@RequestBody Video videoReq,HttpSession session, HttpServletRequest request) {
+    public ResponseEntity<VideoSimpleResponseDTO> upload(@RequestBody Video videoReq,HttpSession session, HttpServletRequest request) {
         userService.validateLogin(session,request);
-        Video video = videoService.uploadVideo(videoReq,(int)session.getAttribute(USER_ID));
-        VideoResponseDTO vDto = modelMapper.map(video, VideoResponseDTO.class);
+        VideoSimpleResponseDTO vDto = videoService.uploadVideo(videoReq,(int)session.getAttribute(USER_ID));
         return ResponseEntity.status(201).body(vDto);
     }
 
     @PutMapping("/videos/like")
-    public ResponseEntity<VideoResponseDTO> liked(@RequestParam int vId,HttpSession session, HttpServletRequest request){
+    public ResponseEntity<VideoComplexResponseDTO> liked(@RequestParam int vId,HttpSession session, HttpServletRequest request){
         userService.validateLogin(session,request);
-        Video video = videoService.likeVideo(vId,(int)session.getAttribute(USER_ID));
-        VideoResponseDTO vDto = modelMapper.map(video, VideoResponseDTO.class);
+        VideoComplexResponseDTO vDto = videoService.likeVideo(vId,(int)session.getAttribute(USER_ID));
         return ResponseEntity.status(201).body(vDto);
     }
 
 
     @PutMapping("/videos/dislike")
-    public ResponseEntity<VideoResponseDTO> dislike(@RequestParam int vId,HttpSession session, HttpServletRequest request){
+    public ResponseEntity<VideoComplexResponseDTO> dislike(@RequestParam int vId,HttpSession session, HttpServletRequest request){
         userService.validateLogin(session,request);
-        Video video = videoService.dislikeVideo(vId,(int)session.getAttribute(USER_ID));
-        VideoResponseDTO vDto = modelMapper.map(video, VideoResponseDTO.class);
+        VideoComplexResponseDTO vDto = videoService.dislikeVideo(vId,(int)session.getAttribute(USER_ID));
         return ResponseEntity.status(201).body(vDto);
     }
 
     @DeleteMapping("/videos/remove_reaction")
-    public ResponseEntity<VideoResponseDTO> removeReaction(@RequestParam int vId,HttpSession session, HttpServletRequest request){
+    public ResponseEntity<VideoComplexResponseDTO> removeReaction(@RequestParam int vId,HttpSession session, HttpServletRequest request){
         userService.validateLogin(session,request);
-        Video video = videoService.removeReaction(vId,(int)session.getAttribute(USER_ID));
-        VideoResponseDTO vDto = modelMapper.map(video, VideoResponseDTO.class);
+        VideoComplexResponseDTO vDto = videoService.removeReaction(vId,(int)session.getAttribute(USER_ID));
         return ResponseEntity.status(200).body(vDto);
     }
 

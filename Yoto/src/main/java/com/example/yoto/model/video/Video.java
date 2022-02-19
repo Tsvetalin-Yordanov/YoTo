@@ -12,6 +12,8 @@ import com.example.yoto.model.relationship.URTV.UserReactToVideo;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -55,7 +57,7 @@ public class Video {
     @JoinTable(name = "users_watched_videos",
             joinColumns = {@JoinColumn(name = "video_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
-    private Set<User> users = new HashSet<>();
+    private List<User> users = new LinkedList<>();
 
     //set of playlist with this video
     @ManyToMany(mappedBy = "videos")
