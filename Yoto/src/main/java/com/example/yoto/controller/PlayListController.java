@@ -1,5 +1,6 @@
 package com.example.yoto.controller;
 
+import com.example.yoto.model.playList.PlayListComplexResponseDTO;
 import com.example.yoto.model.playList.Playlist;
 import com.example.yoto.model.playList.PlayListSimpleResponseDTO;
 import com.example.yoto.model.playList.PlayListService;
@@ -20,23 +21,19 @@ public class PlayListController {
     private PlayListService playListService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private ModelMapper modelMapper;
 
 
     @GetMapping("/playlists/{id:[\\d]+}")
-    public PlayListSimpleResponseDTO getById(@PathVariable int id) {
-        Playlist playList = playListService.getById(id);
-        PlayListSimpleResponseDTO playListDto = modelMapper.map(playList, PlayListSimpleResponseDTO.class);
-        return playListDto;
+    public PlayListComplexResponseDTO getById(@PathVariable int id) {
+        PlayListComplexResponseDTO playlistDto = playListService.getById(id);
+        return playlistDto;
     }
 
     @PostMapping("/playlists/create")
     @ResponseStatus(code = HttpStatus.CREATED)
     public PlayListSimpleResponseDTO createPlayList(@RequestBody Playlist playlist, HttpSession session, HttpServletRequest request) {
         userService.validateLogin(session, request);
-        playListService.createPlaylist(playlist,(int)session.getAttribute("user_id"));
-        PlayListSimpleResponseDTO playListDTO = modelMapper.map(playlist, PlayListSimpleResponseDTO.class);
+        PlayListSimpleResponseDTO playListDTO = playListService.createPlaylist(playlist,(int)session.getAttribute("user_id"));
         return playListDTO;
     }
 

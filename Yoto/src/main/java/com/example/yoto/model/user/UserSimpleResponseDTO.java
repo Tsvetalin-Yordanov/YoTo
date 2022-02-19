@@ -14,6 +14,7 @@ public class UserSimpleResponseDTO {
     private String lastName;
     private String aboutMe;
     private String profileImageUrl;
-    private int followers;
-    private int videos;
+//    private int followers;
+//    private int videos;
+//}
 }

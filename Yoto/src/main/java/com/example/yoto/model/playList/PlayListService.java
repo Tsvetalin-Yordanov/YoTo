@@ -8,11 +8,14 @@ import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserRepository;
 import com.example.yoto.model.video.Video;
 import com.example.yoto.model.video.VideoRepository;
+import com.example.yoto.model.video.VideoSimpleResponseDTO;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PlayListService {
@@ -23,14 +26,21 @@ public class PlayListService {
     private UserRepository userRepository;
     @Autowired
     private VideoRepository videoRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
 
-    public Playlist getById(int id) {
-        return playlistGetBy(id);
+    public PlayListComplexResponseDTO getById(int id) {
+        Playlist playlist = playlistGetBy(id);
+        PlayListComplexResponseDTO playlistDto = modelMapper.map(playlist, PlayListComplexResponseDTO.class);
+        playlistDto.setVideos(playlist.getVideos().stream()
+                .map(video -> modelMapper.map(video, VideoSimpleResponseDTO.class))
+                .collect(Collectors.toSet()));
+        return playlistDto;
     }
 
 
-    public Playlist createPlaylist(Playlist playlist,int userId) {
+    public PlayListSimpleResponseDTO createPlaylist(Playlist playlist,int userId) {
         User user = userGetById(userId);
         if(playlist.getTitle() == null || playlist.getTitle().isBlank()){
            throw new BadRequestException("Title is mandatory");
@@ -41,7 +51,8 @@ public class PlayListService {
         playlist.setCreator(user);
         playlist.setCreateDate(LocalDateTime.now());
         playlist.setLastActualization(playlist.getCreateDate());
-        return playlistRepository.save(playlist);
+        playlistRepository.save(playlist);
+        return  modelMapper.map(playlist, PlayListSimpleResponseDTO.class);
     }
 
     public int deletePlaylist(int plId, int userId) {

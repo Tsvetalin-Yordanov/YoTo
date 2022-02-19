@@ -9,11 +9,12 @@ import com.example.yoto.model.relationship.URTV.UserReactToVideoRepository;
 import com.example.yoto.model.relationship.URTV.UsersReactToVideosId;
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserRepository;
+import com.example.yoto.model.user.UserSimpleResponseDTO;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-
 
 
 @Service
@@ -26,14 +27,14 @@ public class VideoService {
     @Autowired
     private UserReactToVideoRepository userReactToVideoRepository;
     @Autowired
-    private PlayListRepository playListRepository;
+    private ModelMapper modelMapper;
 
-
-    public Video getById(int id) {
-        return videoGetById(id);
+    public VideoComplexResponseDTO getById(int id) {
+        Video video = videoGetById(id);
+        return getVideoComplexDtoWithParameters(video);
     }
 
-    public Video uploadVideo(Video videoReq, int userId) {
+    public VideoSimpleResponseDTO uploadVideo(Video videoReq, int userId) {
         User user = userGetById(userId);
         videoReq.setUser(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Creator not found")));
         //TODO
@@ -47,15 +48,18 @@ public class VideoService {
         if (videoReq.getVideoUrl() == null || videoReq.getVideoUrl().isBlank()) {
             throw new BadRequestException("No content to upload");
         }
-        return videoRepository.save(videoReq);
+        Video video = videoRepository.save(videoReq);
+        return getVideoSimpleDtoWithParameters(video);
     }
 
-    public Video likeVideo(int vId, int userId) {
-        return reactedVideo(vId, userId, '+');
+    public VideoComplexResponseDTO likeVideo(int vId, int userId) {
+        Video video = reactedVideo(vId, userId, '+');
+        return getVideoComplexDtoWithParameters(video);
     }
 
-    public Video dislikeVideo(int vId, int userId) {
-        return reactedVideo(vId, userId, '-');
+    public VideoComplexResponseDTO dislikeVideo(int vId, int userId) {
+        Video video = reactedVideo(vId, userId, '-');
+        return getVideoComplexDtoWithParameters(video);
     }
 
     private Video reactedVideo(int vId, int userId, char c) {
@@ -67,17 +71,17 @@ public class VideoService {
         return video;
     }
 
-    public Video removeReaction(int vId, int userId) {
+    public VideoComplexResponseDTO removeReaction(int vId, int userId) {
         User user = userGetById(userId);
         Video video = videoGetById(vId);
         UsersReactToVideosId usersReactToVideosId = new UsersReactToVideosId(userId, vId);
         UserReactToVideo userReactToVideo = userReactToVideoRepository.findById(usersReactToVideosId)
                 .orElseThrow(() -> new BadRequestException("You haven't reacted to this video yet"));
         userReactToVideoRepository.deleteById(usersReactToVideosId);
-        return video;
-
+        return getVideoComplexDtoWithParameters(video);
     }
-//TODO няма да бачка с user
+
+    //TODO няма да бачка с user
     public int watch(int vId, int userId) {
         User user = userGetById(userId);
         Video video = videoGetById(vId);
@@ -92,5 +96,22 @@ public class VideoService {
 
     public User userGetById(int id) {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    private VideoComplexResponseDTO getVideoComplexDtoWithParameters(Video video) {
+        VideoComplexResponseDTO vDto = modelMapper.map(video, VideoComplexResponseDTO.class);
+        UserSimpleResponseDTO userDto = modelMapper.map(video.getUser(), UserSimpleResponseDTO.class);
+        vDto.setUser(userDto);
+        vDto.setViews(video.getUsers().size());
+        vDto.setLikes(userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '+').size());
+        vDto.setDislikes(userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '-').size());
+        return vDto;
+    }
+    private VideoSimpleResponseDTO getVideoSimpleDtoWithParameters(Video video) {
+        VideoSimpleResponseDTO vDto = modelMapper.map(video, VideoSimpleResponseDTO.class);
+        UserSimpleResponseDTO userDto = modelMapper.map(video.getUser(), UserSimpleResponseDTO.class);
+        vDto.setUser(userDto);
+        vDto.setViews(video.getUsers().size());
+        return vDto;
     }
 }

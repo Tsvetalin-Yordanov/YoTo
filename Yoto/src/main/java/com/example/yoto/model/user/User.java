@@ -17,6 +17,8 @@ import com.example.yoto.model.video.Video;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 
@@ -89,6 +91,6 @@ public class User {
 
     //watched videos history
     @ManyToMany(mappedBy = "users",cascade = CascadeType.ALL)
-    private Set<Video> watchedVideos = new HashSet<>();
+    private List<Video> watchedVideos = new LinkedList<>();
 
 }

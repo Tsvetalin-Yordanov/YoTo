@@ -12,13 +12,34 @@ Content-Type: application/json
 }
 
 ###
+POST localhost:3333/users/register
+Content-Type: application/json
 
+{
+  "firstName" : "Kaloyan",
+  "lastName" : "Todorov",
+  "password" : "k1@.0653Doka",
+  "confirmPassword" : "k1@.0653Doka",
+  "phoneNumber" : "088888886",
+  "email": "kaltodo15@abv.bg",
+  "dateOfBirth" : "2010-04-23T18:25:43.511Z"
+}
+
+###
 POST localhost:3333/users/log_in
 Content-Type: application/json
 
 {
   "email": "kaltodo1@abv.bg",
   "password" : "k1@.063Doka"
+}
+###
+POST localhost:3333/users/log_in
+Content-Type: application/json
+
+{
+"email": "kaltodo15@abv.bg",
+"password" : "k1@.0653Doka"
 }
 
 ###
