@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
+
 import static com.example.yoto.model.user.UserService.USER_ID;
 
 @RestController
@@ -66,4 +68,10 @@ public class VideoController {
         userService.validateLogin(session, request);
         return videoService.uploadVideoImage(vId,file,(int) session.getAttribute(USER_ID));
     }
+    @GetMapping("/videos")
+    public List<VideoSimpleResponseDTO> searchByTitle(@RequestParam String title, HttpSession session){
+        return videoService.searchByTitle(title,session);
+    }
+
+
 }

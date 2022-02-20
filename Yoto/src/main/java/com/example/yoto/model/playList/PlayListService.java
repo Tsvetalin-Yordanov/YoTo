@@ -14,12 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.example.yoto.model.user.UserService.LOGGED;
+import static com.example.yoto.model.user.UserService.USER_ID;
 
 @Service
 public class PlayListService {
@@ -30,7 +35,6 @@ public class PlayListService {
     private UserRepository userRepository;
     @Autowired
     private VideoRepository videoRepository;
-
 
 
     public PlayListComplexResponseDTO getById(int id) {
@@ -94,7 +98,7 @@ public class PlayListService {
         return playlist.getVideos().size();
     }
 
-    private PlayListSimpleResponseDTO playlistToSimpleDTO(Playlist playlist) {
+    private static PlayListSimpleResponseDTO playlistToSimpleDTO(Playlist playlist) {
         PlayListSimpleResponseDTO plDto = new PlayListSimpleResponseDTO();
         plDto.setId(playlist.getId());
         plDto.setTitle(playlist.getTitle());
@@ -147,4 +151,23 @@ public class PlayListService {
     public Video videoGetById(int id) {
         return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
     }
+
+    public List<PlayListSimpleResponseDTO> searchByTitle(String title, HttpSession session) {
+        if (title == null && title.isEmpty()) {
+            throw new BadRequestException("The submitted title is blank!");
+        }
+//        int forCheckUserId = session.getAttribute(LOGGED) != null ? (int) session.getAttribute(USER_ID) : -1
+//         .filter(playlist -> (!playlist.isPrivate() || (playlist.isPrivate() && playlist.getCreator().getId() == forCheckUserId))
+//         && playlist.getTitle().toLowerCase().matches(title.toLowerCase()))
+        List<PlayListSimpleResponseDTO> playlists = playlistRepository.findAll().stream()
+                .filter(playlist -> playlist.getTitle().toLowerCase().contains(title.toLowerCase()))
+                .filter(playlist -> !playlist.isPrivate())
+                .map(PlayListService::playlistToSimpleDTO)
+                .collect(Collectors.toList());
+        if (playlists.isEmpty()) {
+            throw new NotFoundException("Not matches playlists with this title");
+        }
+        return playlists;
+    }
+
 }
