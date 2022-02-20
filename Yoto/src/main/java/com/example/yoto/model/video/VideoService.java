@@ -21,9 +21,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.example.yoto.model.user.UserService.LOGGED;
+import static com.example.yoto.model.user.UserService.USER_ID;
 
 
 @Service
@@ -134,15 +141,30 @@ public class VideoService {
     }
 
     @SneakyThrows
-    public String uploadVideoImage(int vId,MultipartFile file, int user_id) {
+    public String uploadVideoImage(int vId, MultipartFile file, int user_id) {
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
         Video video = videoGetById(vId);
         String videoTitle = video.getTitle();
         String fileName = videoTitle + "&" + System.nanoTime() + "." + fileExtension;
-        Files.copy(file.getInputStream(), new File("uploads"+File.separator+fileName).toPath());
+        Files.copy(file.getInputStream(), new File("uploads" + File.separator + fileName).toPath());
         video.setVideoUrl(fileName);
         videoRepository.save(video);
         return fileName;
     }
 
+    public List<VideoSimpleResponseDTO> searchByTitle(String title, HttpSession session) {
+        if (title == null && title.isEmpty()) {
+            throw new BadRequestException("The submitted title is blank!");
+        }
+//        int forCheckUserId = session.getAttribute(LOGGED) != null ? (int) session.getAttribute(USER_ID) : -1;
+        List<VideoSimpleResponseDTO> videos = videoRepository.findAll().stream()
+                .filter(video -> video.getTitle().toLowerCase().contains(title.toLowerCase()))
+                .filter(video -> !video.isPrivate())
+                .map(VideoService::videoToSimpleDTO)
+                .collect(Collectors.toList());
+        if (videos.isEmpty()) {
+            throw new NotFoundException("Not matches videos with this title");
+        }
+        return videos;
+    }
 }

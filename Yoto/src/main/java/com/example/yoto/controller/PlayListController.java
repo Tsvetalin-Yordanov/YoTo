@@ -14,6 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import java.util.List;
+
 import static com.example.yoto.model.user.UserService.USER_ID;
 
 @RestController
@@ -63,6 +65,10 @@ public class PlayListController {
     public String uploadBackgroundImage(@RequestParam int plDto,@RequestParam (name = "background_image")MultipartFile file , HttpSession session, HttpServletRequest request){
         userService.validateLogin(session, request);
         return playListService.uploadBackgroundImage(plDto,file,(int) session.getAttribute("user_id"));
+    }
+    @GetMapping("/playlists")
+    public List<PlayListSimpleResponseDTO> searchByTitle(@RequestParam String title, HttpSession session, HttpServletRequest request){
+        return playListService.searchByTitle(title,session);
     }
 
 }
