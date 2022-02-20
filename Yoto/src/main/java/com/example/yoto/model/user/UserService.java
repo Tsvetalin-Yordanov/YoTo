@@ -19,10 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -229,5 +226,17 @@ public class UserService {
         user.setBackgroundImageUrl(fileName);
         userRepository.save(user);
         return fileName;
+    }
+
+    public List<UserSimpleResponseDTO> searchByName(String name) {
+        if (name == null && name.isEmpty()) {
+            throw new BadRequestException("Name is mandatory!");
+        }
+        List<UserSimpleResponseDTO> dtos = new LinkedList<>();
+        List<User> users = userRepository.findAllByFirstNameContains(name);
+        for (User user : users) {
+            dtos.add(userToSimpleDTO(user));
+        }
+        return dtos;
     }
 }

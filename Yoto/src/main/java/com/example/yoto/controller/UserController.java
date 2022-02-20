@@ -90,6 +90,12 @@ public class UserController {
         return userService.uploadBackgroundImage(file,(int) session.getAttribute("user_id"));
     }
 
+    @GetMapping("/users/search")
+    public List<UserSimpleResponseDTO> searchByName(@RequestParam String name){
+        return userService.searchByName(name);
+    }
+
+
 //    @PutMapping("/users/reset_password")
 //    public UserResponseDTO resetPassword(){
 //

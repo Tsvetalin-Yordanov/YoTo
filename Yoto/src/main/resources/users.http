@@ -20,7 +20,7 @@ Content-Type: application/json
   "lastName" : "Todorov",
   "password" : "k1@.0653Doka",
   "confirmPassword" : "k1@.0653Doka",
-  "phoneNumber" : "088888886",
+  "phoneNumber" : "088888880",
   "email": "kaltodo15@abv.bg",
   "dateOfBirth" : "2010-04-23T18:25:43.511Z"
 }
@@ -30,8 +30,8 @@ POST localhost:3333/users/log_in
 Content-Type: application/json
 
 {
-  "email": "kaltodo11111@abv.bg",
-  "password" : "k1@.063Doka"
+  "email": "kaltodo15@abv.bg",
+  "password" : "k1@.0653Doka"
 }
 ###
 POST localhost:3333/users/log_in
@@ -45,9 +45,9 @@ Content-Type: application/json
 ###
 GET localhost:3333/users
 ###
-GET localhost:3333/users/3
+GET localhost:3333/users/10
 ###
-POST localhost:3333/users/follow?publisherId=3
+POST localhost:3333/users/follow?publisherId=10
 ###
 POST localhost:3333/users/unfollow?publisherId=3
 ###
@@ -55,3 +55,4 @@ DELETE localhost:3333/users?id=4
 ###
 POST localhost:3333/user/logout
 ###
+GET localhost:3333/users/search?name=Kalo
