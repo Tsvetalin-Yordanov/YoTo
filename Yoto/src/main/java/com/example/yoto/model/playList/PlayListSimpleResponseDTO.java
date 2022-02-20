@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class PlayListSimpleResponseDTO {
-
+    private int id;
     private String title;
     private int creatorId;
     private LocalDateTime lastActualization;

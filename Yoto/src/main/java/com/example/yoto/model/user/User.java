@@ -64,7 +64,7 @@ public class User {
 
     //set of published playlists
     @OneToMany(mappedBy = "creator")
-    private Set<Playlist> playlists;
+    private Set<Playlist> playlists = new HashSet<>();
 
     //set of published videos
     @OneToMany(mappedBy = "user")

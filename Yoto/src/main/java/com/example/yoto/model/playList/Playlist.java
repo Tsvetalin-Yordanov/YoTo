@@ -10,6 +10,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -39,9 +40,25 @@ public class Playlist {
     @Column(name = "is_private")
     private boolean isPrivate;
 
+    @Column
+    private String backgroundUrl;
+
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "videos_in_playlists",
             joinColumns = {@JoinColumn(name = "playlist_id")},
             inverseJoinColumns = {@JoinColumn(name = "video_id")})
     private Set<Video> videos = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Playlist playlist = (Playlist) o;
+        return id == playlist.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

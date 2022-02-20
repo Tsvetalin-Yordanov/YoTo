@@ -12,9 +12,11 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 public class PlayListComplexResponseDTO {
+    private int id;
     private String title;
     private int creatorId;
     private LocalDateTime lastActualization;
     private boolean isPrivate;
+    private String backgroundUrl;
     private Set<VideoSimpleResponseDTO> videos;
 }

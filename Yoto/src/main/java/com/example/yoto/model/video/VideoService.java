@@ -13,11 +13,16 @@ import com.example.yoto.model.user.UserRepository;
 import com.example.yoto.model.user.UserService;
 
 import com.example.yoto.model.user.UserSimpleResponseDTO;
+import lombok.SneakyThrows;
+import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 
 
@@ -127,4 +132,17 @@ public class VideoService {
         vDto.setDislikes(userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '-').size());
         return vDto;
     }
+
+    @SneakyThrows
+    public String uploadVideoImage(int vId,MultipartFile file, int user_id) {
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+        Video video = videoGetById(vId);
+        String videoTitle = video.getTitle();
+        String fileName = videoTitle + "&" + System.nanoTime() + "." + fileExtension;
+        Files.copy(file.getInputStream(), new File("uploads"+File.separator+fileName).toPath());
+        video.setVideoUrl(fileName);
+        videoRepository.save(video);
+        return fileName;
+    }
+
 }

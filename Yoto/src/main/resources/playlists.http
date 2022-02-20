@@ -1,9 +1,19 @@
+POST localhost:3333/playlists/upload_background_image?plDto=5
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="background_image"; filename="download.jpg"
+
+< /Users/Admin/Desktop/ZoomBackground/download.jpg
+--WebAppBoundary--
+###
+
 POST localhost:3333/playlists/create
 Content-Type: application/json
 
 {
 "title" : "Tretiq playlist  bace",
-"isPrivate" : 1
+"isPrivate" : "true"
 }
 ###
 GET localhost:3333/playlists/3

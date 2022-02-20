@@ -194,7 +194,6 @@ public class UserService {
         for (Video video : user.getVideos()) {
             videos.add(VideoService.videoToSimpleDTO(video));
         }
-
         UserComplexResponseDTO dto = new UserComplexResponseDTO();
         dto.setId(user.getId());
         dto.setFirstName(user.getFirstName());

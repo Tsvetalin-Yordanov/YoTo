@@ -1,3 +1,13 @@
+POST http://localhost:3333/videos/upload_image?vId=4
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="image"; filename="241633633_140067204923629_5571897423002582296_n (2).jpg"
+
+< /Users/Admin/Desktop/ZoomBackground/241633633_140067204923629_5571897423002582296_n (2).jpg
+--WebAppBoundary--
+
+###
 POST localhost:3333/videos/upload
 Content-Type: application/json
 

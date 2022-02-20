@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import static com.example.yoto.model.user.UserService.USER_ID;
@@ -59,5 +61,9 @@ public class VideoController {
         userService.validateLogin(session, request);
         return videoService.watch(vId, (int) session.getAttribute(USER_ID));
     }
-
+    @PostMapping("/videos/upload_image")
+    public String uploadProfileImage(@RequestParam int vId,@RequestParam (name = "image") MultipartFile file , HttpSession session, HttpServletRequest request){
+        userService.validateLogin(session, request);
+        return videoService.uploadVideoImage(vId,file,(int) session.getAttribute(USER_ID));
+    }
 }

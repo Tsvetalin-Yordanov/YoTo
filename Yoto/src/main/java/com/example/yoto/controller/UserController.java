@@ -78,7 +78,6 @@ public class UserController {
         return userService.unFollowUser(publisherId, (int) session.getAttribute("user_id"));
     }
 
-
     @PostMapping("users/upload_profile_image")
     public String uploadProfileImage(@RequestParam MultipartFile file , HttpSession session, HttpServletRequest request){
         userService.validateLogin(session, request);
@@ -96,3 +95,4 @@ public class UserController {
 //
 //    }
 }
+

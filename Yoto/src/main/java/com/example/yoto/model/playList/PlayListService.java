@@ -1,19 +1,23 @@
 package com.example.yoto.model.playList;
 
 
-
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserRepository;
-import com.example.yoto.model.video.Video;
-import com.example.yoto.model.video.VideoRepository;
-import com.example.yoto.model.video.VideoSimpleResponseDTO;
+import com.example.yoto.model.user.UserService;
+import com.example.yoto.model.video.*;
+import lombok.SneakyThrows;
+import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -26,39 +30,37 @@ public class PlayListService {
     private UserRepository userRepository;
     @Autowired
     private VideoRepository videoRepository;
-    @Autowired
-    private ModelMapper modelMapper;
+
 
 
     public PlayListComplexResponseDTO getById(int id) {
         Playlist playlist = playlistGetBy(id);
-        PlayListComplexResponseDTO playlistDto = modelMapper.map(playlist, PlayListComplexResponseDTO.class);
-        playlistDto.setVideos(playlist.getVideos().stream()
-                .map(video -> modelMapper.map(video, VideoSimpleResponseDTO.class))
-                .collect(Collectors.toSet()));
-        return playlistDto;
+        return playlistToComplexDTO(playlist);
     }
 
 
-    public PlayListSimpleResponseDTO createPlaylist(Playlist playlist,int userId) {
+    public PlayListSimpleResponseDTO createPlaylist(Playlist playlist, int userId) {
         User user = userGetById(userId);
-        if(playlist.getTitle() == null || playlist.getTitle().isBlank()){
-           throw new BadRequestException("Title is mandatory");
-       }
-        if(user.getPlaylists().contains(playlist)){
+        playlist.setCreator(user);
+        if (playlist.getTitle() == null || playlist.getTitle().isBlank()) {
+            throw new BadRequestException("Title is mandatory");
+        }
+        System.out.println(user.getPlaylists());
+        if (user.getPlaylists().contains(playlist)) {
             throw new BadRequestException("The playlist is in the user list");
         }
         playlist.setCreator(user);
         playlist.setCreateDate(LocalDateTime.now());
         playlist.setLastActualization(playlist.getCreateDate());
+        playlist.setBackgroundUrl(playlist.getBackgroundUrl());
         playlistRepository.save(playlist);
-        return  modelMapper.map(playlist, PlayListSimpleResponseDTO.class);
+        return playlistToSimpleDTO(playlist);
     }
 
     public int deletePlaylist(int plId, int userId) {
         User user = userGetById(userId);
         Playlist playlist = playlistGetBy(plId);
-        if(!user.getPlaylists().contains(playlist)){
+        if (!user.getPlaylists().contains(playlist)) {
             throw new BadRequestException("The playlist is not in the user list");
         }
         playlistRepository.delete(playlist);
@@ -92,17 +94,57 @@ public class PlayListService {
         return playlist.getVideos().size();
     }
 
+    private PlayListSimpleResponseDTO playlistToSimpleDTO(Playlist playlist) {
+        PlayListSimpleResponseDTO plDto = new PlayListSimpleResponseDTO();
+        plDto.setId(playlist.getId());
+        plDto.setTitle(playlist.getTitle());
+        plDto.setCreatorId(playlist.getCreator().getId());
+        plDto.setLastActualization(playlist.getLastActualization());
+        plDto.setPrivate(playlist.isPrivate());
+        Optional<Video> video = playlist.getVideos().stream().findFirst();
+        plDto.setFirstVideoUrl(video.isPresent() ? video.get().getVideoUrl() : "Play list is empty!");
+        return plDto;
+    }
+
+    public PlayListComplexResponseDTO playlistToComplexDTO(Playlist playlist) {
+        PlayListComplexResponseDTO plDto = new PlayListComplexResponseDTO();
+        plDto.setId(playlist.getId());
+        plDto.setTitle(playlist.getTitle());
+        plDto.setCreatorId(playlist.getCreator().getId());
+        plDto.setLastActualization(playlist.getLastActualization());
+        plDto.setBackgroundUrl(playlist.getBackgroundUrl());
+        plDto.setPrivate(playlist.isPrivate());
+        plDto.setVideos(playlist.getVideos().isEmpty()
+                ? new HashSet<>()
+                : playlist.getVideos().stream().map(VideoService::videoToSimpleDTO)
+                .collect(Collectors.toSet()));
+        return plDto;
+    }
+
+
+    @SneakyThrows
+    public String uploadBackgroundImage(int plDto, MultipartFile file, int user_id) {
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+        Playlist playlist = playlistGetBy(plDto);
+        String playlistTitle = playlist.getTitle();
+        String fileName = playlistTitle + "&" + System.nanoTime() + "." + fileExtension;
+        //TODO uploads set constant !
+        Files.copy(file.getInputStream(), new File("uploads" + File.separator + fileName).toPath());
+        playlist.setBackgroundUrl(fileName);
+        playlistRepository.save(playlist);
+        return fileName;
+    }
+
+
     public Playlist playlistGetBy(int id) {
         return playlistRepository.findById(id).orElseThrow(() -> new NotFoundException("Playlist not found"));
     }
 
-    public User  userGetById(int id){
+    public User userGetById(int id) {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     public Video videoGetById(int id) {
         return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
     }
-
-
 }

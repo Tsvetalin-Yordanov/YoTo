@@ -9,6 +9,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -55,6 +57,12 @@ public class PlayListController {
         userService.validateLogin(session, request);
         int userId = (int) session.getAttribute(USER_ID);
         return playListService.deleteVideo(vId,plid,userId);
+    }
+
+    @PostMapping("/playlists/upload_background_image")
+    public String uploadBackgroundImage(@RequestParam int plDto,@RequestParam (name = "background_image")MultipartFile file , HttpSession session, HttpServletRequest request){
+        userService.validateLogin(session, request);
+        return playListService.uploadBackgroundImage(plDto,file,(int) session.getAttribute("user_id"));
     }
 
 }
