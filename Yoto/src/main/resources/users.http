@@ -55,4 +55,4 @@ DELETE localhost:3333/users?id=4
 ###
 POST localhost:3333/user/logout
 ###
-GET localhost:3333/users/search?name=Kalo
+GET localhost:3333/users/search?name=lo
