@@ -13,6 +13,7 @@ import com.example.yoto.model.user.UserRepository;
 import com.example.yoto.model.user.UserService;
 import com.example.yoto.model.video.Video;
 import com.example.yoto.model.video.VideoRepository;
+import com.example.yoto.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,48 +21,43 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.example.yoto.util.Util.COMMENT_TXT_MAX_LENGTH;
+
 @Service
 public class CommentService {
 
     @Autowired
-    private CommentRepository commentRepository;
-    @Autowired
-    private VideoRepository videoRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserReactToCommentRepository userReactToCommentRepository;
-    @Autowired
-    private CommentHasCommentRepository commentHasCommentRepository;
+    private Util util;
 
     public CommentSimpleResponseDTO createComment(Comment comment, int uid, int vid) {
-        if (comment.getText() == null || comment.getText().isBlank()) {
-            throw new BadRequestException("text is mandatory");
+        String text = comment.getText();
+        if (text.trim().isEmpty() || text.length() > COMMENT_TXT_MAX_LENGTH) {
+            throw new BadRequestException("Invalid comment text!");
         }
-        Video video = getVideoById(vid);
-        comment.setCreator(getUserById(uid));
+        Video video = util.videoGetById(vid);
+        comment.setCreator(util.userGetById(uid));
         comment.setVideo(video);
         comment.setCreationDate(LocalDateTime.now());
-        commentRepository.save(comment);
+        util.commentRepository.save(comment);
         return commentToCommentDTO(comment);
     }
 
     public CommentSimpleResponseDTO editComment(Comment comment) {
-        Comment comment1 = getCommentById(comment.getId());
-
-        if (comment.getText() == null || comment.getText().isBlank()) {
-            throw new BadRequestException("text is mandatory");
+        Comment comment1 = util.commentGetById(comment.getId());
+        String text = comment.getText();
+        if (text.trim().isEmpty() || text.length() > COMMENT_TXT_MAX_LENGTH) {
+            throw new BadRequestException("Invalid comment text!");
         }
-        comment1.setText(comment.getText());
+        comment1.setText(text);
         comment1.setCreationDate(LocalDateTime.now());
-        commentRepository.save(comment1);
+        util.commentRepository.save(comment1);
         return commentToCommentDTO(comment1);
     }
 
     public CommentSimpleResponseDTO deleteById(int id) {
         if (id > 0) {
-            Comment comment = getCommentById(id);
-            commentRepository.deleteById(id);
+            Comment comment = util.commentGetById(id);
+            util.commentRepository.deleteById(id);
             return commentToCommentDTO(comment);
         }
         throw new BadRequestException("Id is not positive");
@@ -69,7 +65,7 @@ public class CommentService {
 
     public CommentSimpleResponseDTO getById(int id) {
         if (id > 0) {
-            Comment comment = getCommentById(id);
+            Comment comment = util.commentGetById(id);
             return commentToCommentDTO(comment);
         }
         throw new BadRequestException("Id is not positive");
@@ -87,8 +83,8 @@ public class CommentService {
 
     public CommentSimpleResponseDTO reactToComment(int cid, int uid, char reaction) {
         if (cid > 0) {
-            Comment comment = getCommentById(cid);
-            User user = getUserById(uid);
+            Comment comment = util.commentGetById(cid);
+            User user = util.userGetById(uid);
 
             UserReactToCommentID userReactToCommentID = new UserReactToCommentID();
             userReactToCommentID.setCommentId(cid);
@@ -98,7 +94,7 @@ public class CommentService {
             userReactToComment.setComment(comment);
             userReactToComment.setUser(user);
             userReactToComment.setReaction(reaction);
-            userReactToCommentRepository.save(userReactToComment);
+            util.userReactToCommentRepository.save(userReactToComment);
 
 
             return commentToCommentDTO(comment);
@@ -108,13 +104,13 @@ public class CommentService {
 
     public CommentSimpleResponseDTO removeReaction(int cid, int uid) {
         if (cid > 0) {
-            Comment comment = getCommentById(cid);
+            Comment comment = util.commentGetById(cid);
             UserReactToCommentID userReactToCommentID = new UserReactToCommentID();
             userReactToCommentID.setCommentId(cid);
             userReactToCommentID.setUserId(uid);
-            Optional<UserReactToComment> optional = userReactToCommentRepository.findById(userReactToCommentID);
+            Optional<UserReactToComment> optional = util.userReactToCommentRepository.findById(userReactToCommentID);
             if (optional.isPresent()) {
-                userReactToCommentRepository.deleteById(userReactToCommentID);
+                util.userReactToCommentRepository.deleteById(userReactToCommentID);
                 return commentToCommentDTO(comment);
             }
             throw new BadRequestException("You haven't reacted to this comment yet");
@@ -123,16 +119,16 @@ public class CommentService {
     }
 
     public CommentSimpleResponseDTO respondToComment(Comment comment, int uid, int cid) {
-        if (comment.getText() == null || comment.getText().isBlank()) {
-            throw new BadRequestException("text is mandatory");
+        String text = comment.getText();
+        if (text.trim().isEmpty() || text.length() > COMMENT_TXT_MAX_LENGTH) {
+            throw new BadRequestException("Invalid comment text!");
         }
         if (cid > 0) {
-            Comment comment1 = getCommentById(cid);
-            comment.setCreator(getUserById(uid));
-            comment.setVideo(getVideoById(comment1.getVideo().getId()));
+            Comment comment1 = util.commentGetById(cid);
+            comment.setCreator(util.userGetById(uid));
+            comment.setVideo(util.videoGetById(comment1.getVideo().getId()));
             comment.setCreationDate(LocalDateTime.now());
-            commentRepository.save(comment);
-
+            util.commentRepository.save(comment);
 
             CommentHasCommentID commentHasCommentID = new CommentHasCommentID();
             commentHasCommentID.setParentId(cid);
@@ -143,7 +139,7 @@ public class CommentService {
             commentHasComment.setParent(comment1);
             commentHasComment.setChild(comment);
 
-            commentHasCommentRepository.save(commentHasComment);
+            util.commentHasCommentRepository.save(commentHasComment);
             return commentToCommentDTO(comment1);
         }
         throw new BadRequestException("Id is not positive");
@@ -151,8 +147,8 @@ public class CommentService {
 
 
     private CommentSimpleResponseDTO commentToCommentDTO(Comment comment) {
-        int likes = userReactToCommentRepository.findAllByReactionAndCommentId('+', comment.getId()).size();
-        int dislikes = userReactToCommentRepository.findAllByReactionAndCommentId('-', comment.getId()).size();
+        int likes = util.userReactToCommentRepository.findAllByReactionAndCommentId('+', comment.getId()).size();
+        int dislikes = util.userReactToCommentRepository.findAllByReactionAndCommentId('-', comment.getId()).size();
 
         CommentSimpleResponseDTO dto = new CommentSimpleResponseDTO();
         dto.setId(comment.getId());
@@ -167,25 +163,10 @@ public class CommentService {
 
     public List<CommentSimpleResponseDTO> getAllSubComments(int cid) {
         List<CommentSimpleResponseDTO> dtos = new ArrayList<>();
-        List<CommentHasComment> subComments = commentHasCommentRepository.findAllByParent(getCommentById(cid));
+        List<CommentHasComment> subComments = util.commentHasCommentRepository.findAllByParent(util.commentGetById(cid));
         for (CommentHasComment chc : subComments) {
             dtos.add(commentToCommentDTO(chc.getChild()));
         }
         return dtos;
-    }
-
-    //TODO move in Util
-    private Comment getCommentById(int id) {
-        return commentRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
-    }
-
-    //TODO move in Util
-    private User getUserById(int id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-    }
-
-    //TODO move in Util
-    private Video getVideoById(int id) {
-        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
     }
 }

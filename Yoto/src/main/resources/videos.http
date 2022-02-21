@@ -13,7 +13,9 @@ Content-Type: application/json
 
 {
   "title": "kotkite sa mnogo",
-  "videoUrl": "asddfsdg"
+  "uploadDate" : "2010-04-23T18:25:43.511Z",
+  "videoUrl": "asddfsdg",
+  "isPrivate" :  true
 }
 ###
 GET localhost:3333/videos/1

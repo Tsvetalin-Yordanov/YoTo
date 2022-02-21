@@ -7,6 +7,7 @@ import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserRepository;
 import com.example.yoto.model.user.UserService;
 import com.example.yoto.model.video.*;
+import com.example.yoto.util.Util;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,29 +23,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static com.example.yoto.model.user.UserService.USER_ID;
+import static com.example.yoto.util.Util.TITLE_MAX_LENGTH;
+import static com.example.yoto.util.Util.UPLOAD_FILES_DIRECTORY;
+import static com.example.yoto.util.Util.USER_ID;
 
 @Service
 public class PlayListService {
 
     @Autowired
-    private PlayListRepository playlistRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private VideoRepository videoRepository;
+    private Util util;
+
 
     public PlayListComplexResponseDTO getById(int id) {
-        Playlist playlist = playlistGetBy(id);
+        Playlist playlist = util.playlistGetById(id);
         return playlistToComplexDTO(playlist);
     }
 
     public PlayListSimpleResponseDTO createPlaylist(Playlist playlist, int userId) {
-        User user = userGetById(userId);
+        User user = util.userGetById(userId);
         playlist.setCreator(user);
-        if (playlist.getTitle() == null || playlist.getTitle().isBlank()) {
-            throw new BadRequestException("Title is mandatory");
+        String title = playlist.getTitle();
+        if (title.trim().isEmpty() || title.length() > TITLE_MAX_LENGTH) {
+            throw new BadRequestException("Invalid playlist title");
         }
         if (user.getPlaylists().contains(playlist)) {
             throw new BadRequestException("The playlist is in the user list");
@@ -54,44 +54,43 @@ public class PlayListService {
         playlist.setLastActualization(playlist.getCreateDate());
         playlist.setBackgroundUrl(playlist.getBackgroundUrl());
         playlist.setPrivate(playlist.isPrivate());
-        playlistRepository.save(playlist);
+        util.playlistRepository.save(playlist);
         return playlistToSimpleDTO(playlist);
     }
 
     public int deletePlaylist(int plId, int userId) {
-        User user = userGetById(userId);
-        Playlist playlist = playlistGetBy(plId);
+        User user = util.userGetById(userId);
+        Playlist playlist = util.playlistGetById(plId);
         if (!user.getPlaylists().contains(playlist)) {
             throw new BadRequestException("The playlist is not in the user list");
         }
-        playlistRepository.delete(playlist);
+        util.playlistRepository.delete(playlist);
         return user.getPlaylists().size();
     }
 
     public int addVideo(int vId, int plId, int userId) {
-        User user = userGetById(userId);
-        Playlist playlist = playlistGetBy(plId);
-        Video video = videoGetById(vId);
+        User user = util.userGetById(userId);
+        Playlist playlist = util.playlistGetById(plId);
+        Video video = util.videoGetById(vId);
         if (playlist.getVideos().contains(video)) {
-            //TODO
             throw new BadRequestException("Video is in playlist");
         }
         playlist.setLastActualization(LocalDateTime.now());
         playlist.getVideos().add(video);
-        playlistRepository.save(playlist);
+        util.playlistRepository.save(playlist);
         return playlist.getVideos().size();
     }
 
     public int deleteVideo(int vId, int plId, int userId) {
-        User user = userGetById(userId);
-        Playlist playlist = playlistGetBy(plId);
-        Video video = videoGetById(vId);
+        User user = util.userGetById(userId);
+        Playlist playlist = util.playlistGetById(plId);
+        Video video = util.videoGetById(vId);
         if (!playlist.getVideos().contains(video)) {
             throw new BadRequestException("Video is not in playlist");
         }
         playlist.setLastActualization(LocalDateTime.now());
         playlist.getVideos().remove(video);
-        playlistRepository.save(playlist);
+        util.playlistRepository.save(playlist);
         return playlist.getVideos().size();
     }
 
@@ -126,28 +125,27 @@ public class PlayListService {
     @SneakyThrows
     public String uploadBackgroundImage(int plId, MultipartFile file, int user_id) {
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
-        Playlist playlist = playlistGetBy(plId);
+        Playlist playlist = util.playlistGetById(plId);
         String playlistTitle = playlist.getTitle();
         String fileName = playlistTitle + "&" + System.nanoTime() + "." + fileExtension;
-        //TODO uploads set constant !
-        Files.copy(file.getInputStream(), new File("uploads" + File.separator + fileName).toPath());
+        Files.copy(file.getInputStream(), new File(UPLOAD_FILES_DIRECTORY + File.separator + fileName).toPath());
         playlist.setBackgroundUrl(fileName);
-        playlistRepository.save(playlist);
+        util.playlistRepository.save(playlist);
         return fileName;
     }
 
 
     public List<PlayListSimpleResponseDTO> searchByTitle(String title, HttpSession session) {
-        if (title == null && title.isEmpty()) {
+        if (title.trim().isEmpty() || title.length() > TITLE_MAX_LENGTH) {
             throw new BadRequestException("The submitted title is blank!");
         }
-        List<PlayListSimpleResponseDTO> playlists = playlistRepository
+        List<PlayListSimpleResponseDTO> playlists = util.playlistRepository
                 .findAllByTitleContainsAndIsPrivate(title, false).stream()
                 .map(PlayListService::playlistToSimpleDTO)
                 .collect(Collectors.toList());
         Integer userId = (Integer) session.getAttribute(USER_ID);
         if (userId != null) {
-            playlists.addAll(playlistRepository
+            playlists.addAll(util.playlistRepository
                     .findAllByCreatorIdAndIsPrivate(userId, true).stream()
                     .map(PlayListService::playlistToSimpleDTO)
                     .collect(Collectors.toList()));
@@ -156,19 +154,6 @@ public class PlayListService {
             throw new NotFoundException("Not matches playlists with this title");
         }
         return playlists;
-    }
-
-    //TODO move in Util
-    public Playlist playlistGetBy(int id) {
-        return playlistRepository.findById(id).orElseThrow(() -> new NotFoundException("Playlist not found"));
-    }
-    //TODO move in Util
-    public User userGetById(int id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-    }
-    //TODO move in Util
-    public Video videoGetById(int id) {
-        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
     }
 
 }

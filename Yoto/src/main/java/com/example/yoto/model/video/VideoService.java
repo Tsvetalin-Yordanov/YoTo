@@ -1,63 +1,44 @@
 package com.example.yoto.model.video;
 
-
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
-import com.example.yoto.model.playList.PlayListRepository;
 import com.example.yoto.model.relationship.URTV.UserReactToVideo;
-import com.example.yoto.model.relationship.URTV.UserReactToVideoRepository;
 import com.example.yoto.model.relationship.URTV.UsersReactToVideosId;
 import com.example.yoto.model.user.User;
-import com.example.yoto.model.user.UserRepository;
-
 import com.example.yoto.model.user.UserService;
-
-import com.example.yoto.model.user.UserSimpleResponseDTO;
+import com.example.yoto.util.Util;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
-import org.modelmapper.ModelMapper;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.example.yoto.model.user.UserService.LOGGED;
-import static com.example.yoto.model.user.UserService.USER_ID;
+import static com.example.yoto.util.Util.*;
 
 
 @Service
 public class VideoService {
 
     @Autowired
-    private VideoRepository videoRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserReactToVideoRepository userReactToVideoRepository;
-    @Autowired
-    private ModelMapper modelMapper;
-
+    private Util util;
 
     public VideoComplexResponseDTO getById(int id) {
-        Video video = videoGetById(id);
+        Video video = util.videoGetById(id);
         return videoToComplexDTO(video);
     }
 
     public VideoSimpleResponseDTO uploadVideo(Video videoReq, int userId) {
-        User user = userGetById(userId);
-        videoReq.setUser(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Creator not found")));
         //TODO
-        videoReq.setUploadDate(LocalDateTime.now());
-        if (videoReq.getTitle() == null || videoReq.getTitle().isBlank()) {
+        if (videoReq.getTitle().trim().isEmpty()){
             throw new BadRequestException("Title is mandatory");
+        }
+        if(videoReq.getTitle().length() > TITLE_MAX_LENGTH) {
+            throw new BadRequestException("Title is too long");
         }
         if (videoReq.getUploadDate().isAfter(LocalDateTime.now())) {
             throw new BadRequestException("Invalid date and time");
@@ -65,8 +46,9 @@ public class VideoService {
         if (videoReq.getVideoUrl() == null || videoReq.getVideoUrl().isBlank()) {
             throw new BadRequestException("No content to upload");
         }
-        videoReq.setPrivate(videoReq.isPrivate());
-        Video video = videoRepository.save(videoReq);
+        videoReq.setUser(util.userGetById(userId));
+        videoReq.setUploadDate(LocalDateTime.now());
+        Video video = util.videoRepository.save(videoReq);
         return videoToSimpleDTO(video);
     }
 
@@ -81,29 +63,29 @@ public class VideoService {
     }
 
     private Video reactedVideo(int vId, int userId, char c) {
-        User user = userGetById(userId);
-        Video video = videoGetById(vId);
+        User user =util.userGetById(userId);
+        Video video = util.videoGetById(vId);
         UsersReactToVideosId usersReactToVideosId = new UsersReactToVideosId(userId, vId);
         UserReactToVideo userReactToVideo = new UserReactToVideo(usersReactToVideosId, user, video, c);
-        userReactToVideoRepository.save(userReactToVideo);
+        util.userReactToVideoRepository.save(userReactToVideo);
         return video;
     }
 
     public VideoComplexResponseDTO removeReaction(int vId, int userId) {
-        User user = userGetById(userId);
-        Video video = videoGetById(vId);
+        User user = util.userGetById(userId);
+        Video video = util.videoGetById(vId);
         UsersReactToVideosId usersReactToVideosId = new UsersReactToVideosId(userId, vId);
-        UserReactToVideo userReactToVideo = userReactToVideoRepository.findById(usersReactToVideosId)
+        UserReactToVideo userReactToVideo = util.userReactToVideoRepository.findById(usersReactToVideosId)
                 .orElseThrow(() -> new BadRequestException("You haven't reacted to this video yet"));
-        userReactToVideoRepository.deleteById(usersReactToVideosId);
+        util.userReactToVideoRepository.deleteById(usersReactToVideosId);
         return videoToComplexDTO(video);
     }
 
     public int watch(int vId, int userId) {
-        User user = userGetById(userId);
-        Video video = videoGetById(vId);
+        User user = util.userGetById(userId);
+        Video video = util.videoGetById(vId);
         video.getUsers().add(user);
-        videoRepository.save(video);
+        util.videoRepository.save(video);
         return video.getUsers().size();
     }
 
@@ -127,20 +109,20 @@ public class VideoService {
         vDto.setVideoUrl(video.getVideoUrl());
         vDto.setPrivate(video.isPrivate());
         vDto.setViews(video.getUsers().size());
-        vDto.setLikes(userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '+').size());
-        vDto.setDislikes(userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '-').size());
+        vDto.setLikes(util.userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '+').size());
+        vDto.setDislikes(util.userReactToVideoRepository.findAllByVideoIdAndReaction(video.getId(), '-').size());
         return vDto;
     }
 
     @SneakyThrows
     public String uploadVideoImage(int vId, MultipartFile file, int user_id) {
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
-        Video video = videoGetById(vId);
+        Video video = util.videoGetById(vId);
         String videoTitle = video.getTitle();
         String fileName = videoTitle + "&" + System.nanoTime() + "." + fileExtension;
-        Files.copy(file.getInputStream(), new File("uploads" + File.separator + fileName).toPath());
+        Files.copy(file.getInputStream(), new File(UPLOAD_FILES_DIRECTORY + File.separator + fileName).toPath());
         video.setVideoUrl(fileName);
-        videoRepository.save(video);
+        util.videoRepository.save(video);
         return fileName;
     }
 
@@ -148,13 +130,13 @@ public class VideoService {
         if (title == null && title.isEmpty()) {
             throw new BadRequestException("The submitted title is blank!");
         }
-      List<VideoSimpleResponseDTO> videos = videoRepository
+        List<VideoSimpleResponseDTO> videos = util.videoRepository
                 .findAllByTitleContainsAndIsPrivate(title, false).stream()
                 .map(VideoService::videoToSimpleDTO)
                 .collect(Collectors.toList());
         Integer userId = (Integer) session.getAttribute(USER_ID);
         if (userId != null) {
-            videos.addAll(videoRepository
+            videos.addAll(util.videoRepository
                     .findAllByUserIdAndIsPrivate(userId, true).stream()
                     .map(VideoService::videoToSimpleDTO)
                     .collect(Collectors.toList()));
@@ -164,12 +146,5 @@ public class VideoService {
         }
         return videos;
     }
-    //TODO move in Util
-    public Video videoGetById(int id) {
-        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
-    }
-    //TODO move in Util
-    public User userGetById(int id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-    }
+
 }

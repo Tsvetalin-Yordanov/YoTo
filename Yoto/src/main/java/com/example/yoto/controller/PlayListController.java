@@ -4,8 +4,7 @@ import com.example.yoto.model.playList.PlayListComplexResponseDTO;
 import com.example.yoto.model.playList.Playlist;
 import com.example.yoto.model.playList.PlayListSimpleResponseDTO;
 import com.example.yoto.model.playList.PlayListService;
-import com.example.yoto.model.user.UserService;
-import org.modelmapper.ModelMapper;
+import com.example.yoto.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -15,17 +14,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import java.util.List;
-
-import static com.example.yoto.model.user.UserService.USER_ID;
-
 @RestController
 public class PlayListController {
 
     @Autowired
     private PlayListService playListService;
     @Autowired
-    private UserService userService;
-
+    private Util util;
 
     @GetMapping("/playlists/{id:[\\d]+}")
     public PlayListComplexResponseDTO getById(@PathVariable int id) {
@@ -35,36 +30,36 @@ public class PlayListController {
 
     @PostMapping("/playlists/create")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public PlayListSimpleResponseDTO createPlayList(@RequestBody Playlist playlist, HttpSession session, HttpServletRequest request) {
-        userService.validateLogin(session, request);
-        PlayListSimpleResponseDTO playListDTO = playListService.createPlaylist(playlist,(int)session.getAttribute("user_id"));
+    public PlayListSimpleResponseDTO createPlayList(@RequestBody Playlist playlist,HttpServletRequest request) {
+       util.validateLogin(request);
+        PlayListSimpleResponseDTO playListDTO = playListService.createPlaylist(playlist, util.getUserIdFromRequest(request));
         return playListDTO;
     }
 
     @DeleteMapping("/playlists/delete")
-    public int deletePlaylist (@RequestParam int plId, HttpSession session, HttpServletRequest request){
-        userService.validateLogin(session,request);
-        return playListService.deletePlaylist( plId,(int)session.getAttribute("user_id"));
+    public int deletePlaylist (@RequestParam int plId, HttpServletRequest request){
+        util.validateLogin(request);
+        return playListService.deletePlaylist( plId, util.getUserIdFromRequest(request));
 
     }
     @PostMapping("/playlists/add_video")
-    public int addToPlaylist (@RequestParam int vId, @RequestParam int plId ,HttpSession session, HttpServletRequest request){
-        userService.validateLogin(session, request);
-        int userId = (int) session.getAttribute(USER_ID);
+    public int addToPlaylist (@RequestParam int vId, @RequestParam int plId , HttpServletRequest request){
+        util.validateLogin(request);
+        int userId =  util.getUserIdFromRequest(request);
         return playListService.addVideo(vId,plId,userId);
     }
 
     @DeleteMapping("/playlists/delete_video")
-    public int deleteFromPlaylist (@RequestParam int vId, @RequestParam int plid ,HttpSession session, HttpServletRequest request) {
-        userService.validateLogin(session, request);
-        int userId = (int) session.getAttribute(USER_ID);
+    public int deleteFromPlaylist (@RequestParam int vId, @RequestParam int plid , HttpServletRequest request) {
+        util.validateLogin(request);
+        int userId =  util.getUserIdFromRequest(request);
         return playListService.deleteVideo(vId,plid,userId);
     }
 
     @PostMapping("/playlists/upload_background_image")
-    public String uploadBackgroundImage(@RequestParam int plDto,@RequestParam (name = "background_image")MultipartFile file , HttpSession session, HttpServletRequest request){
-        userService.validateLogin(session, request);
-        return playListService.uploadBackgroundImage(plDto,file,(int) session.getAttribute("user_id"));
+    public String uploadBackgroundImage(@RequestParam int plDto,@RequestParam (name = "background_image")MultipartFile file , HttpServletRequest request){
+        util.validateLogin(request);
+        return playListService.uploadBackgroundImage(plDto,file, util.getUserIdFromRequest(request));
     }
     @GetMapping("/playlists")
     public List<PlayListSimpleResponseDTO> searchByTitle(@RequestParam String title, HttpSession session){

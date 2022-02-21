@@ -7,6 +7,7 @@ import com.example.yoto.model.playList.PlayListComplexResponseDTO;
 import com.example.yoto.model.video.Video;
 import com.example.yoto.model.video.VideoService;
 import com.example.yoto.model.video.VideoSimpleResponseDTO;
+import com.example.yoto.util.Util;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
@@ -22,52 +23,66 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.example.yoto.util.Util.*;
+
 @Service
 public class UserService {
-    public static final String LOGGED = "logged";
-    public static final String LOGGED_FROM = "logged_from";
-    public static final String USER_ID = "user_id";
 
-    @Autowired
-    private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private Util util;
 
     public UserSimpleResponseDTO register(UserRegisterDTO userDTO) {
-        if (userDTO.getFirstName() == null || userDTO.getFirstName().isBlank()) {
-            throw new BadRequestException("First name is mandatory");
+        String firstName = userDTO.getFirstName();
+        if (firstName.trim().isEmpty() || firstName.length() > USER_NAME_MAX_LENGTH) {
+            throw new BadRequestException("Invalid first name!");
         }
-        if (userDTO.getLastName() == null || userDTO.getLastName().isBlank()) {
-            throw new BadRequestException("Last name is mandatory");
+        String lastName = userDTO.getLastName();
+        if (lastName.trim().isEmpty() || lastName.length() > USER_NAME_MAX_LENGTH) {
+            throw new BadRequestException("Invalid last name!");
         }
-        if (userDTO.getPassword() == null || userDTO.getPassword().isBlank()) {
-            throw new BadRequestException("Password is mandatory");
+        String password = userDTO.getPassword();
+        if (password.trim().isEmpty() || password.length() > USER_PASSWORD_MAX_LENGTH) {
+            throw new BadRequestException("Invalid password!");
         }
         if (!userDTO.getPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$")) {
-            throw new BadRequestException("Password is too weak");
+            throw new BadRequestException("Password is too weak!");
+        }
+        String configPassword = userDTO.getConfirmPassword();
+        if (configPassword.trim().isEmpty() || configPassword.length() > USER_PASSWORD_MAX_LENGTH) {
+            throw new BadRequestException("Invalid config password!");
         }
         if (!userDTO.getPassword().equals(userDTO.getConfirmPassword())) {
-            throw new BadRequestException("Passwords mismatch");
+            throw new BadRequestException("Passwords mismatch!");
         }
-        if (userDTO.getEmail() == null || userDTO.getEmail().isBlank()) {
-            throw new BadRequestException("Email is mandatory");
+        String email = userDTO.getEmail();
+        if (email.trim().isEmpty() || email.length() > USER_EMAIL_MAX_LENGTH) {
+            throw new BadRequestException("Invalid email!");
         }
-        //todo check
         if (!userDTO.getEmail().matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
-            throw new BadRequestException("Email is invalid");
+            throw new BadRequestException("Invalid email!");
         }
-        //todo
         if (userDTO.getDateOfBirth() == null) {
-            throw new BadRequestException("Invalid date of birth");
+            throw new BadRequestException("Invalid date of birth!");
         }
-        if (userRepository.findByEmail(userDTO.getEmail()) != null) {
-            throw new BadRequestException("User already exists");
+        //TODO maybe only validate max size
+        String phoneNumber = userDTO.getPhoneNumber();
+        if (phoneNumber.trim().isEmpty() || phoneNumber.length() > USER_PHONE_NUMBER_MAX_LENGTH) {
+            throw new BadRequestException("Invalid phoneNumber!");
+        }
+        String aboutMe = userDTO.getAboutMe();
+        if (aboutMe != null && aboutMe.length() > USER_ABOUT_ME_MAX_LENGTH) {
+            throw new BadRequestException("The text is too long!");
+        }
+        if (util.userRepository.findByEmail(userDTO.getEmail()) != null) {
+            throw new BadRequestException("User already exists!");
         }
 
-        if (userRepository.findByPhoneNumber(userDTO.getPhoneNumber()) != null) {
-            throw new BadRequestException("User already exists");
+        if (util.userRepository.findByPhoneNumber(userDTO.getPhoneNumber()) != null) {
+            throw new BadRequestException("User already exists!");
         }
         User user = new User();
         user.setFirstName(userDTO.getFirstName());
@@ -80,39 +95,40 @@ public class UserService {
         user.setGender(userDTO.getGender());
         user.setProfileImageUrl(userDTO.getProfileImageUrl());
         user.setBackgroundImageUrl(userDTO.getBackgroundImageUrl());
-        userRepository.save(user);
+        util.userRepository.save(user);
         return userToSimpleDTO(user);
     }
 
     public UserSimpleResponseDTO login(User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank()) {
-            throw new BadRequestException("Username is mandatory");
+        String email = user.getEmail();
+        if (email.trim().isEmpty() || email.length() > USER_EMAIL_MAX_LENGTH) {
+            throw new BadRequestException("Invalid email!");
         }
-        if (user.getPassword() == null || user.getPassword().isBlank()) {
-            throw new BadRequestException("Password is mandatory");
+        String password = user.getPassword();
+        if (password.trim().isEmpty() || password.trim().length() > USER_PASSWORD_MAX_LENGTH) {
+            throw new BadRequestException("Invalid password!");
         }
-        User user1 = userRepository.findByEmail(user.getEmail());
+        User user1 = util.userRepository.findByEmail(user.getEmail());
         if (user1 == null) {
-            throw new UnauthorizedException("Wrong email");
+            throw new UnauthorizedException("Wrong email!");
         }
         if (!passwordEncoder.matches(user.getPassword(), user1.getPassword())) {
-            throw new UnauthorizedException("Wrong credentials");
+            throw new UnauthorizedException("Wrong credentials!");
         }
         return userToSimpleDTO(user1);
     }
 
     public UserComplexResponseDTO getById(int id) {
         if (id > 0) {
-
-            return userToComplexDTO(getUserById(id));
+            return userToComplexDTO(util.userGetById(id));
         }
         throw new BadRequestException("Id is not positive");
     }
 
     public UserSimpleResponseDTO DeleteById(int id) {
         if (id > 0) {
-            User user = getUserById(id);
-            userRepository.deleteById(id);
+            User user = util.userGetById(id);
+            util.userRepository.deleteById(id);
             return userToSimpleDTO(user);
         }
         throw new BadRequestException("Id is not positive");
@@ -120,7 +136,7 @@ public class UserService {
 
     public List<UserSimpleResponseDTO> getAll() {
         List<UserSimpleResponseDTO> dtos = new ArrayList<>();
-        List<User> users = userRepository.findAll();
+        List<User> users = util.userRepository.findAll();
         for (User user : users) {
             dtos.add(userToSimpleDTO(user));
         }
@@ -129,45 +145,35 @@ public class UserService {
 
     //todo
     public UserSimpleResponseDTO edit(User user) {
-        getUserById(user.getId());
-        return userToSimpleDTO(userRepository.save(user));
+        util.userGetById(user.getId());
+        return userToSimpleDTO(util.userRepository.save(user));
     }
 
     public int followUser(int publisherId, int observerId) {
 
         //Todo msg exeption
 
-        User observer = getUserById(observerId);
-        User publisher = getUserById(publisherId);
+        User observer = util.userGetById(observerId);
+        User publisher = util.userGetById(publisherId);
         if (publisher.getObserverUsers().contains(observer)) {
 
             throw new BadRequestException("Already exists in the list of followers");
         }
         publisher.getObserverUsers().add(observer);
-        userRepository.save(publisher);
+        util.userRepository.save(publisher);
         return publisher.getObserverUsers().size();
     }
 
     public int unFollowUser(int publisherId, int observerId) {
         //Todo msg exeption
-        User observer = getUserById(observerId);
-        User publisher = getUserById(publisherId);
+        User observer = util.userGetById(observerId);
+        User publisher = util.userGetById(publisherId);
         if (!publisher.getObserverUsers().contains(observer)) {
             throw new BadRequestException("Observer not follow this user");
         }
         publisher.getObserverUsers().remove(observer);
-        userRepository.save(publisher);
+        util.userRepository.save(publisher);
         return publisher.getObserverUsers().size();
-    }
-
-
-    public void validateLogin(HttpSession session, HttpServletRequest request) {
-        boolean newSession = session.isNew();
-        boolean logged = session.getAttribute(LOGGED) != null && ((Boolean) session.getAttribute(LOGGED));
-        boolean sameIp = request.getRemoteAddr().equals(session.getAttribute(LOGGED_FROM));
-        if (newSession || !logged || !sameIp) {
-            throw new UnauthorizedException("You have to log in!");
-        }
     }
 
 
@@ -204,24 +210,24 @@ public class UserService {
     @SneakyThrows
     public String uploadProfileImage(MultipartFile file, int user_id) {
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
-        User user = getUserById(user_id);
+        User user = util.userGetById(user_id);
         String userName = user.getFirstName();
         String fileName = userName + "&" + System.nanoTime() + "." + fileExtension;
-        Files.copy(file.getInputStream(), new File("uploads" + File.separator + fileName).toPath());
+        Files.copy(file.getInputStream(), new File(UPLOAD_FILES_DIRECTORY + File.separator + fileName).toPath());
         user.setProfileImageUrl(fileName);
-        userRepository.save(user);
+        util.userRepository.save(user);
         return fileName;
     }
 
     @SneakyThrows
     public String uploadBackgroundImage(MultipartFile file, int user_id) {
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
-        User user = getUserById(user_id);
+        User user = util.userGetById(user_id);
         String userName = user.getLastName();
         String fileName = userName + "&" + System.nanoTime() + "." + fileExtension;
-        Files.copy(file.getInputStream(), new File("uploads" + File.separator + fileName).toPath());
+        Files.copy(file.getInputStream(), new File(UPLOAD_FILES_DIRECTORY + File.separator + fileName).toPath());
         user.setBackgroundImageUrl(fileName);
-        userRepository.save(user);
+        util.userRepository.save(user);
         return fileName;
     }
 
@@ -230,15 +236,11 @@ public class UserService {
             throw new BadRequestException("Name is mandatory!");
         }
         List<UserSimpleResponseDTO> dtos = new LinkedList<>();
-        List<User> users = userRepository.findAllByFirstNameContains(name);
+        List<User> users = util.userRepository.findAllByFirstNameContains(name);
         for (User user : users) {
             dtos.add(userToSimpleDTO(user));
         }
         return dtos;
     }
 
-    //TODO move in Util
-    private User getUserById(int id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-    }
 }

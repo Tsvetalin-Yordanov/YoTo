@@ -12,7 +12,7 @@ PUT localhost:3333/comments
 Content-Type: application/json
 
 {
-  "id": 10,
+  "id": 1,
   "text": "tezi koteta sa mnogo sladki"
 }
 ###
