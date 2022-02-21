@@ -170,9 +170,6 @@ public class UserService {
         }
     }
 
-    private User getUserById(int id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-    }
 
     public static UserSimpleResponseDTO userToSimpleDTO(User user) {
         UserSimpleResponseDTO userDto = new UserSimpleResponseDTO();
@@ -210,7 +207,7 @@ public class UserService {
         User user = getUserById(user_id);
         String userName = user.getFirstName();
         String fileName = userName + "&" + System.nanoTime() + "." + fileExtension;
-        Files.copy(file.getInputStream(), new File("uploads"+File.separator+fileName).toPath());
+        Files.copy(file.getInputStream(), new File("uploads" + File.separator + fileName).toPath());
         user.setProfileImageUrl(fileName);
         userRepository.save(user);
         return fileName;
@@ -222,7 +219,7 @@ public class UserService {
         User user = getUserById(user_id);
         String userName = user.getLastName();
         String fileName = userName + "&" + System.nanoTime() + "." + fileExtension;
-        Files.copy(file.getInputStream(), new File("uploads"+File.separator+fileName).toPath());
+        Files.copy(file.getInputStream(), new File("uploads" + File.separator + fileName).toPath());
         user.setBackgroundImageUrl(fileName);
         userRepository.save(user);
         return fileName;
@@ -238,5 +235,10 @@ public class UserService {
             dtos.add(userToSimpleDTO(user));
         }
         return dtos;
+    }
+
+    //TODO move in Util
+    private User getUserById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
     }
 }

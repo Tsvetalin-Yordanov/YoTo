@@ -67,7 +67,7 @@ public class PlayListController {
         return playListService.uploadBackgroundImage(plDto,file,(int) session.getAttribute("user_id"));
     }
     @GetMapping("/playlists")
-    public List<PlayListSimpleResponseDTO> searchByTitle(@RequestParam String title, HttpSession session, HttpServletRequest request){
+    public List<PlayListSimpleResponseDTO> searchByTitle(@RequestParam String title, HttpSession session){
         return playListService.searchByTitle(title,session);
     }
 

@@ -150,21 +150,9 @@ public class CommentService {
     }
 
 
-    private Comment getCommentById(int id) {
-        return commentRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
-    }
-
-    private User getUserById(int id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-    }
-
-    private Video getVideoById(int id) {
-        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
-    }
-
-    private CommentSimpleResponseDTO commentToCommentDTO(Comment comment){
-        int likes = userReactToCommentRepository.findAllByReactionAndCommentId('+',comment.getId()).size();
-        int dislikes = userReactToCommentRepository.findAllByReactionAndCommentId('-',comment.getId()).size();
+    private CommentSimpleResponseDTO commentToCommentDTO(Comment comment) {
+        int likes = userReactToCommentRepository.findAllByReactionAndCommentId('+', comment.getId()).size();
+        int dislikes = userReactToCommentRepository.findAllByReactionAndCommentId('-', comment.getId()).size();
 
         CommentSimpleResponseDTO dto = new CommentSimpleResponseDTO();
         dto.setId(comment.getId());
@@ -180,9 +168,24 @@ public class CommentService {
     public List<CommentSimpleResponseDTO> getAllSubComments(int cid) {
         List<CommentSimpleResponseDTO> dtos = new ArrayList<>();
         List<CommentHasComment> subComments = commentHasCommentRepository.findAllByParent(getCommentById(cid));
-        for (CommentHasComment chc:subComments) {
+        for (CommentHasComment chc : subComments) {
             dtos.add(commentToCommentDTO(chc.getChild()));
         }
         return dtos;
+    }
+
+    //TODO move in Util
+    private Comment getCommentById(int id) {
+        return commentRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
+    }
+
+    //TODO move in Util
+    private User getUserById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    //TODO move in Util
+    private Video getVideoById(int id) {
+        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
     }
 }

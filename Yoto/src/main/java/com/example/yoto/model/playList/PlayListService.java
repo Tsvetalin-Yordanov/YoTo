@@ -9,11 +9,11 @@ import com.example.yoto.model.user.UserService;
 import com.example.yoto.model.video.*;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.nio.file.Files;
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.example.yoto.model.user.UserService.LOGGED;
 import static com.example.yoto.model.user.UserService.USER_ID;
 
 @Service
@@ -36,12 +35,10 @@ public class PlayListService {
     @Autowired
     private VideoRepository videoRepository;
 
-
     public PlayListComplexResponseDTO getById(int id) {
         Playlist playlist = playlistGetBy(id);
         return playlistToComplexDTO(playlist);
     }
-
 
     public PlayListSimpleResponseDTO createPlaylist(Playlist playlist, int userId) {
         User user = userGetById(userId);
@@ -49,7 +46,6 @@ public class PlayListService {
         if (playlist.getTitle() == null || playlist.getTitle().isBlank()) {
             throw new BadRequestException("Title is mandatory");
         }
-        System.out.println(user.getPlaylists());
         if (user.getPlaylists().contains(playlist)) {
             throw new BadRequestException("The playlist is in the user list");
         }
@@ -57,6 +53,7 @@ public class PlayListService {
         playlist.setCreateDate(LocalDateTime.now());
         playlist.setLastActualization(playlist.getCreateDate());
         playlist.setBackgroundUrl(playlist.getBackgroundUrl());
+        playlist.setPrivate(playlist.isPrivate());
         playlistRepository.save(playlist);
         return playlistToSimpleDTO(playlist);
     }
@@ -127,9 +124,9 @@ public class PlayListService {
 
 
     @SneakyThrows
-    public String uploadBackgroundImage(int plDto, MultipartFile file, int user_id) {
+    public String uploadBackgroundImage(int plId, MultipartFile file, int user_id) {
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
-        Playlist playlist = playlistGetBy(plDto);
+        Playlist playlist = playlistGetBy(plId);
         String playlistTitle = playlist.getTitle();
         String fileName = playlistTitle + "&" + System.nanoTime() + "." + fileExtension;
         //TODO uploads set constant !
@@ -140,34 +137,38 @@ public class PlayListService {
     }
 
 
-    public Playlist playlistGetBy(int id) {
-        return playlistRepository.findById(id).orElseThrow(() -> new NotFoundException("Playlist not found"));
-    }
-
-    public User userGetById(int id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-    }
-
-    public Video videoGetById(int id) {
-        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
-    }
-
     public List<PlayListSimpleResponseDTO> searchByTitle(String title, HttpSession session) {
         if (title == null && title.isEmpty()) {
             throw new BadRequestException("The submitted title is blank!");
         }
-//        int forCheckUserId = session.getAttribute(LOGGED) != null ? (int) session.getAttribute(USER_ID) : -1
-//         .filter(playlist -> (!playlist.isPrivate() || (playlist.isPrivate() && playlist.getCreator().getId() == forCheckUserId))
-//         && playlist.getTitle().toLowerCase().matches(title.toLowerCase()))
-        List<PlayListSimpleResponseDTO> playlists = playlistRepository.findAll().stream()
-                .filter(playlist -> playlist.getTitle().toLowerCase().contains(title.toLowerCase()))
-                .filter(playlist -> !playlist.isPrivate())
+        List<PlayListSimpleResponseDTO> playlists = playlistRepository
+                .findAllByTitleContainsAndIsPrivate(title, false).stream()
                 .map(PlayListService::playlistToSimpleDTO)
                 .collect(Collectors.toList());
+        Integer userId = (Integer) session.getAttribute(USER_ID);
+        if (userId != null) {
+            playlists.addAll(playlistRepository
+                    .findAllByCreatorIdAndIsPrivate(userId, true).stream()
+                    .map(PlayListService::playlistToSimpleDTO)
+                    .collect(Collectors.toList()));
+        }
         if (playlists.isEmpty()) {
             throw new NotFoundException("Not matches playlists with this title");
         }
         return playlists;
+    }
+
+    //TODO move in Util
+    public Playlist playlistGetBy(int id) {
+        return playlistRepository.findById(id).orElseThrow(() -> new NotFoundException("Playlist not found"));
+    }
+    //TODO move in Util
+    public User userGetById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+    }
+    //TODO move in Util
+    public Video videoGetById(int id) {
+        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
     }
 
 }

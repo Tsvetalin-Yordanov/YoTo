@@ -1,4 +1,4 @@
-POST localhost:3333/playlists/upload_background_image?plDto=5
+POST localhost:3333/playlists/upload_background_image?plId=5
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 
 --WebAppBoundary
@@ -12,20 +12,17 @@ POST localhost:3333/playlists/create
 Content-Type: application/json
 
 {
-"title" : "Tretiq playlist  bace",
-"isPrivate" : "true"
+"title" : "Tretiq playlist grande",
+"isPrivate" : true
 }
 ###
-GET localhost:3333/playlists/3
+GET localhost:3333/playlists/8
 ###
 DELETE localhost:3333/playlists/delete?plId=4
-###
-POST localhost:3333/playlists
-###
-POST localhost:3333/playlists
 ###
 DELETE localhost:3333/playlists/delete_video?vId=8&plid=3
 ###
 POST localhost:3333/playlists/add_video?vId=8&plId=3
 ###
-GET localhost:3333/playlists?title=st
+GET localhost:3333/playlists?title=tr
+
