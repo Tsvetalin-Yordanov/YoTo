@@ -11,23 +11,23 @@ PUT localhost:3333/comments
 Content-Type: application/json
 
 {
-  "id": 10,
-  "text": "tezi koteta sa mnogo sladki"
+  "id": 16,
+  "text": "tova sa falshivi macki"
 }
 ###
-DELETE localhost:3333/comments?id=2
+DELETE localhost:3333/comments?id=17
 ###
-POST localhost:3333/comments/like?cid=7
+POST localhost:3333/comments/like?cid=18
 ###
 POST localhost:3333/comments/dislike?cid=7
 ###
 DELETE  localhost:3333/comments/remove_reaction?cid=7
 ###
-POST localhost:3333/comments/respond?cid=13
+POST localhost:3333/comments/respond?cid=16
 Content-Type: application/json
 
 {
-  "text": "sam si komentiram komentara"
+  "text": "ne be ti si falshiv"
 }
 ###
-GET localhost:3333/comments/sub_comments?cid=5
+GET localhost:3333/comments/sub_comments?cid=16

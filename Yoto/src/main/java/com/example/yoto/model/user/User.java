@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.example.yoto.model.relationship.URTV.UserReactToVideo;
 import com.example.yoto.model.video.Video;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -70,7 +71,7 @@ public class User {
 
     //set of published videos
     @OneToMany(mappedBy = "user")
-    private Set<Video> videos;
+    private Set<Video> videos = new HashSet<>();
 
     //comments user has reacted to
     @OneToMany(mappedBy = "user")
@@ -92,7 +93,7 @@ public class User {
     private Set<User> observerUsers = new HashSet<>();
 
     //watched videos history
-    @ManyToMany(mappedBy = "users",cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<Video> watchedVideos = new LinkedList<>();
 
 }

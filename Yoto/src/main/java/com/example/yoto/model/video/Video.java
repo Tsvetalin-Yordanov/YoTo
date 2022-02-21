@@ -37,7 +37,7 @@ public class Video {
     private LocalDateTime uploadDate;
     @Column(name = "video_url")
     private String videoUrl;
-    @Column(name = "is_private")
+    @Column(name = "is_private",nullable = false, columnDefinition = "TINYINT(1)")
     private boolean isPrivate;
 
     //set of comments of the video

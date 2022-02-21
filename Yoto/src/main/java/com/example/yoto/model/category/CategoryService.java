@@ -1,15 +1,11 @@
 package com.example.yoto.model.category;
 
 import com.example.yoto.model.exceptions.BadRequestException;
-import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.user.User;
-import com.example.yoto.model.user.UserRepository;
-import com.example.yoto.model.user.UserService;
-import com.example.yoto.model.user.UserSimpleResponseDTO;
 import com.example.yoto.model.video.Video;
-import com.example.yoto.model.video.VideoRepository;
 import com.example.yoto.model.video.VideoService;
 import com.example.yoto.model.video.VideoSimpleResponseDTO;
+import com.example.yoto.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,22 +18,18 @@ import java.util.Set;
 public class CategoryService {
 
     @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private VideoRepository videoRepository;
+    private Util util;
 
     public CategoryComplexResponseDTO getById(int id) {
         if (id > 0) {
-            return categoryToCategoryComplexDTO(getCategoryById(id));
+            return categoryToCategoryComplexDTO(util.categoryGetById(id));
         }
         throw new BadRequestException("Id is not positive");
     }
 
     public List<CategoryComplexResponseDTO> getAll() {
         List<CategoryComplexResponseDTO> dtos = new ArrayList<>();
-        List<Category> categories = categoryRepository.findAll();
+        List<Category> categories = util.categoryRepository.findAll();
         for (Category cat : categories) {
             dtos.add(categoryToCategoryComplexDTO(cat));
         }
@@ -45,44 +37,44 @@ public class CategoryService {
     }
 
     public int followCategory(int cid, int uid) {
-        Category category = getCategoryById(cid);
-        User user = getUserById(uid);
+        Category category = util.categoryGetById(cid);
+        User user = util.userGetById(uid);
 
         category.getFollowersOfCategory().add(user);
-        categoryRepository.save(category);
+        util.categoryRepository.save(category);
         return category.getFollowersOfCategory().size();
 
     }
 
 
     public int unfollowCategory(int cid, int uid) {
-        Category category = getCategoryById(cid);
-        User user = getUserById(uid);
+        Category category = util.categoryGetById(cid);
+        User user = util.userGetById(uid);
 
         category.getFollowersOfCategory().remove(user);
-        categoryRepository.save(category);
+        util.categoryRepository.save(category);
         return category.getFollowersOfCategory().size();
 
     }
 
     public int addVideoInCategory(int vid, int cid, int uid) {
-        Category category = getCategoryById(cid);
-        User user = getUserById(uid);
-        Video video = getVideoById(vid);
+        Category category =util.categoryGetById(cid);
+        util.userGetById(uid);
+        Video video = util.videoGetById(vid);
 
         category.getVideosInCategory().add(video);
-        categoryRepository.save(category);
+        util.categoryRepository.save(category);
         return category.getVideosInCategory().size();
 
     }
 
     public int removeVideoFromCategory(int vid, int cid, int uid) {
-        Category category = getCategoryById(cid);
-        User user = getUserById(uid);
-        Video video = getVideoById(vid);
+        Category category = util.categoryGetById(cid);
+        util.userGetById(uid);
+        Video video = util.videoGetById(vid);
 
         category.getVideosInCategory().remove(video);
-        categoryRepository.save(category);
+        util.categoryRepository.save(category);
         return category.getVideosInCategory().size();
 
     }
@@ -104,18 +96,5 @@ public class CategoryService {
         dto.setVideos(videos);
 
         return dto;
-    }
-
-    //TODO move in Util
-    private Category getCategoryById(int id) {
-        return categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
-    }
-    //TODO move in Util
-    private User getUserById(int id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-    }
-    //TODO move in Util
-    private Video getVideoById(int id) {
-        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
     }
 }

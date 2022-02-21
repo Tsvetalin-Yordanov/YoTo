@@ -12,19 +12,21 @@ POST localhost:3333/videos/upload
 Content-Type: application/json
 
 {
-  "title": "kotkite sa mnogo",
-  "videoUrl": "asddfsdg"
+  "title": "kotkite sa 1ki",
+  "uploadDate" : "2010-04-23T18:25:43.511Z",
+  "videoUrl": "asddfsdg",
+  "isPrivate" :  true
 }
 ###
-GET localhost:3333/videos/1
+GET localhost:3333/videos/2
 ###
-PUT localhost:3333/videos/like?vId=4
+PUT localhost:3333/videos/like?vId=7
 ###
-PUT localhost:3333/videos/dislike?vId=4
+PUT localhost:3333/videos/dislike?vId=7
 ###
-DELETE localhost:3333/videos/remove_reaction?vId=4
+DELETE localhost:3333/videos/remove_reaction?vId=7
 ###
-POST localhost:3333/videos/watch?vId=4
+POST localhost:3333/videos/watch?vId=7
 ###
-GET localhost:3333/videos?title=mnogo
+GET localhost:3333/videos?title=1ki
 

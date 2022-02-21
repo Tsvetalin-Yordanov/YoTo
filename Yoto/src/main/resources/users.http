@@ -45,17 +45,17 @@ Content-Type: application/json
 ###
 GET localhost:3333/users
 ###
-GET localhost:3333/users/17
+GET localhost:3333/users/18
 ###
-POST localhost:3333/users/follow?publisherId=10
+POST localhost:3333/users/follow?publisherId=3
 ###
 POST localhost:3333/users/unfollow?publisherId=3
 ###
-DELETE localhost:3333/users?id=16
+DELETE localhost:3333/users?id=21
 ###
 POST localhost:3333/users/logout
 ###
-GET localhost:3333/users/search?name=k
+GET localhost:3333/users/search?name=r
 ###
 PUT localhost:3333/users/reset_password
 Content-Type: application/json
@@ -68,4 +68,4 @@ Content-Type: application/json
 ###
 PUT localhost:3333/users/forgotten_password?email=baceeeeee@gmail.com
 ###
-PUT localhost:3333/users/verify_registration/18
+PUT localhost:3333/users/verify_registration/21
