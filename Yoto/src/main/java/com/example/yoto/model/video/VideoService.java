@@ -148,7 +148,7 @@ public class VideoService {
         if (title == null && title.isEmpty()) {
             throw new BadRequestException("The submitted title is blank!");
         }
-      List<VideoSimpleResponseDTO> videos = videoRepository
+        List<VideoSimpleResponseDTO> videos = videoRepository
                 .findAllByTitleContainsAndIsPrivate(title, false).stream()
                 .map(VideoService::videoToSimpleDTO)
                 .collect(Collectors.toList());

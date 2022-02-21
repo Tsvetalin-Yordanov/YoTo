@@ -11,6 +11,8 @@ import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +36,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     public UserSimpleResponseDTO register(UserRegisterDTO userDTO) {
         if (userDTO.getFirstName() == null || userDTO.getFirstName().isBlank()) {
@@ -81,6 +85,28 @@ public class UserService {
         user.setProfileImageUrl(userDTO.getProfileImageUrl());
         user.setBackgroundImageUrl(userDTO.getBackgroundImageUrl());
         userRepository.save(user);
+
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom("kaltodor11@gmail.com");
+        msg.setTo(user.getEmail());
+        msg.setSubject("Verify account");
+        msg.setText("You have to verify tour account.\nPlease follow this link: http://localhost:3333/users/verify_registration/"+user.getId());
+        javaMailSender.send(msg);
+
+        return userToSimpleDTO(user);
+    }
+
+    public UserSimpleResponseDTO verifyRegistration(int id) {
+        User user = getUserById(id);
+        user.setVerified(true);
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom("kaltodor11@gmail.com");
+        msg.setTo(user.getEmail());
+        msg.setSubject("Verified");
+        msg.setText("You have verified your account");
+        javaMailSender.send(msg);
+        userRepository.save(user);
+
         return userToSimpleDTO(user);
     }
 
@@ -92,12 +118,19 @@ public class UserService {
             throw new BadRequestException("Password is mandatory");
         }
         User user1 = userRepository.findByEmail(user.getEmail());
-        if (user1 == null) {
+        if (user1==null){
+            throw new NotFoundException("User not found");
+        }
+        if (!user1.isVerified()){
+            throw new BadRequestException("You have to verify your account first!");
+        }
+        if (!user.getEmail().equals(user1.getEmail())) {
             throw new UnauthorizedException("Wrong email");
         }
         if (!passwordEncoder.matches(user.getPassword(), user1.getPassword())) {
             throw new UnauthorizedException("Wrong credentials");
         }
+
         return userToSimpleDTO(user1);
     }
 
@@ -226,7 +259,7 @@ public class UserService {
     }
 
     public List<UserSimpleResponseDTO> searchByName(String name) {
-        if (name == null && name.isEmpty()) {
+        if (name.trim().isEmpty()) {
             throw new BadRequestException("Name is mandatory!");
         }
         List<UserSimpleResponseDTO> dtos = new LinkedList<>();
@@ -241,4 +274,47 @@ public class UserService {
     private User getUserById(int id) {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
     }
+
+    public UserSimpleResponseDTO resetPassword(UserChangePasswordDTO changePasswordDTO, int user_id) {
+        User user = getUserById(user_id);
+        if (changePasswordDTO.getOldPass().trim().isEmpty()) {
+            throw new BadRequestException("Old password is mandatory");
+        }
+        if (changePasswordDTO.getNewPass().trim().isEmpty()) {
+            throw new BadRequestException("New password is mandatory");
+        }
+        if (!passwordEncoder.matches(changePasswordDTO.getOldPass(), user.getPassword())){
+            throw new BadRequestException("Wrong old password");
+
+        }
+        if (!changePasswordDTO.getNewPass().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$")) {
+            throw new BadRequestException("New password is too weak");
+        }
+        if (!changePasswordDTO.getNewPass().equals(changePasswordDTO.getConfirmPass())) {
+            throw new BadRequestException("Passwords mismatch");
+        }
+        if (changePasswordDTO.getNewPass().equals(changePasswordDTO.getOldPass())){
+            throw new BadRequestException("New password can not be the old password");
+        }
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPass()));
+        userRepository.save(user);
+        return userToSimpleDTO(user);
+    }
+
+    public UserSimpleResponseDTO forgottenPassword(String email) {
+        User user = userRepository.findByEmail(email);
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom("kaltodor11@gmail.com");
+        msg.setTo(email);
+        msg.setSubject("Forgotten password");
+        msg.setText("Your new password is <1234>\nPlease change your password to a stronger one!");
+        javaMailSender.send(msg);
+
+        user.setPassword(passwordEncoder.encode("1234"));
+        userRepository.save(user);
+
+        return userToSimpleDTO(user);
+    }
+
+
 }

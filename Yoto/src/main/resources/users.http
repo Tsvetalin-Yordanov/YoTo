@@ -2,12 +2,12 @@ POST localhost:3333/users/register
 Content-Type: application/json
 
 {
-  "firstName" : "Kaloyan",
-  "lastName" : "Todorov",
+  "firstName" : "Kiril",
+  "lastName" : "Efremov",
   "password" : "k1@.063Doka",
   "confirmPassword" : "k1@.063Doka",
-  "phoneNumber" : "0888888988852",
-  "email": "kaltodo11111@abv.bg",
+  "phoneNumber" : "088888898238852",
+  "email": "baceeeeee@gmail.com",
   "dateOfBirth" : "2010-04-23T18:25:43.511Z"
 }
 
@@ -20,8 +20,8 @@ Content-Type: application/json
   "lastName" : "Todorov",
   "password" : "k1@.0653Doka",
   "confirmPassword" : "k1@.0653Doka",
-  "phoneNumber" : "088888880",
-  "email": "kaltodo15@abv.bg",
+  "phoneNumber" : "088843882222888",
+  "email": "kaltodor11@gmail.com",
   "dateOfBirth" : "2010-04-23T18:25:43.511Z"
 }
 
@@ -30,8 +30,8 @@ POST localhost:3333/users/log_in
 Content-Type: application/json
 
 {
-  "email": "kaltodo15@abv.bg",
-  "password" : "k1@.0653Doka"
+  "email": "baceeeeee@gmail.com",
+  "password" : "k1@.063Doka"
 }
 ###
 POST localhost:3333/users/log_in
@@ -39,20 +39,33 @@ Content-Type: application/json
 
 {
 "email": "kaltodo15@abv.bg",
-"password" : "k1@.0653Doka"
+"password" : "po01.?@dE"
 }
 
 ###
 GET localhost:3333/users
 ###
-GET localhost:3333/users/10
+GET localhost:3333/users/17
 ###
 POST localhost:3333/users/follow?publisherId=10
 ###
 POST localhost:3333/users/unfollow?publisherId=3
 ###
-DELETE localhost:3333/users?id=4
+DELETE localhost:3333/users?id=16
 ###
-POST localhost:3333/user/logout
+POST localhost:3333/users/logout
 ###
-GET localhost:3333/users/search?name=lo
+GET localhost:3333/users/search?name=k
+###
+PUT localhost:3333/users/reset_password
+Content-Type: application/json
+
+{
+  "oldPass": "1234",
+  "newPass": "po01.?@dE",
+  "confirmPass": "po01.?@dE"
+}
+###
+PUT localhost:3333/users/forgotten_password?email=baceeeeee@gmail.com
+###
+PUT localhost:3333/users/verify_registration/18

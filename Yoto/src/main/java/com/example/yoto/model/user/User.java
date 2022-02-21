@@ -53,6 +53,8 @@ public class User {
     private String profileImageUrl;
     @Column
     private String backgroundImageUrl;
+    @Column(nullable = false, columnDefinition = "TINYINT(1)")
+    private boolean verified;
 
     //set of published comments
     @OneToMany(mappedBy = "creator")

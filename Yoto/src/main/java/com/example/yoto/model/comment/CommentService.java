@@ -176,7 +176,7 @@ public class CommentService {
 
     //TODO move in Util
     private Comment getCommentById(int id) {
-        return commentRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
+        return commentRepository.findById(id).orElseThrow(() -> new NotFoundException("Comment not found"));
     }
 
     //TODO move in Util

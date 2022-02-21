@@ -25,6 +25,11 @@ public class UserController {
         return ResponseEntity.status(201).body(dto);
     }
 
+    @PutMapping("/users/verify_registration/{id}")
+    public UserSimpleResponseDTO verifyRegistration(@PathVariable int id){
+        return userService.verifyRegistration(id);
+    }
+
     @PostMapping("/users/log_in")
     public UserSimpleResponseDTO logIn(@RequestBody User user, HttpSession session, HttpServletRequest request) {
         UserSimpleResponseDTO dto = userService.login(user);
@@ -61,7 +66,7 @@ public class UserController {
         return usersDTO;
     }
 
-    @PostMapping("/user/logout")
+    @PostMapping("/users/logout")
     public void logOut(HttpSession session) {
         session.invalidate();
     }
@@ -96,9 +101,15 @@ public class UserController {
     }
 
 
-//    @PutMapping("/users/reset_password")
-//    public UserResponseDTO resetPassword(){
-//
-//    }
+    @PutMapping("/users/reset_password")
+    public UserSimpleResponseDTO resetPassword(@RequestBody UserChangePasswordDTO changePasswordDTO, HttpSession session, HttpServletRequest request){
+        userService.validateLogin(session,request);
+        return userService.resetPassword(changePasswordDTO,(int) session.getAttribute("user_id"));
+    }
+
+    @PutMapping("/users/forgotten_password")
+    public UserSimpleResponseDTO forgottenPassword(@RequestParam String email){
+        return userService.forgottenPassword(email);
+    }
 }
 
