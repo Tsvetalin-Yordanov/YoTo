@@ -173,9 +173,6 @@ public class UserService {
         }
     }
 
-    private User getUserById(int id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-    }
 
     public static UserSimpleResponseDTO userToSimpleDTO(User user) {
         UserSimpleResponseDTO userDto = new UserSimpleResponseDTO();
@@ -229,5 +226,9 @@ public class UserService {
         user.setBackgroundImageUrl(fileName);
         userRepository.save(user);
         return fileName;
+    }
+    //TODO move in Util
+    private User getUserById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
     }
 }

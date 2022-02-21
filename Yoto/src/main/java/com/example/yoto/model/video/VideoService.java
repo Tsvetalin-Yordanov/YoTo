@@ -65,6 +65,7 @@ public class VideoService {
         if (videoReq.getVideoUrl() == null || videoReq.getVideoUrl().isBlank()) {
             throw new BadRequestException("No content to upload");
         }
+        videoReq.setPrivate(videoReq.isPrivate());
         Video video = videoRepository.save(videoReq);
         return videoToSimpleDTO(video);
     }
@@ -98,21 +99,12 @@ public class VideoService {
         return videoToComplexDTO(video);
     }
 
-    //TODO няма да бачка с user
     public int watch(int vId, int userId) {
         User user = userGetById(userId);
         Video video = videoGetById(vId);
         video.getUsers().add(user);
         videoRepository.save(video);
         return video.getUsers().size();
-    }
-
-    public Video videoGetById(int id) {
-        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
-    }
-
-    public User userGetById(int id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     public static VideoSimpleResponseDTO videoToSimpleDTO(Video video) {
@@ -156,15 +148,28 @@ public class VideoService {
         if (title == null && title.isEmpty()) {
             throw new BadRequestException("The submitted title is blank!");
         }
-//        int forCheckUserId = session.getAttribute(LOGGED) != null ? (int) session.getAttribute(USER_ID) : -1;
-        List<VideoSimpleResponseDTO> videos = videoRepository.findAll().stream()
-                .filter(video -> video.getTitle().toLowerCase().contains(title.toLowerCase()))
-                .filter(video -> !video.isPrivate())
+      List<VideoSimpleResponseDTO> videos = videoRepository
+                .findAllByTitleContainsAndIsPrivate(title, false).stream()
                 .map(VideoService::videoToSimpleDTO)
                 .collect(Collectors.toList());
+        Integer userId = (Integer) session.getAttribute(USER_ID);
+        if (userId != null) {
+            videos.addAll(videoRepository
+                    .findAllByUserIdAndIsPrivate(userId, true).stream()
+                    .map(VideoService::videoToSimpleDTO)
+                    .collect(Collectors.toList()));
+        }
         if (videos.isEmpty()) {
             throw new NotFoundException("Not matches videos with this title");
         }
         return videos;
+    }
+    //TODO move in Util
+    public Video videoGetById(int id) {
+        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
+    }
+    //TODO move in Util
+    public User userGetById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
     }
 }

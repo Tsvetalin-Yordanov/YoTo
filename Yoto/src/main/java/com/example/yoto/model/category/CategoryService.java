@@ -87,17 +87,6 @@ public class CategoryService {
 
     }
 
-    private Category getCategoryById(int id) {
-        return categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
-    }
-
-    private User getUserById(int id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-    }
-
-    private Video getVideoById(int id) {
-        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
-    }
 
     private CategoryComplexResponseDTO categoryToCategoryComplexDTO(Category category) {
         Set<VideoSimpleResponseDTO> videos = new HashSet<>();
@@ -115,5 +104,18 @@ public class CategoryService {
         dto.setVideos(videos);
 
         return dto;
+    }
+
+    //TODO move in Util
+    private Category getCategoryById(int id) {
+        return categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
+    }
+    //TODO move in Util
+    private User getUserById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+    }
+    //TODO move in Util
+    private Video getVideoById(int id) {
+        return videoRepository.findById(id).orElseThrow(() -> new NotFoundException("Video not found"));
     }
 }
