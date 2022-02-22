@@ -21,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.example.yoto.util.Util.*;
@@ -38,6 +40,7 @@ public class UserService {
     private Util util;
 
 
+    @SneakyThrows
     public UserSimpleResponseDTO register(UserRegisterDTO userDTO) {
         String firstName = userDTO.getFirstName();
         if (firstName.trim().isEmpty() || firstName.length() > USER_NAME_MAX_LENGTH) {
@@ -99,17 +102,25 @@ public class UserService {
         user.setBackgroundImageUrl(userDTO.getBackgroundImageUrl());
         util.userRepository.save(user);
 
+        String token = System.currentTimeMillis() + "$$$" + (new Random().nextInt(99999) + 11111) + "*=3214@" + user.getId() + "@" + System.currentTimeMillis();
+
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setFrom("kaltodor11@gmail.com");
         msg.setTo(user.getEmail());
         msg.setSubject("Verify account");
-        msg.setText("You have to verify tour account.\nPlease follow this link: http://localhost:3333/users/verify_registration/" + user.getId());
+        msg.setText("You have to verify tour account.\nPlease follow this link: http://localhost:3333/users/verify_registration/" + token);
         javaMailSender.send(msg);
 
         return userToSimpleDTO(user);
     }
 
-    public UserSimpleResponseDTO verifyRegistration(int id) {
+    public UserSimpleResponseDTO verifyRegistration(String encryptedId) {
+        int id = 0;
+        Pattern pattern = Pattern.compile("(?<=@)(.*?)(?=@)");
+        Matcher matcher = pattern.matcher(encryptedId);
+        if (matcher.find()) {
+            id = Integer.parseInt(matcher.group(1));
+        }
         User user = util.userGetById(id);
         user.setVerified(true);
         SimpleMailMessage msg = new SimpleMailMessage();

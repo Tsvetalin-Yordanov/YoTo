@@ -28,9 +28,9 @@ public class UserController {
         return ResponseEntity.status(201).body(dto);
     }
 
-    @PutMapping("/users/verify_registration/{id}")
-    public UserSimpleResponseDTO verifyRegistration(@PathVariable int id){
-        return userService.verifyRegistration(id);
+    @PutMapping("/users/verify_registration/{encryptedId}")
+    public UserSimpleResponseDTO verifyRegistration(@PathVariable String encryptedId){
+        return userService.verifyRegistration(encryptedId);
     }
 
     @PostMapping("/users/log_in")

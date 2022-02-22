@@ -1,10 +1,10 @@
 GET localhost:3333/comments/5
 ###
-POST localhost:3333/comments?vid=2
+POST localhost:3333/comments?vid=4
 Content-Type: application/json
 
 {
-  "text": "tova sa istinski macki"
+  "text": "strahotini kotki"
 }
 ###
 PUT localhost:3333/comments
@@ -23,11 +23,13 @@ POST localhost:3333/comments/dislike?cid=7
 ###
 DELETE  localhost:3333/comments/remove_reaction?cid=7
 ###
-POST localhost:3333/comments/respond?cid=16
+POST localhost:3333/comments/respond?cid=19
 Content-Type: application/json
 
 {
-  "text": "ne be ti si falshiv"
+  "text": "i az taka mislq"
 }
 ###
-GET localhost:3333/comments/sub_comments?cid=16
+GET localhost:3333/comments/sub_comments?cid=19
+###
+GET localhost:3333/comments/video?vid=4

@@ -170,4 +170,20 @@ public class CommentService {
         return dtos;
     }
 
+    public List<CommentSimpleResponseDTO> getAllCommentsOfVideo(int vid) {
+        List<CommentSimpleResponseDTO> dtos = new ArrayList<>();
+        Set<Comment> commentsOfVideos = util.videoGetById(vid).getComments();
+        List<Comment> subComments = new ArrayList<>();
+        for (Comment comment: commentsOfVideos) {
+            Optional<CommentHasComment> chc = util.commentHasCommentRepository.findByChild(comment);
+            if (chc.isPresent()){
+                subComments.add(chc.get().getChild());
+            }
+        }
+        subComments.forEach(commentsOfVideos::remove);
+        for (Comment chc : commentsOfVideos) {
+            dtos.add(commentToCommentDTO(chc));
+        }
+        return dtos;
+    }
 }

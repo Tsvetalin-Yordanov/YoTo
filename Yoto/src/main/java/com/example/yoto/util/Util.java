@@ -86,6 +86,4 @@ public class Util {
     public Integer getUserIdFromRequest(HttpServletRequest request) {
         return (int) request.getSession().getAttribute(USER_ID);
     }
-
-
 }

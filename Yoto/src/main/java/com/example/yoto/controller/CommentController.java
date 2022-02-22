@@ -86,4 +86,9 @@ public class CommentController {
     public List<CommentSimpleResponseDTO> showAllSubComments(@RequestParam int cid) {
         return commentService.getAllSubComments(cid);
     }
+
+    @GetMapping("/comments/video")
+    public List<CommentSimpleResponseDTO> showAllCommentsOfVideo(@RequestParam int vid){
+        return commentService.getAllCommentsOfVideo(vid);
+    }
 }
