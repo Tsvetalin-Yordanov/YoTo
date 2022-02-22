@@ -28,50 +28,65 @@ public class VideoController {
         return video;
     }
 
+    @GetMapping("/videos/order_by_upload_date")
+    public List<VideoSimpleResponseDTO> getOrderByUploadDate(@RequestParam String validator, HttpServletRequest request) {
+        return videoService.getOrderVideosByUploadDate(validator);
+    }
+
+    @GetMapping("/videos/order_by_watched")
+    public List<VideoSimpleResponseDTO>  getOrderByWatched(@RequestParam String validator, HttpServletRequest request) {
+        return videoService.getOrderVideosByWatchedCount(validator);
+    }
+
     @PostMapping("/videos/upload")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public ResponseEntity<VideoSimpleResponseDTO> upload(@RequestBody Video videoReq,HttpServletRequest request) {
-        util.validateLogin(request);
-        VideoSimpleResponseDTO vDto = videoService.uploadVideo(videoReq,util.getUserIdFromRequest(request));
+    public ResponseEntity<VideoSimpleResponseDTO> upload(@RequestBody Video videoReq, HttpServletRequest request) {
+        VideoSimpleResponseDTO vDto = videoService.uploadVideo(videoReq, util.getUserIdFromRequest(request));
         return ResponseEntity.status(201).body(vDto);
     }
 
+    @DeleteMapping("/videos")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT, reason = "Video is deleted!")
+    public void deleteVideoById(@RequestParam int id, HttpServletRequest request) {
+        videoService.deleteById(id);
+    }
+
     @PutMapping("/videos/like")
-    public ResponseEntity<VideoComplexResponseDTO> liked(@RequestParam int vId,HttpServletRequest request){
-        util.validateLogin(request);
-        VideoComplexResponseDTO vDto = videoService.likeVideo(vId,util.getUserIdFromRequest(request));
+    public ResponseEntity<VideoComplexResponseDTO> liked(@RequestParam int vId, HttpServletRequest request) {
+        VideoComplexResponseDTO vDto = videoService.likeVideo(vId, util.getUserIdFromRequest(request));
         return ResponseEntity.status(201).body(vDto);
     }
 
 
     @PutMapping("/videos/dislike")
-    public ResponseEntity<VideoComplexResponseDTO> dislike(@RequestParam int vId, HttpServletRequest request){
-        util.validateLogin(request);
-        VideoComplexResponseDTO vDto = videoService.dislikeVideo(vId,util.getUserIdFromRequest(request));
+    public ResponseEntity<VideoComplexResponseDTO> dislike(@RequestParam int vId, HttpServletRequest request) {;
+        VideoComplexResponseDTO vDto = videoService.dislikeVideo(vId, util.getUserIdFromRequest(request));
         return ResponseEntity.status(201).body(vDto);
     }
 
     @DeleteMapping("/videos/remove_reaction")
-    public ResponseEntity<VideoComplexResponseDTO> removeReaction(@RequestParam int vId,HttpServletRequest request){
-        util.validateLogin(request);
-        VideoComplexResponseDTO vDto = videoService.removeReaction(vId,util.getUserIdFromRequest(request));
+    public ResponseEntity<VideoComplexResponseDTO> removeReaction(@RequestParam int vId, HttpServletRequest request) {
+        VideoComplexResponseDTO vDto = videoService.removeReaction(vId, util.getUserIdFromRequest(request));
         return ResponseEntity.status(200).body(vDto);
     }
 
     @PostMapping("/videos/watch")
-    public int  watch(@RequestParam int vId,HttpSession session, HttpServletRequest request) {
-        util.validateLogin(request);
+    public VideoComplexResponseDTO watch(@RequestParam int vId, HttpSession session, HttpServletRequest request) {
         return videoService.watch(vId, (int) session.getAttribute(USER_ID));
     }
+
     @PostMapping("/videos/upload_image")
-    public String uploadProfileImage(@RequestParam int vId,@RequestParam (name = "image") MultipartFile file , HttpServletRequest request){
-        util.validateLogin(request);
-        return videoService.uploadVideoImage(vId,file,util.getUserIdFromRequest(request));
-    }
-    @GetMapping("/videos")
-    public List<VideoSimpleResponseDTO> searchByTitle(@RequestParam String title, HttpSession session){
-        return videoService.searchByTitle(title,session);
+    public String uploadVideoImage(@RequestParam int vId, @RequestParam(name = "image") MultipartFile file, HttpServletRequest request) {
+        return videoService.uploadVideoImage(vId, file, util.getUserIdFromRequest(request));
     }
 
+    @GetMapping("/videos/search_by_title")
+    public List<VideoSimpleResponseDTO> searchByTitle(@RequestParam String title, HttpServletRequest request) {
+        return videoService.searchByTitle(title, request);
+    }
+    @GetMapping("/videos/get_all")
+    public List<VideoSimpleResponseDTO> getAllVideos(HttpServletRequest request) {
+        return videoService.getAllVideos(request);
+    }
 
 }

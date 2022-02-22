@@ -11,6 +11,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.nio.file.Files;
@@ -19,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import static com.example.yoto.util.Util.TITLE_MAX_LENGTH;
 import static com.example.yoto.util.Util.UPLOAD_FILES_DIRECTORY;
 import static com.example.yoto.util.Util.USER_ID;
@@ -119,8 +122,7 @@ public class PlayListService {
 
 
     @SneakyThrows
-    public String uploadBackgroundImage(int plId, MultipartFile file, int user_id) {
-
+    public String uploadBackgroundImage(int plId, MultipartFile file) {
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
         Playlist playlist = util.playlistGetById(plId);
         String playlistTitle = playlist.getTitle();
@@ -132,7 +134,7 @@ public class PlayListService {
     }
 
 
-    public List<PlayListSimpleResponseDTO> searchByTitle(String title, HttpSession session) {
+    public List<PlayListSimpleResponseDTO> searchByTitle(String title,HttpServletRequest request) {
         if (title.trim().isEmpty() || title.length() > TITLE_MAX_LENGTH) {
             throw new BadRequestException("The submitted title is blank!");
         }
@@ -140,7 +142,7 @@ public class PlayListService {
                 .findAllByTitleContainsAndIsPrivate(title, false).stream()
                 .map(PlayListService::playlistToSimpleDTO)
                 .collect(Collectors.toList());
-        Integer userId = (Integer) session.getAttribute(USER_ID);
+        Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
         if (userId != null) {
             playlists.addAll(util.playlistRepository
                     .findAllByCreatorIdAndIsPrivate(userId, true).stream()
@@ -149,6 +151,24 @@ public class PlayListService {
         }
         if (playlists.isEmpty()) {
             throw new NotFoundException("Not matches playlists with this title");
+        }
+        return playlists;
+    }
+
+    public List<PlayListSimpleResponseDTO> getAllPlaylists(HttpServletRequest request) {
+        List<PlayListSimpleResponseDTO> playlists = util.playlistRepository
+                .findAllByIsPrivate(false).stream()
+                .map(PlayListService::playlistToSimpleDTO)
+                .collect(Collectors.toList());
+        Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
+        if (userId != null) {
+            playlists.addAll(util.playlistRepository
+                    .findAllByCreatorIdAndIsPrivate(userId, true).stream()
+                    .map(PlayListService::playlistToSimpleDTO)
+                    .collect(Collectors.toList()));
+        }
+        if (playlists.isEmpty()) {
+            throw new NotFoundException("Playlists are not found");
         }
         return playlists;
     }

@@ -153,10 +153,11 @@ public class UserService {
         throw new BadRequestException("Id is not positive");
     }
 
-    public void DeleteById(int id) {
+    public boolean deleteById(int id) {
         if (id > 0) {
             util.userGetById(id);
             util.userRepository.deleteById(id);
+            return true;
         } else {
             throw new BadRequestException("Id is not positive");
         }

@@ -16,7 +16,10 @@ import com.example.yoto.model.user.UserRepository;
 import com.example.yoto.model.video.Video;
 import com.example.yoto.model.video.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -72,20 +75,8 @@ public class Util {
         return commentRepository.findById(id).orElseThrow(() -> new NotFoundException("Comment not found"));
     }
 
-
-    public void validateLogin(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        boolean newSession = session.isNew();
-        boolean logged = session.getAttribute(LOGGED) != null && ((Boolean) session.getAttribute(LOGGED));
-        boolean sameIp = request.getRemoteAddr().equals(session.getAttribute(LOGGED_FROM));
-        if (newSession || !logged || !sameIp) {
-            throw new UnauthorizedException("You have to log in!");
-        }
-    }
-
     public Integer getUserIdFromRequest(HttpServletRequest request) {
         return (int) request.getSession().getAttribute(USER_ID);
     }
-
 
 }

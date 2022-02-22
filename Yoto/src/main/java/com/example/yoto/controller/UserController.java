@@ -45,7 +45,6 @@ public class UserController {
 
     @PutMapping("/users")
     public UserSimpleResponseDTO editUser(@RequestBody User user, HttpServletRequest request) {
-        util.validateLogin(request);
         UserSimpleResponseDTO userDTO = userService.edit(user);
         return userDTO;
     }
@@ -53,8 +52,7 @@ public class UserController {
     //todo ask Krasi about session
     @DeleteMapping("/users")
     public ResponseEntity<String> delete(@RequestParam int id, HttpServletRequest request) {
-        util.validateLogin(request);
-        userService.DeleteById(id);
+        userService.deleteById(id);
         return ResponseEntity.status(204).body("User deleted successfully!");
     }
 
@@ -77,25 +75,21 @@ public class UserController {
 
     @PostMapping("/users/follow")
     public int followUser(@RequestParam int publisherId, HttpServletRequest request) {
-        util.validateLogin(request);
         return userService.followUser(publisherId, util.getUserIdFromRequest(request));
     }
 
     @PostMapping("/users/unfollow")
     public int unFollowUser(@RequestParam int publisherId, HttpServletRequest request) {
-        util.validateLogin(request);
         return userService.unFollowUser(publisherId, util.getUserIdFromRequest(request));
     }
 
     @PostMapping("users/upload_profile_image")
     public String uploadProfileImage(@RequestParam MultipartFile file, HttpServletRequest request) {
-        util.validateLogin(request);
         return userService.uploadProfileImage(file, util.getUserIdFromRequest(request));
     }
 
     @PostMapping("users/upload_background_image")
     public String uploadBackgroundImage(@RequestParam MultipartFile file, HttpServletRequest request) {
-        util.validateLogin(request);
         return userService.uploadBackgroundImage(file, util.getUserIdFromRequest(request));
     }
 
@@ -107,7 +101,6 @@ public class UserController {
 
     @PutMapping("/users/reset_password")
     public UserSimpleResponseDTO resetPassword(@RequestBody UserChangePasswordDTO changePasswordDTO, HttpServletRequest request){
-       util.validateLogin(request);
         return userService.resetPassword(changePasswordDTO,util.getUserIdFromRequest(request));
     }
 
