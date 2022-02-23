@@ -32,6 +32,8 @@ public class Util {
     public static final String LOGGED = "logged";
     public static final String LOGGED_FROM = "logged_from";
     public static final String USER_ID = "user_id";
+    public static final String ACCESS_TOKEN = "sl.BCn0F4pa7Wx14jn7OzMXjsPVU4w_gMooBej5eDrLVboAkItgXt9zXUJYSXe_1eZkbINhGyVpLzR5mKVzAOoqS4JnWHNTPiaghkV-giRKfRqE0Qtx8CLf7AKkidW3Zoq3W8QkhTU";
+
 
     @Autowired
     public UserRepository userRepository;

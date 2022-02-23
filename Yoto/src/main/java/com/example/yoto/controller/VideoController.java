@@ -96,4 +96,9 @@ public class VideoController {
         return videoService.getAllVideos(pageNumber,rowNumbers,request);
     }
 
+    @PutMapping("/videos/upload/dropbox")
+    public VideoSimpleResponseDTO uploadVideoToDropbox(@RequestParam int vId, HttpServletRequest request){
+        return videoService.uploadVideoToDropbox(vId);
+    }
+
 }

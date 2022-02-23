@@ -1,5 +1,10 @@
 package com.example.yoto.model.video;
 
+import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.users.FullAccount;
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.relationship.userReactToVideo.UserReactToVideo;
@@ -10,15 +15,13 @@ import com.example.yoto.util.Util;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
+import java.io.*;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -232,5 +235,25 @@ public class VideoService {
             throw new NotFoundException("Videos are not found");
         }
         return videos;
+    }
+
+    @SneakyThrows
+    public VideoSimpleResponseDTO uploadVideoToDropbox(int vId) {
+
+        DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
+        DbxClientV2 client = new DbxClientV2(config,util.ACCESS_TOKEN);
+
+        String filename = util.videoGetById(vId).getVideoUrl();
+
+        try (InputStream in = new FileInputStream("uploads" + File.separator + filename)) {
+            FileMetadata metadata = client.files().uploadBuilder("/"+filename)
+                    .uploadAndFinish(in);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException | DbxException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }
