@@ -158,10 +158,9 @@ public class CommentService {
         return dto;
     }
 
-    public List<CommentSimpleResponseDTO> getAllSubComments(int cid,int pageNumber,int rowNumbers) {
-        Pageable page = PageRequest.of(pageNumber, rowNumbers);
+    public List<CommentSimpleResponseDTO> getAllSubComments(int cid) {
         List<CommentSimpleResponseDTO> dtos = new ArrayList<>();
-        List<CommentHasComment> subComments = util.commentHasCommentRepository.findAllByParent(util.commentGetById(cid),page);
+        List<CommentHasComment> subComments = util.commentHasCommentRepository.findAllByParent(util.commentGetById(cid));
         for (CommentHasComment chc : subComments) {
             dtos.add(commentToCommentDTO(chc.getChild()));
         }
@@ -169,7 +168,6 @@ public class CommentService {
     }
 
     public List<CommentSimpleResponseDTO> getAllCommentsOfVideo(int vid) {
-
         List<CommentSimpleResponseDTO> dtos = new ArrayList<>();
         Set<Comment> commentsOfVideos = util.videoGetById(vid).getComments();
         List<Comment> subComments = new ArrayList<>();

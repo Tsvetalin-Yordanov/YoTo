@@ -38,10 +38,6 @@ public class VideoService {
     @Autowired
     private Util util;
 
-    private static int applyAsInt(Video v) {
-        return v.getUsers().size();
-    }
-
     public VideoComplexResponseDTO getById(int id) {
         Video video = util.videoGetById(id);
         return videoToComplexDTO(video);
@@ -233,7 +229,8 @@ public class VideoService {
         DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
         DbxClientV2 client = new DbxClientV2(config,util.ACCESS_TOKEN);
 
-        String filename = util.videoGetById(vId).getVideoUrl();
+        Video video = util.videoGetById(vId);
+        String filename = video.getVideoUrl();
 
         try (InputStream in = new FileInputStream("uploads" + File.separator + filename)) {
             FileMetadata metadata = client.files().uploadBuilder("/"+filename)
@@ -244,6 +241,6 @@ public class VideoService {
             e.printStackTrace();
         }
 
-        return null;
+        return videoToSimpleDTO(video);
     }
 }

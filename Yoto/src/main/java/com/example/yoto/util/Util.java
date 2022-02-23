@@ -27,7 +27,7 @@ public class Util {
     public static final int USER_PHONE_NUMBER_MAX_LENGTH = 20;
     public static final int USER_ABOUT_ME_MAX_LENGTH = 2000;
     public static final int TITLE_MAX_LENGTH = 150;
-    public static final int COMMENT_TXT_MAX_LENGTH = 250;
+    public static final int COMMENT_TXT_MAX_LENGTH = 2500;
     public static final String UPLOAD_FILES_DIRECTORY = "uploads";
     public static final String LOGGED = "logged";
     public static final String LOGGED_FROM = "logged_from";

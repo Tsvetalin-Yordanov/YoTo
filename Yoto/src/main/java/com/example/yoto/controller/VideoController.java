@@ -101,8 +101,9 @@ public class VideoController {
     }
 
     @PutMapping("/videos/upload/dropbox")
-    public VideoSimpleResponseDTO uploadVideoToDropbox(@RequestParam int vId, HttpServletRequest request){
-        return videoService.uploadVideoToDropbox(vId);
+    public ResponseEntity<VideoSimpleResponseDTO> uploadVideoToDropbox(@RequestParam int vId, HttpServletRequest request){
+        VideoSimpleResponseDTO dto =  videoService.uploadVideoToDropbox(vId);
+        return ResponseEntity.status(201).body(dto);
     }
 
 }

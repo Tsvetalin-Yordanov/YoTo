@@ -32,8 +32,6 @@ public class LoggerInterceptor implements HandlerInterceptor {
                 || Objects.equals(request.getServletPath(), "/videos/search_by_title")
                 || Objects.equals(request.getServletPath(), "/playlists/search_by_title")
                 || Objects.equals(request.getServletPath(), "/comments/sub_comments")) {
-            System.out.println(request.getMethod());
-            System.out.println(request.getServletPath());
             return true;
         }
         HttpSession session = request.getSession();

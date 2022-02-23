@@ -13,5 +13,5 @@ public interface CommentHasCommentRepository extends JpaRepository<CommentHasCom
 
     Optional<CommentHasComment> findById(CommentHasCommentID key);
     Optional<CommentHasComment> findByChild(Comment child);
-    List<CommentHasComment> findAllByParent(Comment parent, Pageable pageable);
+    List<CommentHasComment> findAllByParent(Comment parent);
 }

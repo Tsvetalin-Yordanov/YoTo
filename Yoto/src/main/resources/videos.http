@@ -34,6 +34,6 @@ GET localhost:3333/videos/order_by_watched?validator=desc
 ###
 GET localhost:3333/videos/order_by_upload_date?validator=desc
 ###
-GET localhost:3333/videos/get_all?pageNumber=1&rowNumbers=12
+GET localhost:3333/videos/get_all?pageNumber=0&rowNumbers=12
 ###
-PUT localhost:3333/videos/upload/dropbox?vId=2
+PUT localhost:3333/videos/upload/dropbox?vId=9

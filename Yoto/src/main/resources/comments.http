@@ -4,16 +4,11 @@ POST localhost:3333/comments?vid=4
 Content-Type: application/json
 
 {
-  "text": "strahotini kotki"
+  "text": "strahotini kotki 2345"
 }
 ###
-PUT localhost:3333/comments?pageNumber=0&rowNumbers=12
-Content-Type: application/json
+GET localhost:3333/comments/sub_comments?pageNumber=0&rowNumbers=12
 
-{
-  "id": 16,
-  "text": "tova sa falshivi macki"
-}
 ###
 DELETE localhost:3333/comments?id=17
 ###
