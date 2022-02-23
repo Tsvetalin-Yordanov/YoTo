@@ -29,13 +29,17 @@ public class VideoController {
     }
 
     @GetMapping("/videos/order_by_upload_date")
-    public List<VideoSimpleResponseDTO> getOrderByUploadDate(@RequestParam String validator, HttpServletRequest request) {
-        return videoService.getOrderVideosByUploadDate(validator);
+    public List<VideoSimpleResponseDTO> getOrderByUploadDate(@RequestParam String validator,
+                                                             @RequestParam(defaultValue = "0") int pageNumber,
+                                                             @RequestParam(defaultValue = "20") int rowNumbers,HttpServletRequest request) {
+        return videoService.getOrderVideosByUploadDate(validator,pageNumber,rowNumbers);
     }
 
     @GetMapping("/videos/order_by_watched")
-    public List<VideoSimpleResponseDTO>  getOrderByWatched(@RequestParam String validator, HttpServletRequest request) {
-        return videoService.getOrderVideosByWatchedCount(validator);
+    public List<VideoSimpleResponseDTO>  getOrderByWatched(@RequestParam String validator,
+                                                           @RequestParam(defaultValue = "0") int pageNumber,
+                                                           @RequestParam(defaultValue = "20") int rowNumbers, HttpServletRequest request) {
+        return videoService.getOrderVideosByWatchedCount(validator,pageNumber,rowNumbers);
     }
 
     @PostMapping("/videos/upload")
@@ -71,8 +75,8 @@ public class VideoController {
     }
 
     @PostMapping("/videos/watch")
-    public VideoComplexResponseDTO watch(@RequestParam int vId, HttpSession session, HttpServletRequest request) {
-        return videoService.watch(vId, (int) session.getAttribute(USER_ID));
+    public VideoComplexResponseDTO watch(@RequestParam int vId,HttpServletRequest request) {
+        return videoService.watch(vId, util.getUserIdFromRequest(request));
     }
 
     @PostMapping("/videos/upload_image")
@@ -81,12 +85,15 @@ public class VideoController {
     }
 
     @GetMapping("/videos/search_by_title")
-    public List<VideoSimpleResponseDTO> searchByTitle(@RequestParam String title, HttpServletRequest request) {
-        return videoService.searchByTitle(title, request);
+    public List<VideoSimpleResponseDTO> searchByTitle(@RequestParam String title,
+                                                      @RequestParam(defaultValue = "0") int pageNumber,
+                                                      @RequestParam(defaultValue = "20") int rowNumbers,HttpServletRequest request) {
+        return videoService.searchByTitle(title, request,pageNumber,rowNumbers);
     }
     @GetMapping("/videos/get_all")
-    public List<VideoSimpleResponseDTO> getAllVideos(HttpServletRequest request) {
-        return videoService.getAllVideos(request);
+    public List<VideoSimpleResponseDTO> getAllVideos(@RequestParam(defaultValue = "0") int pageNumber,
+                                                     @RequestParam(defaultValue = "20") int rowNumbers, HttpServletRequest request) {
+        return videoService.getAllVideos(pageNumber,rowNumbers,request);
     }
 
 }

@@ -76,7 +76,9 @@ public class CommentController {
     }
 
     @GetMapping("/comments/sub_comments")
-    public List<CommentSimpleResponseDTO> showAllSubComments(@RequestParam int cid) {
-        return commentService.getAllSubComments(cid);
+    public List<CommentSimpleResponseDTO> showAllSubComments(@RequestParam int cid,
+                                                             @RequestParam(defaultValue = "0") int pageNumber,
+                                                             @RequestParam(defaultValue = "10") int rowNumbers) {
+        return commentService.getAllSubComments(cid,pageNumber,rowNumbers);
     }
 }

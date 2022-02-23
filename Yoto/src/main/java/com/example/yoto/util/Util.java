@@ -5,24 +5,19 @@ import com.example.yoto.model.category.CategoryRepository;
 import com.example.yoto.model.comment.Comment;
 import com.example.yoto.model.comment.CommentRepository;
 import com.example.yoto.model.exceptions.NotFoundException;
-import com.example.yoto.model.exceptions.UnauthorizedException;
 import com.example.yoto.model.playList.PlayListRepository;
 import com.example.yoto.model.playList.Playlist;
-import com.example.yoto.model.relationship.CHC.CommentHasCommentRepository;
-import com.example.yoto.model.relationship.URTC.UserReactToCommentRepository;
-import com.example.yoto.model.relationship.URTV.UserReactToVideoRepository;
+import com.example.yoto.model.relationship.chc.CommentHasCommentRepository;
+import com.example.yoto.model.relationship.urtc.UserReactToCommentRepository;
+import com.example.yoto.model.relationship.userReactToVideo.UserReactToVideoRepository;
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserRepository;
 import com.example.yoto.model.video.Video;
 import com.example.yoto.model.video.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 @Component
 public class Util {

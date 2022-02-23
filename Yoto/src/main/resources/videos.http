@@ -35,4 +35,4 @@ GET localhost:3333/videos/order_by_watched?validator=desc
 ###
 GET localhost:3333/videos/order_by_upload_date?validator=desc
 ###
-GET localhost:3333/videos/get_all
+GET localhost:3333/videos/get_all?pageNumber=1&rowNumbers=12

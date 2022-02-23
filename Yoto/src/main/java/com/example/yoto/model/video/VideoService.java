@@ -2,20 +2,22 @@ package com.example.yoto.model.video;
 
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
-import com.example.yoto.model.relationship.URTV.UserReactToVideo;
-import com.example.yoto.model.relationship.URTV.UsersReactToVideosId;
+import com.example.yoto.model.relationship.userReactToVideo.UserReactToVideo;
+import com.example.yoto.model.relationship.userReactToVideo.UsersReactToVideosId;
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserService;
 import com.example.yoto.util.Util;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.comparator.Comparators;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
@@ -142,18 +144,19 @@ public class VideoService {
         return fileName;
     }
 
-    public List<VideoSimpleResponseDTO> searchByTitle(String title,  HttpServletRequest request) {
+    public List<VideoSimpleResponseDTO> searchByTitle(String title, HttpServletRequest request,int pageNumber,int rowNumbers) {
         if (title == null && title.isEmpty()) {
             throw new BadRequestException("The submitted title is blank!");
         }
+        Pageable page = PageRequest.of(pageNumber, rowNumbers);
         List<VideoSimpleResponseDTO> videos = util.videoRepository
-                .findAllByTitleContainsAndIsPrivate(title, false).stream()
+                .findAllByTitleContainsAndIsPrivate(title, false,page).stream()
                 .map(VideoService::videoToSimpleDTO)
                 .collect(Collectors.toList());
         Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
         if (userId != null) {
             videos.addAll(util.videoRepository
-                    .findAllByUserIdAndIsPrivate(userId, true).stream()
+                    .findAllByUserIdAndIsPrivate(userId, true,page).stream()
                     .map(VideoService::videoToSimpleDTO)
                     .collect(Collectors.toList()));
         }
@@ -163,16 +166,17 @@ public class VideoService {
         return videos;
     }
 
-    public List<VideoSimpleResponseDTO> getOrderVideosByUploadDate(String validator) {
+    public List<VideoSimpleResponseDTO> getOrderVideosByUploadDate(String validator,int pageNumber,int rowNumbers) {
+        Pageable pages = PageRequest.of(pageNumber, rowNumbers);
         List<VideoSimpleResponseDTO> videos = new ArrayList<>();
         if (validator.equals("desc")) {
             videos = util.videoRepository
-                    .findAllByOrderByUploadDateDesc().stream()
+                    .findAllByOrderByUploadDateDesc(pages).stream()
                     .map(VideoService::videoToSimpleDTO)
                     .collect(Collectors.toList());
         } else if (validator.equals("asc")) {
             videos = util.videoRepository
-                    .findAllByOrderByUploadDateAsc().stream()
+                    .findAllByOrderByUploadDateAsc(pages).stream()
                     .map(VideoService::videoToSimpleDTO)
                     .collect(Collectors.toList());
         } else {
@@ -185,18 +189,19 @@ public class VideoService {
     }
 
 
-    public List<VideoSimpleResponseDTO> getOrderVideosByWatchedCount(String validator) {
+    public List<VideoSimpleResponseDTO> getOrderVideosByWatchedCount(String validator,int pageNumber,int rowNumbers) {
+        Pageable pages = PageRequest.of(pageNumber, rowNumbers);
         List<VideoSimpleResponseDTO> videos = new ArrayList<>();
         if (validator.equals("asc")) {
             videos = util.videoRepository
-                    .findAll().stream()
+                    .findAll(pages).stream()
                     .sorted(Comparator.comparingInt(v -> v.getUsers().size()))
                     .map(VideoService::videoToSimpleDTO)
                     .collect(Collectors.toList());
         } else if (validator.equals("desc")) {
             videos = util.videoRepository
-                    .findAll().stream()
-                    .sorted((video1,video2)->Integer.compare(video2.getUsers().size(),video1.getUsers().size()))
+                    .findAll(pages).stream()
+                    .sorted((video1, video2) -> Integer.compare(video2.getUsers().size(), video1.getUsers().size()))
                     .map(VideoService::videoToSimpleDTO)
                     .collect(Collectors.toList());
         } else {
@@ -208,15 +213,18 @@ public class VideoService {
         return videos;
     }
 
-    public List<VideoSimpleResponseDTO> getAllVideos(HttpServletRequest request) {
+    public List<VideoSimpleResponseDTO> getAllVideos(int pageNumber, int rowNumbers, HttpServletRequest request) {
+        Pageable pages = PageRequest.of(pageNumber, rowNumbers);
         List<VideoSimpleResponseDTO> videos = util.videoRepository
-                .findAllByIsPrivate( false).stream()
+                .findAllByIsPrivate(false, pages).stream()
                 .map(VideoService::videoToSimpleDTO)
                 .collect(Collectors.toList());
         Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
-        if (userId != null) {
+        if (userId != null && videos.size() < pages.getPageSize()) {
+            int limitSize = pages.getPageSize() - videos.size();
             videos.addAll(util.videoRepository
-                    .findAllByUserIdAndIsPrivate(userId, true).stream()
+                    .findAllByUserIdAndIsPrivate(userId, true,pages).stream()
+                    .limit(limitSize)
                     .map(VideoService::videoToSimpleDTO)
                     .collect(Collectors.toList()));
         }

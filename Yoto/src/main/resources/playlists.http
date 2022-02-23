@@ -26,4 +26,4 @@ POST localhost:3333/playlists/add_video?vId=5&plId=3
 ###
 GET localhost:3333/playlists?title=bace
 ###
-GET localhost:3333/playlists/get_all
+GET localhost:3333/playlists/get_all?pageNumber=1&rowNumbers=4

@@ -7,7 +7,7 @@ import com.example.yoto.model.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.example.yoto.model.relationship.URTV.UserReactToVideo;
+import com.example.yoto.model.relationship.userReactToVideo.UserReactToVideo;
 //import org.hibernate.annotations.NaturalIdCache
 import javax.persistence.*;
 import java.time.LocalDateTime;

@@ -9,6 +9,8 @@ import com.example.yoto.util.Util;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -134,18 +136,19 @@ public class PlayListService {
     }
 
 
-    public List<PlayListSimpleResponseDTO> searchByTitle(String title,HttpServletRequest request) {
+    public List<PlayListSimpleResponseDTO> searchByTitle(String title,HttpServletRequest request,int pageNumber,int rowNumbers) {
         if (title.trim().isEmpty() || title.length() > TITLE_MAX_LENGTH) {
             throw new BadRequestException("The submitted title is blank!");
         }
+        Pageable page = PageRequest.of(pageNumber, rowNumbers);
         List<PlayListSimpleResponseDTO> playlists = util.playlistRepository
-                .findAllByTitleContainsAndIsPrivate(title, false).stream()
+                .findAllByTitleContainsAndIsPrivate(title, false,page).stream()
                 .map(PlayListService::playlistToSimpleDTO)
                 .collect(Collectors.toList());
         Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
         if (userId != null) {
             playlists.addAll(util.playlistRepository
-                    .findAllByCreatorIdAndIsPrivate(userId, true).stream()
+                    .findAllByCreatorIdAndIsPrivate(userId, true,page).stream()
                     .map(PlayListService::playlistToSimpleDTO)
                     .collect(Collectors.toList()));
         }
@@ -155,15 +158,16 @@ public class PlayListService {
         return playlists;
     }
 
-    public List<PlayListSimpleResponseDTO> getAllPlaylists(HttpServletRequest request) {
+    public List<PlayListSimpleResponseDTO> getAllPlaylists(HttpServletRequest request,int pageNumber,int rowNumbers) {
+        Pageable page = PageRequest.of(pageNumber, rowNumbers);
         List<PlayListSimpleResponseDTO> playlists = util.playlistRepository
-                .findAllByIsPrivate(false).stream()
+                .findAllByIsPrivate(false,page).stream()
                 .map(PlayListService::playlistToSimpleDTO)
                 .collect(Collectors.toList());
         Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
         if (userId != null) {
             playlists.addAll(util.playlistRepository
-                    .findAllByCreatorIdAndIsPrivate(userId, true).stream()
+                    .findAllByCreatorIdAndIsPrivate(userId, true,page).stream()
                     .map(PlayListService::playlistToSimpleDTO)
                     .collect(Collectors.toList()));
         }

@@ -1,4 +1,4 @@
-package com.example.yoto.model.relationship.URTV;
+package com.example.yoto.model.relationship.userReactToVideo;
 
 import lombok.Getter;
 import lombok.Setter;

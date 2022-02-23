@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @PutMapping("/users/verify_registration/{id}")
-    public UserSimpleResponseDTO verifyRegistration(@PathVariable int id){
+    public UserSimpleResponseDTO verifyRegistration(@PathVariable int id) {
         return userService.verifyRegistration(id);
     }
 
@@ -63,8 +63,9 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public List<UserSimpleResponseDTO> getAll() {
-        List<UserSimpleResponseDTO> usersDTO = userService.getAll();
+    public List<UserSimpleResponseDTO> getAll(@RequestParam(defaultValue = "0") int pageNumber,
+                                              @RequestParam(defaultValue = "20") int rowNumbers) {
+        List<UserSimpleResponseDTO> usersDTO = userService.getAll(pageNumber,rowNumbers);
         return usersDTO;
     }
 
@@ -94,18 +95,20 @@ public class UserController {
     }
 
     @GetMapping("/users/search")
-    public List<UserSimpleResponseDTO> searchByName(@RequestParam String name) {
-        return userService.searchByName(name);
+    public List<UserSimpleResponseDTO> searchByName(@RequestParam String name,
+                                                    @RequestParam(defaultValue = "0") int pageNumber,
+                                                    @RequestParam(defaultValue = "20") int rowNumbers) {
+        return userService.searchByName(name,pageNumber,rowNumbers);
     }
 
 
     @PutMapping("/users/reset_password")
-    public UserSimpleResponseDTO resetPassword(@RequestBody UserChangePasswordDTO changePasswordDTO, HttpServletRequest request){
-        return userService.resetPassword(changePasswordDTO,util.getUserIdFromRequest(request));
+    public UserSimpleResponseDTO resetPassword(@RequestBody UserChangePasswordDTO changePasswordDTO, HttpServletRequest request) {
+        return userService.resetPassword(changePasswordDTO, util.getUserIdFromRequest(request));
     }
 
     @PutMapping("/users/forgotten_password")
-    public UserSimpleResponseDTO forgottenPassword(@RequestParam String email){
+    public UserSimpleResponseDTO forgottenPassword(@RequestParam String email) {
         return userService.forgottenPassword(email);
     }
 }

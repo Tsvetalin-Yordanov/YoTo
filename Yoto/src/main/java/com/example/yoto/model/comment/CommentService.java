@@ -1,20 +1,17 @@
 package com.example.yoto.model.comment;
 
 import com.example.yoto.model.exceptions.BadRequestException;
-import com.example.yoto.model.exceptions.NotFoundException;
-import com.example.yoto.model.relationship.CHC.CommentHasComment;
-import com.example.yoto.model.relationship.CHC.CommentHasCommentID;
-import com.example.yoto.model.relationship.CHC.CommentHasCommentRepository;
-import com.example.yoto.model.relationship.URTC.UserReactToComment;
-import com.example.yoto.model.relationship.URTC.UserReactToCommentID;
-import com.example.yoto.model.relationship.URTC.UserReactToCommentRepository;
+import com.example.yoto.model.relationship.chc.CommentHasComment;
+import com.example.yoto.model.relationship.chc.CommentHasCommentID;
+import com.example.yoto.model.relationship.urtc.UserReactToComment;
+import com.example.yoto.model.relationship.urtc.UserReactToCommentID;
 import com.example.yoto.model.user.User;
-import com.example.yoto.model.user.UserRepository;
 import com.example.yoto.model.user.UserService;
 import com.example.yoto.model.video.Video;
-import com.example.yoto.model.video.VideoRepository;
 import com.example.yoto.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
@@ -161,9 +158,10 @@ public class CommentService {
         return dto;
     }
 
-    public List<CommentSimpleResponseDTO> getAllSubComments(int cid) {
+    public List<CommentSimpleResponseDTO> getAllSubComments(int cid,int pageNumber,int rowNumbers) {
+        Pageable page = PageRequest.of(pageNumber, rowNumbers);
         List<CommentSimpleResponseDTO> dtos = new ArrayList<>();
-        List<CommentHasComment> subComments = util.commentHasCommentRepository.findAllByParent(util.commentGetById(cid));
+        List<CommentHasComment> subComments = util.commentHasCommentRepository.findAllByParent(util.commentGetById(cid),page);
         for (CommentHasComment chc : subComments) {
             dtos.add(commentToCommentDTO(chc.getChild()));
         }
