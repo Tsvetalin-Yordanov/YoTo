@@ -28,5 +28,10 @@ DELETE localhost:3333/videos/remove_reaction?vId=7
 ###
 POST localhost:3333/videos/watch?vId=7
 ###
-GET localhost:3333/videos?title=1ki
-
+GET localhost:3333/videos/search_by_title?title=kotk
+###
+GET localhost:3333/videos/order_by_watched?validator=desc
+###
+GET localhost:3333/videos/order_by_upload_date?validator=desc
+###
+GET localhost:3333/videos/get_all?pageNumber=1&rowNumbers=12

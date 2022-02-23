@@ -2,22 +2,30 @@ package com.example.yoto.model.video;
 
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
-import com.example.yoto.model.relationship.URTV.UserReactToVideo;
-import com.example.yoto.model.relationship.URTV.UsersReactToVideosId;
+import com.example.yoto.model.relationship.userReactToVideo.UserReactToVideo;
+import com.example.yoto.model.relationship.userReactToVideo.UsersReactToVideosId;
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserService;
 import com.example.yoto.util.Util;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
-import javax.servlet.http.HttpSession;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import static com.example.yoto.util.Util.*;
 
 
@@ -27,6 +35,10 @@ public class VideoService {
     @Autowired
     private Util util;
 
+    private static int applyAsInt(Video v) {
+        return v.getUsers().size();
+    }
+
     public VideoComplexResponseDTO getById(int id) {
         Video video = util.videoGetById(id);
         return videoToComplexDTO(video);
@@ -34,10 +46,10 @@ public class VideoService {
 
     public VideoSimpleResponseDTO uploadVideo(Video videoReq, int userId) {
         //TODO
-        if (videoReq.getTitle().trim().isEmpty()){
+        if (videoReq.getTitle().trim().isEmpty()) {
             throw new BadRequestException("Title is mandatory");
         }
-        if(videoReq.getTitle().length() > TITLE_MAX_LENGTH) {
+        if (videoReq.getTitle().length() > TITLE_MAX_LENGTH) {
             throw new BadRequestException("Title is too long");
         }
         if (videoReq.getUploadDate().isAfter(LocalDateTime.now())) {
@@ -52,6 +64,12 @@ public class VideoService {
         return videoToSimpleDTO(video);
     }
 
+    public void deleteById(int id) {
+        util.videoGetById(id);
+        util.userRepository.deleteById(id);
+
+    }
+
     public VideoComplexResponseDTO likeVideo(int vId, int userId) {
         Video video = reactedVideo(vId, userId, '+');
         return videoToComplexDTO(video);
@@ -63,7 +81,7 @@ public class VideoService {
     }
 
     private Video reactedVideo(int vId, int userId, char c) {
-        User user =util.userGetById(userId);
+        User user = util.userGetById(userId);
         Video video = util.videoGetById(vId);
         UsersReactToVideosId usersReactToVideosId = new UsersReactToVideosId(userId, vId);
         UserReactToVideo userReactToVideo = new UserReactToVideo(usersReactToVideosId, user, video, c);
@@ -72,21 +90,21 @@ public class VideoService {
     }
 
     public VideoComplexResponseDTO removeReaction(int vId, int userId) {
-        User user = util.userGetById(userId);
+        util.userGetById(userId);
         Video video = util.videoGetById(vId);
         UsersReactToVideosId usersReactToVideosId = new UsersReactToVideosId(userId, vId);
-        UserReactToVideo userReactToVideo = util.userReactToVideoRepository.findById(usersReactToVideosId)
+        util.userReactToVideoRepository.findById(usersReactToVideosId)
                 .orElseThrow(() -> new BadRequestException("You haven't reacted to this video yet"));
         util.userReactToVideoRepository.deleteById(usersReactToVideosId);
         return videoToComplexDTO(video);
     }
 
-    public int watch(int vId, int userId) {
+    public VideoComplexResponseDTO watch(int vId, int userId) {
         User user = util.userGetById(userId);
         Video video = util.videoGetById(vId);
         video.getUsers().add(user);
         util.videoRepository.save(video);
-        return video.getUsers().size();
+        return videoToComplexDTO(video);
     }
 
     public static VideoSimpleResponseDTO videoToSimpleDTO(Video video) {
@@ -126,18 +144,19 @@ public class VideoService {
         return fileName;
     }
 
-    public List<VideoSimpleResponseDTO> searchByTitle(String title, HttpSession session) {
+    public List<VideoSimpleResponseDTO> searchByTitle(String title, HttpServletRequest request,int pageNumber,int rowNumbers) {
         if (title == null && title.isEmpty()) {
             throw new BadRequestException("The submitted title is blank!");
         }
+        Pageable page = PageRequest.of(pageNumber, rowNumbers);
         List<VideoSimpleResponseDTO> videos = util.videoRepository
-                .findAllByTitleContainsAndIsPrivate(title, false).stream()
+                .findAllByTitleContainsAndIsPrivate(title, false,page).stream()
                 .map(VideoService::videoToSimpleDTO)
                 .collect(Collectors.toList());
-        Integer userId = (Integer) session.getAttribute(USER_ID);
+        Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
         if (userId != null) {
             videos.addAll(util.videoRepository
-                    .findAllByUserIdAndIsPrivate(userId, true).stream()
+                    .findAllByUserIdAndIsPrivate(userId, true,page).stream()
                     .map(VideoService::videoToSimpleDTO)
                     .collect(Collectors.toList()));
         }
@@ -147,4 +166,71 @@ public class VideoService {
         return videos;
     }
 
+    public List<VideoSimpleResponseDTO> getOrderVideosByUploadDate(String validator,int pageNumber,int rowNumbers) {
+        Pageable pages = PageRequest.of(pageNumber, rowNumbers);
+        List<VideoSimpleResponseDTO> videos = new ArrayList<>();
+        if (validator.equals("desc")) {
+            videos = util.videoRepository
+                    .findAllByOrderByUploadDateDesc(pages).stream()
+                    .map(VideoService::videoToSimpleDTO)
+                    .collect(Collectors.toList());
+        } else if (validator.equals("asc")) {
+            videos = util.videoRepository
+                    .findAllByOrderByUploadDateAsc(pages).stream()
+                    .map(VideoService::videoToSimpleDTO)
+                    .collect(Collectors.toList());
+        } else {
+            throw new BadRequestException("Invalid parameters");
+        }
+        if (videos.isEmpty()) {
+            throw new NotFoundException("Not matches videos with this title");
+        }
+        return videos;
+    }
+
+
+    public List<VideoSimpleResponseDTO> getOrderVideosByWatchedCount(String validator,int pageNumber,int rowNumbers) {
+        Pageable pages = PageRequest.of(pageNumber, rowNumbers);
+        List<VideoSimpleResponseDTO> videos = new ArrayList<>();
+        if (validator.equals("asc")) {
+            videos = util.videoRepository
+                    .findAll(pages).stream()
+                    .sorted(Comparator.comparingInt(v -> v.getUsers().size()))
+                    .map(VideoService::videoToSimpleDTO)
+                    .collect(Collectors.toList());
+        } else if (validator.equals("desc")) {
+            videos = util.videoRepository
+                    .findAll(pages).stream()
+                    .sorted((video1, video2) -> Integer.compare(video2.getUsers().size(), video1.getUsers().size()))
+                    .map(VideoService::videoToSimpleDTO)
+                    .collect(Collectors.toList());
+        } else {
+            throw new BadRequestException("Invalid parameters");
+        }
+        if (videos.isEmpty()) {
+            throw new NotFoundException("Not matches videos with this title");
+        }
+        return videos;
+    }
+
+    public List<VideoSimpleResponseDTO> getAllVideos(int pageNumber, int rowNumbers, HttpServletRequest request) {
+        Pageable pages = PageRequest.of(pageNumber, rowNumbers);
+        List<VideoSimpleResponseDTO> videos = util.videoRepository
+                .findAllByIsPrivate(false, pages).stream()
+                .map(VideoService::videoToSimpleDTO)
+                .collect(Collectors.toList());
+        Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
+        if (userId != null && videos.size() < pages.getPageSize()) {
+            int limitSize = pages.getPageSize() - videos.size();
+            videos.addAll(util.videoRepository
+                    .findAllByUserIdAndIsPrivate(userId, true,pages).stream()
+                    .limit(limitSize)
+                    .map(VideoService::videoToSimpleDTO)
+                    .collect(Collectors.toList()));
+        }
+        if (videos.isEmpty()) {
+            throw new NotFoundException("Videos are not found");
+        }
+        return videos;
+    }
 }

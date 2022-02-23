@@ -3,7 +3,7 @@ package com.example.yoto.model.user;
 
 import com.example.yoto.model.category.Category;
 import com.example.yoto.model.playList.Playlist;
-import com.example.yoto.model.relationship.URTC.UserReactToComment;
+import com.example.yoto.model.relationship.urtc.UserReactToComment;
 import com.example.yoto.model.comment.Comment;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.example.yoto.model.relationship.URTV.UserReactToVideo;
+import com.example.yoto.model.relationship.userReactToVideo.UserReactToVideo;
 import com.example.yoto.model.video.Video;
 
 import javax.persistence.*;

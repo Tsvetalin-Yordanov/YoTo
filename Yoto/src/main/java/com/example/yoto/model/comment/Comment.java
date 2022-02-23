@@ -1,7 +1,7 @@
 package com.example.yoto.model.comment;
 
-import com.example.yoto.model.relationship.CHC.CommentHasComment;
-import com.example.yoto.model.relationship.URTC.UserReactToComment;
+import com.example.yoto.model.relationship.chc.CommentHasComment;
+import com.example.yoto.model.relationship.urtc.UserReactToComment;
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.video.Video;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

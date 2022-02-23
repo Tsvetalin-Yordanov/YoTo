@@ -30,28 +30,24 @@ public class CategoryController {
 
     @PostMapping("/categories/follow")
     public int followCategory(@RequestParam int cid, HttpServletRequest request){
-        util.validateLogin(request);
         int uid =  util.getUserIdFromRequest(request);
         return categoryService.followCategory(cid,uid);
     }
 
     @DeleteMapping("/categories/unfollow")
     public int unfollowCategory(@RequestParam int cid,HttpServletRequest request){
-        util.validateLogin(request);
         int uid =  util.getUserIdFromRequest(request);
         return categoryService.unfollowCategory(cid,uid);
     }
 
     @PostMapping("/categories/add_to_video")
     public int addVideoInCategory(@RequestParam int vid,@RequestParam int cid,HttpServletRequest request){
-        util.validateLogin(request);
         int uid =  util.getUserIdFromRequest(request);
         return categoryService.addVideoInCategory(vid,cid,uid);
     }
 
     @DeleteMapping("/categories/remove_video")
     public int removeVideoFromCategory(@RequestParam int vid,@RequestParam int cid,HttpServletRequest request){
-        util.validateLogin(request);
         int uid =  util.getUserIdFromRequest(request);
         return categoryService.removeVideoFromCategory(vid,cid,uid);
     }

@@ -1,4 +1,4 @@
-package com.example.yoto.model.relationship.CHC;
+package com.example.yoto.model.relationship.chc;
 
 
 import com.example.yoto.model.comment.Comment;

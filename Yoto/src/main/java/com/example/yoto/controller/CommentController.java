@@ -24,7 +24,6 @@ public class CommentController {
     @PostMapping("/comments")
     @ResponseStatus(code = HttpStatus.CREATED)
     public CommentSimpleResponseDTO create(@RequestBody Comment comment, HttpServletRequest request, @RequestParam int vid) {
-        util.validateLogin(request);
         int uid = util.getUserIdFromRequest(request);
         CommentSimpleResponseDTO comment1 = commentService.createComment(comment, uid, vid);
         return comment1;
@@ -32,14 +31,12 @@ public class CommentController {
 
     @PutMapping("/comments")
     public CommentSimpleResponseDTO editComment(@RequestBody Comment comment, HttpServletRequest request) {
-        util.validateLogin(request);
         CommentSimpleResponseDTO comment1 = commentService.editComment(comment);
         return comment1;
     }
 
     @DeleteMapping("/comments")
     public ResponseEntity<String> deleteCommentById(@RequestParam int id, HttpServletRequest request) {
-        util.validateLogin(request);
         commentService.deleteById(id);
         return ResponseEntity.status(204).body("Comment deleted successfully!");
     }
@@ -52,7 +49,6 @@ public class CommentController {
 
     @PostMapping("/comments/like")
     public CommentSimpleResponseDTO likeComment(@RequestParam int cid, HttpServletRequest request) {
-        util.validateLogin(request);
         int uid = util.getUserIdFromRequest(request);
         CommentSimpleResponseDTO comment = commentService.likeComment(cid, uid);
         return comment;
@@ -60,7 +56,6 @@ public class CommentController {
 
     @PostMapping("/comments/dislike")
     public CommentSimpleResponseDTO dislikeComment(@RequestParam int cid, HttpServletRequest request) {
-        util.validateLogin(request);
         int uid = util.getUserIdFromRequest(request);
         CommentSimpleResponseDTO comment = commentService.dislikeComment(cid, uid);
         return comment;
@@ -68,7 +63,6 @@ public class CommentController {
 
     @DeleteMapping("/comments/remove_reaction")
     public CommentSimpleResponseDTO removeReaction(@RequestParam int cid, HttpServletRequest request) {
-        util.validateLogin(request);
         int uid = util.getUserIdFromRequest(request);
         CommentSimpleResponseDTO comment = commentService.removeReaction(cid, uid);
         return comment;
@@ -76,15 +70,16 @@ public class CommentController {
 
     @PostMapping("/comments/respond")
     public CommentSimpleResponseDTO respondToComment(@RequestBody Comment comment, HttpServletRequest request, @RequestParam int cid) {
-        util.validateLogin(request);
         int uid = util.getUserIdFromRequest(request);
         CommentSimpleResponseDTO comment1 = commentService.respondToComment(comment, uid, cid);
         return comment1;
     }
 
     @GetMapping("/comments/sub_comments")
-    public List<CommentSimpleResponseDTO> showAllSubComments(@RequestParam int cid) {
-        return commentService.getAllSubComments(cid);
+    public List<CommentSimpleResponseDTO> showAllSubComments(@RequestParam int cid,
+                                                             @RequestParam(defaultValue = "0") int pageNumber,
+                                                             @RequestParam(defaultValue = "10") int rowNumbers) {
+        return commentService.getAllSubComments(cid,pageNumber,rowNumbers);
     }
 
     @GetMapping("/comments/video")

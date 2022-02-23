@@ -7,7 +7,7 @@ Content-Type: application/json
   "text": "strahotini kotki"
 }
 ###
-PUT localhost:3333/comments
+PUT localhost:3333/comments?pageNumber=0&rowNumbers=12
 Content-Type: application/json
 
 {

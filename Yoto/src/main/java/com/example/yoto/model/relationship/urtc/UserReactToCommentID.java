@@ -1,5 +1,4 @@
-package com.example.yoto.model.relationship.CHC;
-
+package com.example.yoto.model.relationship.urtc;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,10 +14,11 @@ import java.io.Serializable;
 @Embeddable
 @NoArgsConstructor
 @EqualsAndHashCode
-public class CommentHasCommentID implements Serializable {
+public class UserReactToCommentID implements Serializable {
 
-    @Column(name ="parent_comment_id")
-    private int parentId;
-    @Column(name ="child_comment_id")
-    private int childId;
+    @Column(name = "user_id")
+    private int userId;
+    @Column(name = "comment_id")
+    private int commentId;
+
 }

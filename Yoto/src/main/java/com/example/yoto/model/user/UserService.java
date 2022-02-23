@@ -12,6 +12,9 @@ import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -164,18 +167,20 @@ public class UserService {
         throw new BadRequestException("Id is not positive");
     }
 
-    public void DeleteById(int id) {
+    public boolean deleteById(int id) {
         if (id > 0) {
             util.userGetById(id);
             util.userRepository.deleteById(id);
+            return true;
         } else {
             throw new BadRequestException("Id is not positive");
         }
     }
 
-    public List<UserSimpleResponseDTO> getAll() {
+    public List<UserSimpleResponseDTO> getAll(int pageNumber,int rowNumbers) {
+        Pageable page = PageRequest.of(pageNumber, rowNumbers);
         List<UserSimpleResponseDTO> dtos = new ArrayList<>();
-        List<User> users = util.userRepository.findAll();
+        Page<User> users = util.userRepository.findAll(page);
         for (User user : users) {
             dtos.add(userToSimpleDTO(user));
         }
@@ -263,12 +268,13 @@ public class UserService {
         return fileName;
     }
 
-    public List<UserSimpleResponseDTO> searchByName(String name) {
+    public List<UserSimpleResponseDTO> searchByName(String name,int pageNumber,int rowNumbers) {
         if (name.trim().isEmpty()) {
             throw new BadRequestException("Name is mandatory!");
         }
+        Pageable page = PageRequest.of(pageNumber, rowNumbers);
         List<UserSimpleResponseDTO> dtos = new LinkedList<>();
-        List<User> users = util.userRepository.findAllByFirstNameContains(name);
+        List<User> users = util.userRepository.findAllByFirstNameContains(name,page);
         for (User user : users) {
             dtos.add(userToSimpleDTO(user));
         }

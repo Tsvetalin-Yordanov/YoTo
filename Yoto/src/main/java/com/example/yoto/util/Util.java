@@ -5,12 +5,11 @@ import com.example.yoto.model.category.CategoryRepository;
 import com.example.yoto.model.comment.Comment;
 import com.example.yoto.model.comment.CommentRepository;
 import com.example.yoto.model.exceptions.NotFoundException;
-import com.example.yoto.model.exceptions.UnauthorizedException;
 import com.example.yoto.model.playList.PlayListRepository;
 import com.example.yoto.model.playList.Playlist;
-import com.example.yoto.model.relationship.CHC.CommentHasCommentRepository;
-import com.example.yoto.model.relationship.URTC.UserReactToCommentRepository;
-import com.example.yoto.model.relationship.URTV.UserReactToVideoRepository;
+import com.example.yoto.model.relationship.chc.CommentHasCommentRepository;
+import com.example.yoto.model.relationship.urtc.UserReactToCommentRepository;
+import com.example.yoto.model.relationship.userReactToVideo.UserReactToVideoRepository;
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserRepository;
 import com.example.yoto.model.video.Video;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 @Component
 public class Util {
@@ -72,18 +70,8 @@ public class Util {
         return commentRepository.findById(id).orElseThrow(() -> new NotFoundException("Comment not found"));
     }
 
-
-    public void validateLogin(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        boolean newSession = session.isNew();
-        boolean logged = session.getAttribute(LOGGED) != null && ((Boolean) session.getAttribute(LOGGED));
-        boolean sameIp = request.getRemoteAddr().equals(session.getAttribute(LOGGED_FROM));
-        if (newSession || !logged || !sameIp) {
-            throw new UnauthorizedException("You have to log in!");
-        }
-    }
-
     public Integer getUserIdFromRequest(HttpServletRequest request) {
         return (int) request.getSession().getAttribute(USER_ID);
     }
+
 }
