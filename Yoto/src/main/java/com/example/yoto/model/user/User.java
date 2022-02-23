@@ -3,7 +3,7 @@ package com.example.yoto.model.user;
 
 import com.example.yoto.model.category.Category;
 import com.example.yoto.model.playList.Playlist;
-import com.example.yoto.model.relationship.urtc.UserReactToComment;
+import com.example.yoto.model.relationship.userReactToComments.UserReactToComment;
 import com.example.yoto.model.comment.Comment;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

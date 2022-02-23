@@ -1,7 +1,6 @@
-package com.example.yoto.model.relationship.chc;
+package com.example.yoto.model.relationship.commentsHaveComments;
 
 import com.example.yoto.model.comment.Comment;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

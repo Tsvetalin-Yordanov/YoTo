@@ -1,4 +1,4 @@
-package com.example.yoto.model.relationship.urtc;
+package com.example.yoto.model.relationship.userReactToComments;
 
 import com.example.yoto.model.comment.Comment;
 import com.example.yoto.model.user.User;

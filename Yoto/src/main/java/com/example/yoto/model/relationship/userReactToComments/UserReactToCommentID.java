@@ -1,4 +1,4 @@
-package com.example.yoto.model.relationship.urtc;
+package com.example.yoto.model.relationship.userReactToComments;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

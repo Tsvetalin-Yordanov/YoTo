@@ -1,17 +1,15 @@
 package com.example.yoto.model.comment;
 
 import com.example.yoto.model.exceptions.BadRequestException;
-import com.example.yoto.model.relationship.chc.CommentHasComment;
-import com.example.yoto.model.relationship.chc.CommentHasCommentID;
-import com.example.yoto.model.relationship.urtc.UserReactToComment;
-import com.example.yoto.model.relationship.urtc.UserReactToCommentID;
+import com.example.yoto.model.relationship.commentsHaveComments.CommentHasComment;
+import com.example.yoto.model.relationship.commentsHaveComments.CommentHasCommentID;
+import com.example.yoto.model.relationship.userReactToComments.UserReactToComment;
+import com.example.yoto.model.relationship.userReactToComments.UserReactToCommentID;
 import com.example.yoto.model.user.User;
 import com.example.yoto.model.user.UserService;
 import com.example.yoto.model.video.Video;
 import com.example.yoto.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
