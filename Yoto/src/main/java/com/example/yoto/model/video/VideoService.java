@@ -10,11 +10,9 @@ import com.example.yoto.util.Util;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,24 +42,25 @@ public class VideoService {
         return videoToComplexDTO(video);
     }
 
-    public VideoSimpleResponseDTO uploadVideo(Video videoReq, int userId) {
-        //TODO
-        if (videoReq.getTitle().trim().isEmpty()) {
+    @SneakyThrows
+    public VideoComplexResponseDTO uploadVideo(String title, boolean isPrivate, MultipartFile file, int creatorId) {
+        if (title.trim().isEmpty()) {
             throw new BadRequestException("Title is mandatory");
         }
-        if (videoReq.getTitle().length() > TITLE_MAX_LENGTH) {
+        if (title.length() > TITLE_MAX_LENGTH) {
             throw new BadRequestException("Title is too long");
         }
-        if (videoReq.getUploadDate().isAfter(LocalDateTime.now())) {
-            throw new BadRequestException("Invalid date and time");
-        }
-        if (videoReq.getVideoUrl() == null || videoReq.getVideoUrl().isBlank()) {
-            throw new BadRequestException("No content to upload");
-        }
-        videoReq.setUser(util.userGetById(userId));
-        videoReq.setUploadDate(LocalDateTime.now());
-        Video video = util.videoRepository.save(videoReq);
-        return videoToSimpleDTO(video);
+        Video video = new Video();
+        video.setTitle(title);
+        video.setPrivate(isPrivate);
+        video.setUser(util.userGetById(creatorId));
+        video.setUploadDate(LocalDateTime.now());
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+        String fileName = title + "&" + System.nanoTime() + "." + fileExtension;
+        Files.copy(file.getInputStream(), new File(UPLOAD_FILES_DIRECTORY + File.separator + fileName).toPath());
+        video.setVideoUrl(fileName);
+        util.videoRepository.save(video);
+        return videoToComplexDTO(video);
     }
 
     public void deleteById(int id) {
@@ -132,31 +131,20 @@ public class VideoService {
         return vDto;
     }
 
-    @SneakyThrows
-    public String uploadVideoImage(int vId, MultipartFile file, int user_id) {
-        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
-        Video video = util.videoGetById(vId);
-        String videoTitle = video.getTitle();
-        String fileName = videoTitle + "&" + System.nanoTime() + "." + fileExtension;
-        Files.copy(file.getInputStream(), new File(UPLOAD_FILES_DIRECTORY + File.separator + fileName).toPath());
-        video.setVideoUrl(fileName);
-        util.videoRepository.save(video);
-        return fileName;
-    }
 
-    public List<VideoSimpleResponseDTO> searchByTitle(String title, HttpServletRequest request,int pageNumber,int rowNumbers) {
+    public List<VideoSimpleResponseDTO> searchByTitle(String title, HttpServletRequest request, int pageNumber, int rowNumbers) {
         if (title == null && title.isEmpty()) {
             throw new BadRequestException("The submitted title is blank!");
         }
         Pageable page = PageRequest.of(pageNumber, rowNumbers);
         List<VideoSimpleResponseDTO> videos = util.videoRepository
-                .findAllByTitleContainsAndIsPrivate(title, false,page).stream()
+                .findAllByTitleContainsAndIsPrivate(title, false, page).stream()
                 .map(VideoService::videoToSimpleDTO)
                 .collect(Collectors.toList());
         Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
         if (userId != null) {
             videos.addAll(util.videoRepository
-                    .findAllByUserIdAndIsPrivate(userId, true,page).stream()
+                    .findAllByUserIdAndIsPrivate(userId, true, page).stream()
                     .map(VideoService::videoToSimpleDTO)
                     .collect(Collectors.toList()));
         }
@@ -166,7 +154,7 @@ public class VideoService {
         return videos;
     }
 
-    public List<VideoSimpleResponseDTO> getOrderVideosByUploadDate(String validator,int pageNumber,int rowNumbers) {
+    public List<VideoSimpleResponseDTO> getOrderVideosByUploadDate(String validator, int pageNumber, int rowNumbers) {
         Pageable pages = PageRequest.of(pageNumber, rowNumbers);
         List<VideoSimpleResponseDTO> videos = new ArrayList<>();
         if (validator.equals("desc")) {
@@ -189,7 +177,7 @@ public class VideoService {
     }
 
 
-    public List<VideoSimpleResponseDTO> getOrderVideosByWatchedCount(String validator,int pageNumber,int rowNumbers) {
+    public List<VideoSimpleResponseDTO> getOrderVideosByWatchedCount(String validator, int pageNumber, int rowNumbers) {
         Pageable pages = PageRequest.of(pageNumber, rowNumbers);
         List<VideoSimpleResponseDTO> videos = new ArrayList<>();
         if (validator.equals("asc")) {
@@ -223,7 +211,7 @@ public class VideoService {
         if (userId != null && videos.size() < pages.getPageSize()) {
             int limitSize = pages.getPageSize() - videos.size();
             videos.addAll(util.videoRepository
-                    .findAllByUserIdAndIsPrivate(userId, true,pages).stream()
+                    .findAllByUserIdAndIsPrivate(userId, true, pages).stream()
                     .limit(limitSize)
                     .map(VideoService::videoToSimpleDTO)
                     .collect(Collectors.toList()));
