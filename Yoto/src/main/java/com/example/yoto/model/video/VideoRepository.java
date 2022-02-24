@@ -21,6 +21,4 @@ public interface VideoRepository extends JpaRepository<Video, Integer> {
     List<Video> findAllByOrderByUploadDateDesc(Pageable pageable);
 
     List<Video> findAllByOrderByUploadDateAsc(Pageable pageable);
-
-
 }

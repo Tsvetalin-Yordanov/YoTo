@@ -4,7 +4,6 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.users.FullAccount;
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.relationship.userReactToVideo.UserReactToVideo;
@@ -50,6 +49,10 @@ public class VideoService {
         }
         if (title.length() > TITLE_MAX_LENGTH) {
             throw new BadRequestException("Title is too long");
+        }
+        String contentType = file.getContentType();
+        if (!contentType.equals("video/mp4")){
+            throw new BadRequestException("Ivalid video type");
         }
         Video video = new Video();
         video.setTitle(title);

@@ -24,7 +24,7 @@ public class Util {
     public static final int USER_NAME_MAX_LENGTH = 200;
     public static final int USER_PASSWORD_MAX_LENGTH = 50;
     public static final int USER_EMAIL_MAX_LENGTH = 50;
-    public static final int USER_PHONE_NUMBER_MAX_LENGTH = 20;
+    public static final String USER_PHONE_NUMBER_MAX_LENGTH =  "\\d{10}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
     public static final int USER_ABOUT_ME_MAX_LENGTH = 2000;
     public static final int TITLE_MAX_LENGTH = 150;
     public static final int COMMENT_TXT_MAX_LENGTH = 2500;
@@ -32,7 +32,7 @@ public class Util {
     public static final String LOGGED = "logged";
     public static final String LOGGED_FROM = "logged_from";
     public static final String USER_ID = "user_id";
-    public static final String ACCESS_TOKEN = "sl.BCn0F4pa7Wx14jn7OzMXjsPVU4w_gMooBej5eDrLVboAkItgXt9zXUJYSXe_1eZkbINhGyVpLzR5mKVzAOoqS4JnWHNTPiaghkV-giRKfRqE0Qtx8CLf7AKkidW3Zoq3W8QkhTU";
+    public static final String ACCESS_TOKEN = "sl.BCpQl_lkNQGP8JNllQSkbvcbwwWOaKKm0Ort1WghgQ3Y14QCU7M6RJNB6qLZCn7KX-YNmi37tawCIE-kvWKk6ofk4DNPbjgbxrTtLOIIl8JDTYxgKOJGWXvenruBweVh5UXtTsw";
 
 
     @Autowired

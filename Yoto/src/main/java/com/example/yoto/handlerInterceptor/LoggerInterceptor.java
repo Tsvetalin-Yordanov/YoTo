@@ -22,7 +22,7 @@ public class LoggerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        if (request.getMethod().equals("GET")
+        if ((request.getMethod().equals("GET")&&!request.getServletPath().contains("/users/history"))
                 || request.getServletPath().contains("verify_registration")
                 || Objects.equals(request.getServletPath(), "/users/register")
                 || Objects.equals(request.getServletPath(), "/users/log_in")

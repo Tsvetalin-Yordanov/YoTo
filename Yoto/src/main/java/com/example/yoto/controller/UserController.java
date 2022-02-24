@@ -2,6 +2,7 @@ package com.example.yoto.controller;
 
 
 import com.example.yoto.model.user.*;
+import com.example.yoto.model.video.VideoSimpleResponseDTO;
 import com.example.yoto.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ public class UserController {
     }
 
     @PutMapping("/users/verify_registration/{encryptedId}")
-    public UserSimpleResponseDTO verifyRegistration(@PathVariable String encryptedId){
+    public UserSimpleResponseDTO verifyRegistration(@PathVariable String encryptedId) {
         return userService.verifyRegistration(encryptedId);
     }
 
@@ -65,7 +66,7 @@ public class UserController {
     @GetMapping("/users")
     public List<UserSimpleResponseDTO> getAll(@RequestParam(defaultValue = "0") int pageNumber,
                                               @RequestParam(defaultValue = "20") int rowNumbers) {
-        List<UserSimpleResponseDTO> usersDTO = userService.getAll(pageNumber,rowNumbers);
+        List<UserSimpleResponseDTO> usersDTO = userService.getAll(pageNumber, rowNumbers);
         return usersDTO;
     }
 
@@ -79,7 +80,7 @@ public class UserController {
         return userService.followUser(publisherId, util.getUserIdFromRequest(request));
     }
 
-    @PostMapping("/users/unfollow")
+    @DeleteMapping("/users/unfollow")
     public int unFollowUser(@RequestParam int publisherId, HttpServletRequest request) {
         return userService.unFollowUser(publisherId, util.getUserIdFromRequest(request));
     }
@@ -98,7 +99,7 @@ public class UserController {
     public List<UserSimpleResponseDTO> searchByName(@RequestParam String name,
                                                     @RequestParam(defaultValue = "0") int pageNumber,
                                                     @RequestParam(defaultValue = "20") int rowNumbers) {
-        return userService.searchByName(name,pageNumber,rowNumbers);
+        return userService.searchByName(name, pageNumber, rowNumbers);
     }
 
 
@@ -110,6 +111,16 @@ public class UserController {
     @PutMapping("/users/forgotten_password")
     public UserSimpleResponseDTO forgottenPassword(@RequestParam String email) {
         return userService.forgottenPassword(email);
+    }
+
+    @GetMapping("/users/history")
+    public List<VideoSimpleResponseDTO> showHistory(HttpServletRequest request) {
+        return userService.showHistory(util.getUserIdFromRequest(request));
+    }
+
+    @DeleteMapping("/users/history")
+    public int deleteHistory(HttpServletRequest request){
+        return userService.deleteHistory(util.getUserIdFromRequest(request));
     }
 }
 
