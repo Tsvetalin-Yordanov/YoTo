@@ -78,7 +78,7 @@ public class UserService {
             throw new BadRequestException("Invalid date of birth!");
         }
         String phoneNumber = userDTO.getPhoneNumber();
-        if (phoneNumber.trim().isEmpty() || phoneNumber.length() > USER_PHONE_NUMBER_MAX_LENGTH) {
+        if (phoneNumber.trim().isEmpty() || phoneNumber.matches(USER_PHONE_NUMBER_MAX_LENGTH)) {
             throw new BadRequestException("Invalid phoneNumber!");
         }
         String aboutMe = userDTO.getAboutMe();
@@ -107,12 +107,15 @@ public class UserService {
 
         String token = System.currentTimeMillis() + "$$$" + (new Random().nextInt(99999) + 11111) + "*=3214@" + user.getId() + "@" + System.currentTimeMillis();
 
-        SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setFrom("kaltodor11@gmail.com");
-        msg.setTo(user.getEmail());
-        msg.setSubject("Verify account");
-        msg.setText("You have to verify tour account.\nPlease follow this link: http://localhost:3333/users/verify_registration/" + token);
-        javaMailSender.send(msg);
+        new Thread(() -> {
+            SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setFrom("kaltodor11@gmail.com");
+            msg.setTo(user.getEmail());
+            msg.setSubject("Verify account");
+            msg.setText("You have to verify tour account.\nPlease follow this link: http://localhost:3333/users/verify_registration/" + token);
+            javaMailSender.send(msg);
+        }).start();
+
 
         return userToSimpleDTO(user);
     }
@@ -177,7 +180,7 @@ public class UserService {
         }
     }
 
-    public List<UserSimpleResponseDTO> getAll(int pageNumber,int rowNumbers) {
+    public List<UserSimpleResponseDTO> getAll(int pageNumber, int rowNumbers) {
         Pageable page = PageRequest.of(pageNumber, rowNumbers);
         List<UserSimpleResponseDTO> dtos = new ArrayList<>();
         Page<User> users = util.userRepository.findAll(page);
@@ -268,13 +271,13 @@ public class UserService {
         return fileName;
     }
 
-    public List<UserSimpleResponseDTO> searchByName(String name,int pageNumber,int rowNumbers) {
+    public List<UserSimpleResponseDTO> searchByName(String name, int pageNumber, int rowNumbers) {
         if (name.trim().isEmpty()) {
             throw new BadRequestException("Name is mandatory!");
         }
         Pageable page = PageRequest.of(pageNumber, rowNumbers);
         List<UserSimpleResponseDTO> dtos = new LinkedList<>();
-        List<User> users = util.userRepository.findAllByFirstNameContains(name,page);
+        List<User> users = util.userRepository.findAllByFirstNameContains(name, page);
         for (User user : users) {
             dtos.add(userToSimpleDTO(user));
         }
@@ -323,5 +326,18 @@ public class UserService {
         util.userRepository.save(user);
 
         return userToSimpleDTO(user);
+    }
+
+    public List<VideoSimpleResponseDTO> showHistory(int userIdFromRequest) {
+        User user = util.userGetById(userIdFromRequest);
+        List<VideoSimpleResponseDTO> videos = user.getWatchedVideos().stream()
+                .map(VideoService::videoToSimpleDTO).collect(Collectors.toList());
+        return videos;
+    }
+
+    public int deleteHistory(Integer userIdFromRequest) {
+        User user = util.userGetById(userIdFromRequest);
+        user.getWatchedVideos().removeAll(user.getWatchedVideos());
+        return user.getWatchedVideos().size();
     }
 }

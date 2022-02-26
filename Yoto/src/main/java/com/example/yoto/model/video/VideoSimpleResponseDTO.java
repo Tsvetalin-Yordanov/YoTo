@@ -1,14 +1,15 @@
 package com.example.yoto.model.video;
 
 import com.example.yoto.model.user.UserSimpleResponseDTO;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class VideoSimpleResponseDTO {
     private int id;
     private String title;

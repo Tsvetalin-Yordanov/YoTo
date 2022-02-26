@@ -16,5 +16,4 @@ public interface PlayListRepository extends JpaRepository<Playlist, Integer> {
 
     List<Playlist> findAllByIsPrivate(boolean isPrivate, Pageable pageable);
 
-    List<Playlist> findAllByCreatorIdAndIsPrivate(Integer userId, boolean b);
 }

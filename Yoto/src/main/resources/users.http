@@ -1,4 +1,4 @@
-POST localhost:3333/users/register
+POST localhost:4444/users/register
 Content-Type: application/json
 
 {
@@ -20,8 +20,8 @@ Content-Type: application/json
   "lastName" : "Todorov",
   "password" : "k1@.0653Doka",
   "confirmPassword" : "k1@.0653Doka",
-  "phoneNumber" : "088843882222888",
-  "email": "kaltodor11@gmail.com",
+  "phoneNumber" : "0888438825222888",
+  "email": "kaltodggggggor11@gmail.com",
   "dateOfBirth" : "2010-02-22T18:25:43.511Z"
 }
 
@@ -39,7 +39,7 @@ POST localhost:3333/users/log_in
 Content-Type: application/json
 
 {
-"email": "kaltodor11@gmail.com",
+"email": "kaltodggggggor11@gmail.com",
 "password" : "k1@.0653Doka"
 }
 
@@ -69,5 +69,5 @@ Content-Type: application/json
 ###
 PUT localhost:3333/users/forgotten_password?email=baceeeeee@gmail.com
 ###
-PUT localhost:3333/users/verify_registration/1645544983224$$$99651*=3214@33@1645544983224
+PUT localhost:3333/users/verify_registration/1645544983224$$$99651*=3214@12@1645544983224
 

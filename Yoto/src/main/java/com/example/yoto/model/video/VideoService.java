@@ -4,7 +4,6 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.users.FullAccount;
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.relationship.userReactToVideo.UserReactToVideo;
@@ -15,6 +14,7 @@ import com.example.yoto.util.Util;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.file.Files;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -37,6 +38,8 @@ public class VideoService {
 
     @Autowired
     private Util util;
+    @Autowired
+    VideoDAO videoDAO;
 
     public VideoComplexResponseDTO getById(int id) {
         Video video = util.videoGetById(id);
@@ -50,6 +53,10 @@ public class VideoService {
         }
         if (title.length() > TITLE_MAX_LENGTH) {
             throw new BadRequestException("Title is too long");
+        }
+        String contentType = file.getContentType();
+        if (!contentType.equals("video/mp4")) {
+            throw new BadRequestException("Ivalid video type");
         }
         Video video = new Video();
         video.setTitle(title);
@@ -138,102 +145,78 @@ public class VideoService {
             throw new BadRequestException("The submitted title is blank!");
         }
         Pageable page = PageRequest.of(pageNumber, rowNumbers);
-        List<VideoSimpleResponseDTO> videos = util.videoRepository
-                .findAllByTitleContainsAndIsPrivate(title, false, page).stream()
-                .map(VideoService::videoToSimpleDTO)
-                .collect(Collectors.toList());
+        List<Video> videos = util.videoRepository.findAllByTitleContainsAndIsPrivate(title, false, page);
         Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
         if (userId != null) {
-            videos.addAll(util.videoRepository
-                    .findAllByUserIdAndIsPrivate(userId, true, page).stream()
-                    .map(VideoService::videoToSimpleDTO)
-                    .collect(Collectors.toList()));
+            videos.addAll(util.videoRepository.findAllByUserIdAndIsPrivate(userId, true, page));
         }
         if (videos.isEmpty()) {
             throw new NotFoundException("Not matches videos with this title");
         }
-        return videos;
+        return videos.stream()
+                .map(VideoService::videoToSimpleDTO)
+                .collect(Collectors.toList());
     }
 
-    public List<VideoSimpleResponseDTO> getOrderVideosByUploadDate(String validator, int pageNumber, int rowNumbers) {
+    public List<VideoSimpleResponseDTO> getOrderVideosByUploadDate(String orderBY, int pageNumber, int rowNumbers) {
         Pageable pages = PageRequest.of(pageNumber, rowNumbers);
-        List<VideoSimpleResponseDTO> videos = new ArrayList<>();
-        if (validator.equals("desc")) {
-            videos = util.videoRepository
-                    .findAllByOrderByUploadDateDesc(pages).stream()
-                    .map(VideoService::videoToSimpleDTO)
-                    .collect(Collectors.toList());
-        } else if (validator.equals("asc")) {
-            videos = util.videoRepository
-                    .findAllByOrderByUploadDateAsc(pages).stream()
-                    .map(VideoService::videoToSimpleDTO)
-                    .collect(Collectors.toList());
+        List<Video> videos;
+        if (orderBY.equals("desc")) {
+            videos = util.videoRepository.findAllByOrderByUploadDateDesc(pages);
+        } else if (orderBY.equals("asc")) {
+            videos = util.videoRepository.findAllByOrderByUploadDateAsc(pages);
         } else {
             throw new BadRequestException("Invalid parameters");
         }
         if (videos.isEmpty()) {
             throw new NotFoundException("Not matches videos with this title");
         }
-        return videos;
+        return videos.stream()
+                .map(VideoService::videoToSimpleDTO)
+                .collect(Collectors.toList());
     }
 
-
-    public List<VideoSimpleResponseDTO> getOrderVideosByWatchedCount(String validator, int pageNumber, int rowNumbers) {
-        Pageable pages = PageRequest.of(pageNumber, rowNumbers);
-        List<VideoSimpleResponseDTO> videos = new ArrayList<>();
-        if (validator.equals("asc")) {
-            videos = util.videoRepository
-                    .findAll(pages).stream()
-                    .sorted(Comparator.comparingInt(v -> v.getUsers().size()))
-                    .map(VideoService::videoToSimpleDTO)
-                    .collect(Collectors.toList());
-        } else if (validator.equals("desc")) {
-            videos = util.videoRepository
-                    .findAll(pages).stream()
-                    .sorted((video1, video2) -> Integer.compare(video2.getUsers().size(), video1.getUsers().size()))
-                    .map(VideoService::videoToSimpleDTO)
-                    .collect(Collectors.toList());
+    //@SneakyThrows
+    public List<VideoSimpleResponseDTO> getOrderVideosByWatchedCount(String orderBY, int pageNumber, int rowNumbers) {
+//        Pageable pages = PageRequest.of(pageNumber, rowNumbers);
+        if (orderBY.equalsIgnoreCase("asc") || orderBY.equalsIgnoreCase("desc")) {
+            try {
+                return videoDAO.getOrderVideosByWatchedCount(orderBY,pageNumber,rowNumbers);
+            } catch (SQLException e) {
+                throw new NotFoundException("Not have videos");
+            }
         } else {
             throw new BadRequestException("Invalid parameters");
         }
-        if (videos.isEmpty()) {
-            throw new NotFoundException("Not matches videos with this title");
-        }
-        return videos;
     }
 
     public List<VideoSimpleResponseDTO> getAllVideos(int pageNumber, int rowNumbers, HttpServletRequest request) {
         Pageable pages = PageRequest.of(pageNumber, rowNumbers);
-        List<VideoSimpleResponseDTO> videos = util.videoRepository
-                .findAllByIsPrivate(false, pages).stream()
-                .map(VideoService::videoToSimpleDTO)
-                .collect(Collectors.toList());
+        List<Video> videos = util.videoRepository.findAllByIsPrivate(false, pages);
         Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
         if (userId != null && videos.size() < pages.getPageSize()) {
             int limitSize = pages.getPageSize() - videos.size();
-            videos.addAll(util.videoRepository
-                    .findAllByUserIdAndIsPrivate(userId, true, pages).stream()
-                    .limit(limitSize)
-                    .map(VideoService::videoToSimpleDTO)
-                    .collect(Collectors.toList()));
+            Pageable pageForPrivate = PageRequest.of(0,limitSize);
+            videos.addAll(util.videoRepository.findAllByUserIdAndIsPrivate(userId, true, pageForPrivate));
         }
         if (videos.isEmpty()) {
             throw new NotFoundException("Videos are not found");
         }
-        return videos;
+        return videos.stream()
+                .map(VideoService::videoToSimpleDTO)
+                .collect(Collectors.toList());
     }
 
     @SneakyThrows
     public VideoSimpleResponseDTO uploadVideoToDropbox(int vId) {
-
         DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-        DbxClientV2 client = new DbxClientV2(config,util.ACCESS_TOKEN);
+        DbxClientV2 client = new DbxClientV2(config, util.ACCESS_TOKEN);
 
         Video video = util.videoGetById(vId);
         String filename = video.getVideoUrl();
 
         try (InputStream in = new FileInputStream("uploads" + File.separator + filename)) {
-            FileMetadata metadata = client.files().uploadBuilder("/"+filename)
+            FileMetadata metadata = client.files().uploadBuilder("/" + filename)
                     .uploadAndFinish(in);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
