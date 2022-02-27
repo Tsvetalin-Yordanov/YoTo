@@ -144,14 +144,19 @@ public class VideoService {
         if (title == null && title.isEmpty()) {
             throw new BadRequestException("The submitted title is blank!");
         }
-        Pageable page = PageRequest.of(pageNumber, rowNumbers);
-        List<Video> videos = util.videoRepository.findAllByTitleContainsAndIsPrivate(title, false, page);
-        Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
-        if (userId != null) {
-            videos.addAll(util.videoRepository.findAllByUserIdAndIsPrivate(userId, true, page));
-        }
-        if (videos.isEmpty()) {
-            throw new NotFoundException("Not matches videos with this title");
+        List<Video> videos;
+        if (pageNumber >= 0 && rowNumbers > 0) {
+            Pageable page = PageRequest.of(pageNumber, rowNumbers);
+            videos = util.videoRepository.findAllByTitleContainsAndIsPrivate(title, false, page);
+            Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
+            if (userId != null) {
+                videos.addAll(util.videoRepository.findAllByUserIdAndIsPrivate(userId, true, page));
+            }
+            if (videos.isEmpty()) {
+                throw new NotFoundException("Not matches videos with this title");
+            }
+        } else {
+            throw new BadRequestException("Invalid parameters");
         }
         return videos.stream()
                 .map(VideoService::videoToSimpleDTO)
@@ -159,17 +164,21 @@ public class VideoService {
     }
 
     public List<VideoSimpleResponseDTO> getOrderVideosByUploadDate(String orderBY, int pageNumber, int rowNumbers) {
-        Pageable pages = PageRequest.of(pageNumber, rowNumbers);
         List<Video> videos;
-        if (orderBY.equals("desc")) {
-            videos = util.videoRepository.findAllByOrderByUploadDateDesc(pages);
-        } else if (orderBY.equals("asc")) {
-            videos = util.videoRepository.findAllByOrderByUploadDateAsc(pages);
+        if (pageNumber >= 0 && rowNumbers > 0) {
+            Pageable pages = PageRequest.of(pageNumber, rowNumbers);
+            if (orderBY.equals("desc")) {
+                videos = util.videoRepository.findAllByOrderByUploadDateDesc(pages);
+            } else if (orderBY.equals("asc")) {
+                videos = util.videoRepository.findAllByOrderByUploadDateAsc(pages);
+            } else {
+                throw new BadRequestException("Invalid parameters");
+            }
+            if (videos.isEmpty()) {
+                throw new NotFoundException("Not matches videos with this title");
+            }
         } else {
             throw new BadRequestException("Invalid parameters");
-        }
-        if (videos.isEmpty()) {
-            throw new NotFoundException("Not matches videos with this title");
         }
         return videos.stream()
                 .map(VideoService::videoToSimpleDTO)
@@ -178,10 +187,9 @@ public class VideoService {
 
     //@SneakyThrows
     public List<VideoSimpleResponseDTO> getOrderVideosByWatchedCount(String orderBY, int pageNumber, int rowNumbers) {
-//        Pageable pages = PageRequest.of(pageNumber, rowNumbers);
-        if (orderBY.equalsIgnoreCase("asc") || orderBY.equalsIgnoreCase("desc")) {
+        if ((orderBY.equalsIgnoreCase("asc") || orderBY.equalsIgnoreCase("desc")) && pageNumber >= 0 && rowNumbers > 0) {
             try {
-                return videoDAO.getOrderVideosByWatchedCount(orderBY,pageNumber,rowNumbers);
+                return videoDAO.getOrderVideosByWatchedCount(orderBY, pageNumber, rowNumbers);
             } catch (SQLException e) {
                 throw new NotFoundException("Not have videos");
             }
@@ -191,16 +199,21 @@ public class VideoService {
     }
 
     public List<VideoSimpleResponseDTO> getAllVideos(int pageNumber, int rowNumbers, HttpServletRequest request) {
-        Pageable pages = PageRequest.of(pageNumber, rowNumbers);
-        List<Video> videos = util.videoRepository.findAllByIsPrivate(false, pages);
-        Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
-        if (userId != null && videos.size() < pages.getPageSize()) {
-            int limitSize = pages.getPageSize() - videos.size();
-            Pageable pageForPrivate = PageRequest.of(0,limitSize);
-            videos.addAll(util.videoRepository.findAllByUserIdAndIsPrivate(userId, true, pageForPrivate));
-        }
-        if (videos.isEmpty()) {
-            throw new NotFoundException("Videos are not found");
+        List<Video> videos;
+        if (pageNumber >= 0 && rowNumbers > 0) {
+            Pageable pages = PageRequest.of(pageNumber, rowNumbers);
+            videos = util.videoRepository.findAllByIsPrivate(false, pages);
+            Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
+            if (userId != null && videos.size() < pages.getPageSize()) {
+                int limitSize = pages.getPageSize() - videos.size();
+                Pageable pageForPrivate = PageRequest.of(0, limitSize);
+                videos.addAll(util.videoRepository.findAllByUserIdAndIsPrivate(userId, true, pageForPrivate));
+            }
+            if (videos.isEmpty()) {
+                throw new NotFoundException("Videos are not found");
+            }
+        } else {
+            throw new BadRequestException("Invalid parameters");
         }
         return videos.stream()
                 .map(VideoService::videoToSimpleDTO)
@@ -210,7 +223,7 @@ public class VideoService {
     @SneakyThrows
     public VideoSimpleResponseDTO uploadVideoToDropbox(int vId) {
         DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-        DbxClientV2 client = new DbxClientV2(config, util.ACCESS_TOKEN);
+        DbxClientV2 client = new DbxClientV2(config,ACCESS_TOKEN);
 
         Video video = util.videoGetById(vId);
         String filename = video.getVideoUrl();

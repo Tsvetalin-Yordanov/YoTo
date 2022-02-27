@@ -1,6 +1,5 @@
 package com.example.yoto.model.playList;
 
-
 import com.example.yoto.model.exceptions.BadRequestException;
 import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.user.User;
@@ -13,9 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
@@ -70,7 +67,7 @@ public class PlayListService {
     }
 
     public int addVideo(int vId, int plId, int userId) {
-        User user = util.userGetById(userId);
+        util.userGetById(userId);
         Playlist playlist = util.playlistGetById(plId);
         Video video = util.videoGetById(vId);
         if (playlist.getVideos().contains(video)) {
@@ -83,7 +80,7 @@ public class PlayListService {
     }
 
     public int deleteVideo(int vId, int plId, int userId) {
-        User user = util.userGetById(userId);
+        util.userGetById(userId);
         Playlist playlist = util.playlistGetById(plId);
         Video video = util.videoGetById(vId);
         if (!playlist.getVideos().contains(video)) {
@@ -136,45 +133,50 @@ public class PlayListService {
     }
 
 
-    public List<PlayListSimpleResponseDTO> searchByTitle(String title,HttpServletRequest request,int pageNumber,int rowNumbers) {
+    public List<PlayListSimpleResponseDTO> searchByTitle(String title, HttpServletRequest request, int pageNumber, int rowNumbers) {
         if (title.trim().isEmpty() || title.length() > TITLE_MAX_LENGTH) {
             throw new BadRequestException("The submitted title is blank!");
         }
-        Pageable page = PageRequest.of(pageNumber, rowNumbers);
-        List<PlayListSimpleResponseDTO> playlists = util.playlistRepository
-                .findAllByTitleContainsAndIsPrivate(title, false,page).stream()
+        List<Playlist> playlists;
+        if (pageNumber >= 0 && rowNumbers > 0) {
+            Pageable page = PageRequest.of(pageNumber, rowNumbers);
+            playlists = util.playlistRepository.findAllByTitleContainsAndIsPrivate(title, false, page);
+
+            Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
+            if (userId != null) {
+                playlists.addAll(util.playlistRepository.findAllByCreatorIdAndIsPrivate(userId, true, page));
+            }
+            if (playlists.isEmpty()) {
+                throw new NotFoundException("Not matches playlists with this title");
+            }
+        } else {
+            throw new BadRequestException("Invalid parameters");
+        }
+        return playlists.stream()
                 .map(PlayListService::playlistToSimpleDTO)
                 .collect(Collectors.toList());
-        Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
-        if (userId != null) {
-            playlists.addAll(util.playlistRepository
-                    .findAllByCreatorIdAndIsPrivate(userId, true,page).stream()
-                    .map(PlayListService::playlistToSimpleDTO)
-                    .collect(Collectors.toList()));
-        }
-        if (playlists.isEmpty()) {
-            throw new NotFoundException("Not matches playlists with this title");
-        }
-        return playlists;
     }
 
-    public List<PlayListSimpleResponseDTO> getAllPlaylists(HttpServletRequest request,int pageNumber,int rowNumbers) {
-        Pageable page = PageRequest.of(pageNumber, rowNumbers);
-        List<PlayListSimpleResponseDTO> playlists = util.playlistRepository
-                .findAllByIsPrivate(false,page).stream()
+    public List<PlayListSimpleResponseDTO> getAllPlaylists(HttpServletRequest request, int pageNumber, int rowNumbers) {
+        List<Playlist> playlists;
+        if (pageNumber >= 0 && rowNumbers > 0) {
+            Pageable pages = PageRequest.of(pageNumber, rowNumbers);
+            playlists = util.playlistRepository.findAllByIsPrivate(false, pages);
+            Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
+            if (userId != null) {
+                int limitSize = pages.getPageSize() - playlists.size();
+                Pageable pageForPrivate = PageRequest.of(0, limitSize);
+                playlists.addAll(util.playlistRepository.findAllByCreatorIdAndIsPrivate(userId, true, pageForPrivate));
+            }
+            if (playlists.isEmpty()) {
+                throw new NotFoundException("Playlists are not found");
+            }
+        } else {
+            throw new BadRequestException("Invalid parameters");
+        }
+        return playlists.stream()
                 .map(PlayListService::playlistToSimpleDTO)
                 .collect(Collectors.toList());
-        Integer userId = (Integer) request.getSession().getAttribute(USER_ID);
-        if (userId != null) {
-            playlists.addAll(util.playlistRepository
-                    .findAllByCreatorIdAndIsPrivate(userId, true,page).stream()
-                    .map(PlayListService::playlistToSimpleDTO)
-                    .collect(Collectors.toList()));
-        }
-        if (playlists.isEmpty()) {
-            throw new NotFoundException("Playlists are not found");
-        }
-        return playlists;
     }
 
 }

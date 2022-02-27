@@ -4,10 +4,12 @@ import com.example.yoto.model.category.Category;
 import com.example.yoto.model.comment.Comment;
 import com.example.yoto.model.playList.Playlist;
 import com.example.yoto.model.user.User;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.example.yoto.model.relationship.userReactToVideo.UserReactToVideo;
+import org.springframework.boot.context.properties.ConstructorBinding;
 //import org.hibernate.annotations.NaturalIdCache
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -23,6 +25,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Video {
 
     @Id
@@ -63,4 +66,12 @@ public class Video {
     @ManyToMany(mappedBy = "videos")
     private Set<Playlist> playlists = new HashSet<>();
 
+    public Video(int id, String title, User user, LocalDateTime uploadDate, String videoUrl, boolean isPrivate) {
+        this.id = id;
+        this.title = title;
+        this.user = user;
+        this.uploadDate = uploadDate;
+        this.videoUrl = videoUrl;
+        this.isPrivate = isPrivate;
+    }
 }

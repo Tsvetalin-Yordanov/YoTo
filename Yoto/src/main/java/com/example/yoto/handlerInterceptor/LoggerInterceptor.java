@@ -3,15 +3,10 @@ package com.example.yoto.handlerInterceptor;
 import com.example.yoto.model.exceptions.UnauthorizedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.HandlerMapping;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
-
 import static com.example.yoto.util.Util.LOGGED;
 import static com.example.yoto.util.Util.LOGGED_FROM;
 
@@ -22,7 +17,8 @@ public class LoggerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        if ((request.getMethod().equals("GET")&&!request.getServletPath().contains("/users/history"))
+        if ((request.getMethod().equals("GET"))&&(!request.getServletPath().contains("/users/history")
+                || !request.getServletPath().contains("/videos/order_by_watched"))
                 || request.getServletPath().contains("verify_registration")
                 || Objects.equals(request.getServletPath(), "/users/register")
                 || Objects.equals(request.getServletPath(), "/users/log_in")

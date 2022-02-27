@@ -7,12 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
-import static com.example.yoto.util.Util.USER_ID;
 
 
 @RestController
@@ -32,23 +29,16 @@ public class VideoController {
     @GetMapping("/videos/order_by_upload_date")
     public List<VideoSimpleResponseDTO> getOrderByUploadDate(@RequestParam String validator,
                                                              @RequestParam(defaultValue = "0") int pageNumber,
-                                                             @RequestParam(defaultValue = "20") int rowNumbers, HttpServletRequest request) {
+                                                             @RequestParam(defaultValue = "26") int rowNumbers, HttpServletRequest request) {
         return videoService.getOrderVideosByUploadDate(validator, pageNumber, rowNumbers);
     }
 
     @GetMapping("/videos/order_by_watched")
     public List<VideoSimpleResponseDTO> getOrderByWatched(@RequestParam String validator,
                                                           @RequestParam(defaultValue = "0") int pageNumber,
-                                                          @RequestParam(defaultValue = "20") int rowNumbers, HttpServletRequest request) {
+                                                          @RequestParam(defaultValue = "26") int rowNumbers, HttpServletRequest request) {
         return videoService.getOrderVideosByWatchedCount(validator, pageNumber, rowNumbers);
     }
-
-//    @PostMapping("/videos/upload")
-//    @ResponseStatus(code = HttpStatus.CREATED)
-//    public ResponseEntity<VideoSimpleResponseDTO> upload(@RequestBody Video videoReq, HttpServletRequest request) {
-//        VideoSimpleResponseDTO vDto = videoService.uploadVideo(videoReq, util.getUserIdFromRequest(request));
-//        return ResponseEntity.status(201).body(vDto);
-//    }
 
     @DeleteMapping("/videos")
     @ResponseStatus(code = HttpStatus.NO_CONTENT, reason = "Video is deleted!")
@@ -90,13 +80,13 @@ public class VideoController {
     @GetMapping("/videos/search_by_title")
     public List<VideoSimpleResponseDTO> searchByTitle(@RequestParam String title,
                                                       @RequestParam(defaultValue = "0") int pageNumber,
-                                                      @RequestParam(defaultValue = "20") int rowNumbers, HttpServletRequest request) {
+                                                      @RequestParam(defaultValue = "26") int rowNumbers, HttpServletRequest request) {
         return videoService.searchByTitle(title, request, pageNumber, rowNumbers);
     }
 
     @GetMapping("/videos/get_all")
     public List<VideoSimpleResponseDTO> getAllVideos(@RequestParam(defaultValue = "0") int pageNumber,
-                                                     @RequestParam(defaultValue = "20") int rowNumbers, HttpServletRequest request) {
+                                                     @RequestParam(defaultValue = "26") int rowNumbers, HttpServletRequest request) {
         return videoService.getAllVideos(pageNumber, rowNumbers, request);
     }
 
