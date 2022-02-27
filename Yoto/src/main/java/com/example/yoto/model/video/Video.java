@@ -9,8 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.example.yoto.model.relationship.userReactToVideo.UserReactToVideo;
-import org.springframework.boot.context.properties.ConstructorBinding;
-//import org.hibernate.annotations.NaturalIdCache
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -20,8 +18,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "videos")
-//@NaturalIdCache
-//@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
 @Setter
 @NoArgsConstructor

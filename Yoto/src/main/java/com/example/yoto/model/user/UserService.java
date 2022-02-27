@@ -199,7 +199,7 @@ public class UserService {
         User observer = util.userGetById(observerId);
         User publisher = util.userGetById(publisherId);
         if (publisher.getObserverUsers().contains(observer)) {
-            throw new BadRequestException("Already exists in the list of followers");
+            throw new BadRequestException("You already follow this user");
         }
         publisher.getObserverUsers().add(observer);
         util.userRepository.save(publisher);
@@ -210,7 +210,7 @@ public class UserService {
         User observer = util.userGetById(observerId);
         User publisher = util.userGetById(publisherId);
         if (!publisher.getObserverUsers().contains(observer)) {
-            throw new BadRequestException("Observer not follow this user");
+            throw new BadRequestException("You do not follow this user");
         }
         publisher.getObserverUsers().remove(observer);
         util.userRepository.save(publisher);
@@ -250,6 +250,10 @@ public class UserService {
     @SneakyThrows
     public String uploadProfileImage(MultipartFile file, int user_id) {
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+        String contentType = file.getContentType();
+        if (!(contentType.equals("image/png") || contentType.equals("image/jpg") || contentType.equals("image/jpeg"))) {
+            throw new BadRequestException("Invalid image type");
+        }
         User user = util.userGetById(user_id);
         String userName = user.getFirstName();
         String fileName = userName + "&" + System.nanoTime() + "." + fileExtension;
@@ -262,6 +266,10 @@ public class UserService {
     @SneakyThrows
     public String uploadBackgroundImage(MultipartFile file, int user_id) {
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+        String contentType = file.getContentType();
+        if (!(contentType.equals("image/png") || contentType.equals("image/jpg") || contentType.equals("image/jpeg"))) {
+            throw new BadRequestException("Invalid image type");
+        }
         User user = util.userGetById(user_id);
         String userName = user.getLastName();
         String fileName = userName + "&" + System.nanoTime() + "." + fileExtension;
@@ -314,15 +322,22 @@ public class UserService {
     }
 
     public UserSimpleResponseDTO forgottenPassword(String email) {
+        if (email.trim().isEmpty()){
+            throw new BadRequestException("Email is mandatory!");
+        }
         User user = util.userRepository.findByEmail(email);
+        if (user == null){
+            throw new BadRequestException("User with this email does not exist!");
+        }
         SimpleMailMessage msg = new SimpleMailMessage();
+        String newPass = user.getPassword().substring(7,17);
         msg.setFrom("kaltodor11@gmail.com");
         msg.setTo(email);
         msg.setSubject("Forgotten password");
-        msg.setText("Your new password is <1234>\nPlease change your password to a stronger one!");
+        msg.setText("Your new password is <"+newPass+">\nPlease change your password to a stronger one!");
         javaMailSender.send(msg);
 
-        user.setPassword(passwordEncoder.encode("1234"));
+        user.setPassword(passwordEncoder.encode(newPass));
         util.userRepository.save(user);
 
         return userToSimpleDTO(user);
@@ -332,6 +347,7 @@ public class UserService {
         User user = util.userGetById(userIdFromRequest);
         List<VideoSimpleResponseDTO> videos = user.getWatchedVideos().stream()
                 .map(VideoService::videoToSimpleDTO).collect(Collectors.toList());
+        Collections.reverse(videos);
         return videos;
     }
 

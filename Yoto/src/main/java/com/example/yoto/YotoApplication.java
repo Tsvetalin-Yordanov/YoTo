@@ -26,7 +26,6 @@ public class YotoApplication {
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
-
     }
 
 }

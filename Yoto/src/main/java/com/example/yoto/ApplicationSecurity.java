@@ -19,5 +19,4 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/*").permitAll();
     }
 
-
 }

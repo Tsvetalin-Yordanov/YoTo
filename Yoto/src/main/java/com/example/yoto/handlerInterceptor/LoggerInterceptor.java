@@ -17,8 +17,7 @@ public class LoggerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        if ((request.getMethod().equals("GET"))&&(!request.getServletPath().contains("/users/history")
-                || !request.getServletPath().contains("/videos/order_by_watched"))
+        if (((request.getMethod().equals("GET"))&& !request.getServletPath().contains("/users/history") == !request.getServletPath().contains("order_by_watched"))
                 || request.getServletPath().contains("verify_registration")
                 || Objects.equals(request.getServletPath(), "/users/register")
                 || Objects.equals(request.getServletPath(), "/users/log_in")

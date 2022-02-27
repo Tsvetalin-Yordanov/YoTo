@@ -1,6 +1,7 @@
 package com.example.yoto.model.comment;
 
 import com.example.yoto.model.exceptions.BadRequestException;
+import com.example.yoto.model.exceptions.NotFoundException;
 import com.example.yoto.model.relationship.commentsHaveComments.CommentHasComment;
 import com.example.yoto.model.relationship.commentsHaveComments.CommentHasCommentID;
 import com.example.yoto.model.relationship.userReactToComments.UserReactToComment;
@@ -159,6 +160,9 @@ public class CommentService {
     public List<CommentSimpleResponseDTO> getAllSubComments(int cid) {
         List<CommentSimpleResponseDTO> dtos = new ArrayList<>();
         List<CommentHasComment> subComments = util.commentHasCommentRepository.findAllByParent(util.commentGetById(cid));
+        if (subComments.isEmpty()){
+            throw new NotFoundException("Be the first one to comment this video");
+        }
         for (CommentHasComment chc : subComments) {
             dtos.add(commentToCommentDTO(chc.getChild()));
         }
@@ -168,6 +172,9 @@ public class CommentService {
     public List<CommentSimpleResponseDTO> getAllCommentsOfVideo(int vid) {
         List<CommentSimpleResponseDTO> dtos = new ArrayList<>();
         Set<Comment> commentsOfVideos = util.videoGetById(vid).getComments();
+        if (commentsOfVideos.isEmpty()){
+            throw new NotFoundException("Be the first one to comment this video");
+        }
         List<Comment> subComments = new ArrayList<>();
         for (Comment comment: commentsOfVideos) {
             Optional<CommentHasComment> chc = util.commentHasCommentRepository.findByChild(comment);

@@ -112,10 +112,7 @@ public class PlayListService {
         plDto.setLastActualization(playlist.getLastActualization());
         plDto.setBackgroundUrl(playlist.getBackgroundUrl());
         plDto.setPrivate(playlist.isPrivate());
-        plDto.setVideos(playlist.getVideos().isEmpty()
-                ? new HashSet<>()
-                : playlist.getVideos().stream().map(VideoService::videoToSimpleDTO)
-                .collect(Collectors.toSet()));
+        plDto.setVideos(playlist.getVideos().isEmpty() ? new HashSet<>() : playlist.getVideos().stream().map(VideoService::videoToSimpleDTO).collect(Collectors.toSet()));
         return plDto;
     }
 
@@ -123,6 +120,10 @@ public class PlayListService {
     @SneakyThrows
     public String uploadBackgroundImage(int plId, MultipartFile file) {
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+        String contentType = file.getContentType();
+        if (!(contentType.equals("image/png") || contentType.equals("image/jpg") || contentType.equals("image/jpeg"))) {
+            throw new BadRequestException("Invalid image type");
+        }
         Playlist playlist = util.playlistGetById(plId);
         String playlistTitle = playlist.getTitle();
         String fileName = playlistTitle + "&" + System.nanoTime() + "." + fileExtension;

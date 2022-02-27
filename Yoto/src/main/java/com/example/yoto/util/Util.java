@@ -32,7 +32,7 @@ public class Util {
     public static final String LOGGED = "logged";
     public static final String LOGGED_FROM = "logged_from";
     public static final String USER_ID = "user_id";
-    public static final String ACCESS_TOKEN = "sl.BCpQl_lkNQGP8JNllQSkbvcbwwWOaKKm0Ort1WghgQ3Y14QCU7M6RJNB6qLZCn7KX-YNmi37tawCIE-kvWKk6ofk4DNPbjgbxrTtLOIIl8JDTYxgKOJGWXvenruBweVh5UXtTsw";
+    public static final String ACCESS_TOKEN = "sl.BC1hN_74WzAM71DDrZAqV4tXP8BYOSGoB-3X5ZFTqWJD_BdajA76mo85F2qQ8xuwvg2gjUMrxqC6JfJs5R4RLpAYhiM2EEnDSJ-R-qJa2EbKiHGDae_jpYDvqjWlHR_8GhtlQAo";
 
 
     @Autowired

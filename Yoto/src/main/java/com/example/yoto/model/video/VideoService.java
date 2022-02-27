@@ -48,15 +48,18 @@ public class VideoService {
 
     @SneakyThrows
     public VideoComplexResponseDTO uploadVideo(String title, boolean isPrivate, MultipartFile file, int creatorId) {
+        if (file.isEmpty()){
+            throw new BadRequestException("No file attached!");
+        }
         if (title.trim().isEmpty()) {
-            throw new BadRequestException("Title is mandatory");
+            throw new BadRequestException("Title is mandatory!");
         }
         if (title.length() > TITLE_MAX_LENGTH) {
-            throw new BadRequestException("Title is too long");
+            throw new BadRequestException("Title is too long!");
         }
         String contentType = file.getContentType();
         if (!contentType.equals("video/mp4")) {
-            throw new BadRequestException("Ivalid video type");
+            throw new BadRequestException("Invalid video type!");
         }
         Video video = new Video();
         video.setTitle(title);
@@ -141,7 +144,7 @@ public class VideoService {
 
 
     public List<VideoSimpleResponseDTO> searchByTitle(String title, HttpServletRequest request, int pageNumber, int rowNumbers) {
-        if (title == null && title.isEmpty()) {
+        if (title.trim().isEmpty()) {
             throw new BadRequestException("The submitted title is blank!");
         }
         List<Video> videos;
@@ -153,7 +156,7 @@ public class VideoService {
                 videos.addAll(util.videoRepository.findAllByUserIdAndIsPrivate(userId, true, page));
             }
             if (videos.isEmpty()) {
-                throw new NotFoundException("Not matches videos with this title");
+                throw new NotFoundException("No videos on this page");
             }
         } else {
             throw new BadRequestException("Invalid parameters");
@@ -175,7 +178,7 @@ public class VideoService {
                 throw new BadRequestException("Invalid parameters");
             }
             if (videos.isEmpty()) {
-                throw new NotFoundException("Not matches videos with this title");
+                throw new NotFoundException("No videos on this page");
             }
         } else {
             throw new BadRequestException("Invalid parameters");
@@ -185,14 +188,14 @@ public class VideoService {
                 .collect(Collectors.toList());
     }
 
-    //@SneakyThrows
+    @SneakyThrows
     public List<VideoSimpleResponseDTO> getOrderVideosByWatchedCount(String orderBY, int pageNumber, int rowNumbers) {
         if ((orderBY.equalsIgnoreCase("asc") || orderBY.equalsIgnoreCase("desc")) && pageNumber >= 0 && rowNumbers > 0) {
-            try {
-                return videoDAO.getOrderVideosByWatchedCount(orderBY, pageNumber, rowNumbers);
-            } catch (SQLException e) {
-                throw new NotFoundException("Not have videos");
+            List<VideoSimpleResponseDTO> videos = videoDAO.getOrderVideosByWatchedCount(orderBY, pageNumber, rowNumbers);
+            if (videos.isEmpty()) {
+                throw new NotFoundException("No videos on this page");
             }
+            return videos;
         } else {
             throw new BadRequestException("Invalid parameters");
         }
@@ -223,16 +226,13 @@ public class VideoService {
     @SneakyThrows
     public VideoSimpleResponseDTO uploadVideoToDropbox(int vId) {
         DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-        DbxClientV2 client = new DbxClientV2(config,ACCESS_TOKEN);
+        DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
 
         Video video = util.videoGetById(vId);
         String filename = video.getVideoUrl();
 
         try (InputStream in = new FileInputStream("uploads" + File.separator + filename)) {
-            FileMetadata metadata = client.files().uploadBuilder("/" + filename)
-                    .uploadAndFinish(in);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            client.files().uploadBuilder("/" + filename).uploadAndFinish(in);
         } catch (IOException | DbxException e) {
             e.printStackTrace();
         }
