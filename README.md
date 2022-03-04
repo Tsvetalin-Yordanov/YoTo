@@ -1,5 +1,6 @@
-![image](https://user-images.githubusercontent.com/89816013/156848581-5a8f3300-83dc-43a2-b77a-39273f160b93.png)
-# IT Talents finaly project of Tsvetalin Yordanov and Kaloyan Todorov - YouTube
+<img src="https://user-images.githubusercontent.com/89816013/156848581-5a8f3300-83dc-43a2-b77a-39273f160b93.png" width="100" height="50" />
+
+# IT Talents final project of Tsvetalin Yordanov and Kaloyan Todorov - YouTube
 
 Realization of backend functionality of YouTube.
 
